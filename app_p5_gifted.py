@@ -472,6 +472,9 @@ def generate_questions_logic(grade, main_t, sub_t, num_q, is_challenge=False):
                 rand_main = random.choice(list(curriculum_db[grade].keys()))
                 actual_sub_t = random.choice(curriculum_db[grade][rand_main])
 
+
+
+
             # ================= หมวดที่ 1: รากฐานตัวเลขและการดำเนินการ (ป.5) =================
             if actual_sub_t == "การบวก ลบ คูณ หารระคน (กฎ PEMDAS)":
                 # สุ่มรูปแบบโจทย์ 4 สไตล์ เพื่อความหลากหลาย
@@ -632,6 +635,7 @@ def generate_questions_logic(grade, main_t, sub_t, num_q, is_challenge=False):
                     👉 <b>ขั้นที่ 3: นำของทั้งหมดจัดลงกล่อง</b><br>
                     &nbsp;&nbsp;&nbsp;&nbsp;มีของ <span style='color:#e67e22;'>{total_all:,}</span> ชิ้น นำมาหารจัดลงกล่อง กล่องละ {box_size} ชิ้น ➔ <span style='color:#e67e22;'>{total_all:,}</span> ÷ {box_size} = <b><span style='color:#c0392b;'>{ans:,}</span> กล่อง</b><br><br>
                     <b>ตอบ: จะจัดได้ทั้งหมด {ans:,} กล่อง</b></span>"""
+
 
 
 
