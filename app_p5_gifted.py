@@ -3092,60 +3092,6 @@ def generate_questions_logic(grade, main_t, sub_t, num_q, is_challenge=False):
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-                    
-
-
-
-
             elif actual_sub_t == "การคูณเศษส่วน":
                 d1 = random.randint(3, 15)
                 n1 = random.randint(1, d1 * 2) if is_challenge else random.randint(1, d1 - 1)
