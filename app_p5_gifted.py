@@ -1247,6 +1247,155 @@ def generate_questions_logic(grade, main_t, sub_t, num_q, is_challenge=False):
 
 
 
+# ================= หมวดที่ 1: รากฐานตัวเลขและการดำเนินการ (ป.5) =================
+            elif actual_sub_t == "โจทย์ปัญหา ห.ร.ม. และ ค.ร.น. (แบ่งของ, นาฬิกาปลุก)":
+                # สุ่ม 2 สถานการณ์ยอดฮิต (การแบ่งของ ห.ร.ม. และ นาฬิกาปลุก ค.ร.น.)
+                scenario = random.choice(["gcd_sharing", "lcm_clocks"])
+
+                if scenario == "gcd_sharing":
+                    # สไตล์ที่ 1: ห.ร.ม. การแบ่งของ (หาจำนวนถุงที่มากที่สุด และจำนวนชิ้นในถุง)
+                    gcd_target = random.choice([4, 5, 6, 8, 10, 12])
+                    m1, m2, m3 = random.sample([2, 3, 5, 7, 11], 3) # ตัวคูณที่เป็นจำนวนเฉพาะเพื่อให้หารต่อไม่ได้
+                    n1, n2, n3 = gcd_target * m1, gcd_target * m2, gcd_target * m3
+                    
+                    items = ["ดินสอ", "ยางลบ", "ไม้บรรทัด"]
+                    
+                    # จำลองการตั้งหารสั้นสำหรับ ห.ร.ม.
+                    divisors = []
+                    current_nums = [n1, n2, n3]
+                    steps_html = ""
+                    
+                    # หาตัวหารร่วม (จำลองการดึงตัวประกอบร่วม)
+                    temp_gcd = gcd_target
+                    primes = [2, 3, 5, 7]
+                    for p in primes:
+                        while temp_gcd % p == 0:
+                            divisors.append(p)
+                            next_nums = [x // p for x in current_nums]
+                            steps_html += f"<tr><td style='border-right: 2px solid #2c3e50; border-bottom: 2px solid #2c3e50; padding: 5px 15px; color:#c0392b; font-weight:bold; text-align:right;'>{p}</td>"
+                            steps_html += f"<td style='border-bottom: 2px solid #2c3e50; padding: 5px 15px; text-align:center;'><span style='color:#3498db;'>{current_nums[0]}</span>, <span style='color:#3498db;'>{current_nums[1]}</span>, <span style='color:#3498db;'>{current_nums[2]}</span></td></tr>"
+                            current_nums = next_nums
+                            temp_gcd //= p
+                    
+                    # บรรทัดสุดท้าย (เศษที่เหลือ)
+                    steps_html += f"<tr><td></td><td style='padding: 5px 15px; text-align:center; font-weight:bold; color:#27ae60; border-bottom: 4px double #27ae60;'>{current_nums[0]}, {current_nums[1]}, {current_nums[2]}</td></tr>"
+                    
+                    total_items_per_bag = sum(current_nums)
+
+                    q = f"คุณครูมี{items[0]} <b>{n1} แท่ง</b>, {items[1]} <b>{n2} ก้อน</b> และ{items[2]} <b>{n3} อัน</b> <br>คุณครูต้องการจัดอุปกรณ์เหล่านี้ใส่ถุง <b>ถุงละเท่าๆ กัน โดยไม่ปะปนกัน และไม่ให้มีของเหลือเศษเลย</b> <br>จงหาว่าคุณครูจะจัดได้ <b>มากที่สุดกี่ถุง</b> และแต่ละถุงจะมีของกี่ชิ้น?"
+
+                    sol = f"""<span style='color:#2c3e50; line-height: 1.8;'>
+                    <div style='background-color:#fcf3cf; border-left:4px solid #f1c40f; padding:15px; margin-bottom:15px; border-radius:8px;'>
+                    💡 <b>การแปลภาษาไทย เป็น "สมการคณิตศาสตร์":</b><br>
+                    • <b>"แบ่งใส่ถุง ถุงละเท่าๆ กัน"</b> ➔ การแบ่งกลุ่มย่อยๆ ให้เท่ากัน ต้องใช้ <b style='color:#d35400;'>เครื่องหมายหาร (÷)</b><br>
+                    • <b>"ไม่เหลือเศษเลย"</b> ➔ แปลว่าต้องเป็น <b>การหารลงตัว</b><br>
+                    • <b>"มากที่สุด"</b> ➔ คือการหาค่าที่มากที่สุด (Greatest)<br>
+                    🔥 <b>สรุป:</b> เมื่อนำคีย์เวิร์ดมารวมกัน หาร + ลงตัว + มากที่สุด = เราต้องใช้วิธีหา <b>ห.ร.ม. (หาร่วมมาก)</b> นั่นเอง!
+                    <br><br>
+                    </div>
+                    <b>วิธีทำอย่างละเอียดแบบ Step-by-step:</b><br>
+                    👉 <b>ขั้นที่ 1: ตั้งหารสั้นเพื่อหา ห.ร.ม. ของ {n1}, {n2} และ {n3}</b><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;<i>เราจะหา 'แม่สูตรคูณ' ที่สามารถหารตัวเลขทั้ง 3 ตัวนี้ลงตัวพร้อมกันมาเป็นตัวหาร (สีแดง)</i><br>
+                    <table style='margin: 10px 40px; font-size: 20px; border-collapse: collapse;'>
+                        {steps_html}
+                    </table>
+                    
+                    👉 <b>ขั้นที่ 2: สรุปผล ห.ร.ม. (จำนวนถุง)</b><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;เมื่อไม่มีแม่สูตรคูณไหนหารเลขด้านล่าง (<span style='color:#27ae60;'>{current_nums[0]}, {current_nums[1]}, {current_nums[2]}</span>) ลงตัวพร้อมกันแล้ว ให้หยุดหาร!<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;นำตัวหารด้านหน้า (<span style='color:#c0392b;'>สีแดง</span>) มา <b style='color:#e74c3c;'>คูณ (×)</b> กัน ➔ {" × ".join(map(str, divisors))} = <b><span style='color:#c0392b;'>{gcd_target}</span></b><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;<i>(ตัวเลขนี้คือ ห.ร.ม. ซึ่งหมายถึงจำนวนถุงที่มากที่สุดที่จะจัดได้)</i><br><br>
+                    
+                    👉 <b>ขั้นที่ 3: หาจำนวนชิ้นในแต่ละถุง (ดูที่เศษด้านล่าง)</b><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;ตัวเลขบรรทัดล่างสุด (<span style='color:#27ae60;'>สีเขียว</span>) บอกเราว่าถ้าจัด {gcd_target} ถุง แต่ละถุงจะมี:<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;• {items[0]} <span style='color:#27ae60;'>{current_nums[0]}</span> ชิ้น<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;• {items[1]} <span style='color:#27ae60;'>{current_nums[1]}</span> ชิ้น<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;• {items[2]} <span style='color:#27ae60;'>{current_nums[2]}</span> ชิ้น<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;ดังนั้น ใน 1 ถุงจะมีของรวมกัน = <span style='color:#27ae60;'>{current_nums[0]}</span> + <span style='color:#27ae60;'>{current_nums[1]}</span> + <span style='color:#27ae60;'>{current_nums[2]}</span> = <b><span style='color:#8e44ad;'>{total_items_per_bag}</span> ชิ้น</b><br><br>
+                    
+                    <b>ตอบ: จัดได้มากที่สุด {gcd_target} ถุง ถุงละ {total_items_per_bag} ชิ้น</b></span>"""
+
+                else:
+                    # สไตล์ที่ 2: ค.ร.น. นาฬิกาปลุก / การพบกันอีกครั้ง
+                    lcm_target = random.choice([60, 120, 180]) # ค.ร.น. เป้าหมายเป็นนาที
+                    if lcm_target == 60:
+                        t1, t2, t3 = random.choice([(10, 15, 20), (12, 15, 20), (15, 20, 30)])
+                    elif lcm_target == 120:
+                        t1, t2, t3 = random.choice([(15, 24, 40), (20, 30, 40), (24, 30, 40)])
+                    else:
+                        t1, t2, t3 = random.choice([(20, 36, 45), (30, 45, 60)])
+                        
+                    start_h = random.randint(6, 10)
+                    start_m = random.choice([0, 15, 30])
+                    start_time_str = f"{start_h:02d}:{start_m:02d}"
+                    
+                    # จำลองการตั้งหารสั้นสำหรับ ค.ร.น.
+                    divisors = []
+                    current_nums = [t1, t2, t3]
+                    steps_html = ""
+                    
+                    primes = [2, 3, 5]
+                    running = True
+                    while running:
+                        divided_in_this_step = False
+                        for p in primes:
+                            # ค.ร.น. หารลงตัวแค่ 2 ตัวก็หารต่อได้
+                            divisible_count = sum(1 for x in current_nums if x % p == 0)
+                            if divisible_count >= 2:
+                                divisors.append(p)
+                                steps_html += f"<tr><td style='border-right: 2px solid #2c3e50; border-bottom: 2px solid #2c3e50; padding: 5px 15px; color:#c0392b; font-weight:bold; text-align:right;'>{p}</td>"
+                                steps_html += f"<td style='border-bottom: 2px solid #2c3e50; padding: 5px 15px; text-align:center;'><span style='color:#3498db;'>{current_nums[0]}</span>, <span style='color:#3498db;'>{current_nums[1]}</span>, <span style='color:#3498db;'>{current_nums[2]}</span></td></tr>"
+                                
+                                current_nums = [x // p if x % p == 0 else x for x in current_nums]
+                                divided_in_this_step = True
+                                break # เริ่มเช็ค prime ใหม่ตั้งแต่ตัวแรก
+                        if not divided_in_this_step:
+                            running = False
+                            
+                    # บรรทัดสุดท้าย (เศษ)
+                    steps_html += f"<tr><td></td><td style='padding: 5px 15px; text-align:center; font-weight:bold; color:#27ae60; border-bottom: 4px double #27ae60;'>{current_nums[0]}, {current_nums[1]}, {current_nums[2]}</td></tr>"
+                    
+                    # คำนวณเวลาถัดไป
+                    hours_add = lcm_target // 60
+                    mins_add = lcm_target % 60
+                    
+                    total_mins = start_h * 60 + start_m + lcm_target
+                    end_h = (total_mins // 60) % 24
+                    end_m = total_mins % 60
+                    end_time_str = f"{end_h:02d}:{end_m:02d}"
+
+                    q = f"นาฬิกาปลุก 3 เรือน ถูกตั้งให้ดังทุกๆ <b>{t1} นาที, {t2} นาที และ {t3} นาที</b> ตามลำดับ <br>ถ้านาฬิกาทั้งสามเรือน <b>ดังพร้อมกันครั้งแรกเวลา {start_time_str} น.</b> <br>จงหาว่านาฬิกาทั้งสามเรือนจะดังพร้อมกันอีกครั้งในเวลาใด?"
+
+                    sol = f"""<span style='color:#2c3e50; line-height: 1.8;'>
+                    <div style='background-color:#e8f8f5; border-left:4px solid #1abc9c; padding:15px; margin-bottom:15px; border-radius:8px;'>
+                    💡 <b>การแปลภาษาไทย เป็น "สมการคณิตศาสตร์":</b><br>
+                    • <b>"ดังทุกๆ..."</b> ➔ เป็นการเพิ่มขึ้นของเวลาทีละเท่าๆ กัน ซึ่งเป็นลักษณะของ <b>"พหุคูณ" (สูตรคูณ)</b><br>
+                    • <b>"ดังพร้อมกันอีกครั้ง"</b> ➔ คือการหาว่าสูตรคูณแม่ {t1}, {t2}, {t3} จะไปบรรจบพบกันครั้งแรกที่เลขอะไร (ค่าน้อยที่สุดที่เจอร่วมกัน)<br>
+                    🔥 <b>สรุป:</b> เมื่อหาจุดบรรจบกันในอนาคต เราต้องใช้วิธีหา <b>ค.ร.น. (คูณร่วมน้อย)</b> นั่นเอง!
+                    <br><br>
+                    </div>
+                    <b>วิธีทำอย่างละเอียดแบบ Step-by-step:</b><br>
+                    👉 <b>ขั้นที่ 1: ตั้งหารสั้นเพื่อหา ค.ร.น. ของเวลา {t1}, {t2}, {t3} นาที</b><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;<i>กฎของ ค.ร.น. คือ: หารลงตัวพร้อมกันแค่ 2 ตัว ก็ดึงแม่สูตรคูณมาหารต่อได้เลย! (ตัวไหนหารไม่ได้ให้ดึงลงมาเฉยๆ)</i><br>
+                    <table style='margin: 10px 40px; font-size: 20px; border-collapse: collapse;'>
+                        {steps_html}
+                    </table>
+                    
+                    👉 <b>ขั้นที่ 2: สรุปผล ค.ร.น. (หาเวลาที่ใช้)</b><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;นำตัวหารด้านหน้า (<span style='color:#c0392b;'>สีแดง</span>) และเศษด้านล่างสุด (<span style='color:#27ae60;'>สีเขียว</span>) <b>ทุกตัวมาคูณ (×) กันให้หมดเป็นรูปตัว L</b><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;ค.ร.น. = {" × ".join(map(str, divisors))} × {" × ".join(map(str, current_nums))} = <b><span style='color:#c0392b;'>{lcm_target}</span></b><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;<i>(แปลว่า อีก <span style='color:#c0392b;'>{lcm_target}</span> นาทีข้างหน้า นาฬิกาถึงจะดังพร้อมกันอีกครั้ง)</i><br><br>
+                    
+                    👉 <b>ขั้นที่ 3: แปลงเวลาและบวกเพิ่มจากเวลาเริ่มต้น</b><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;• แปลง {lcm_target} นาที ให้เป็นชั่วโมง ➔ {lcm_target} ÷ 60 = <b><span style='color:#8e44ad;'>{hours_add}</span> ชั่วโมงพอดี</b><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;• เวลาเริ่มต้นคือ <span style='color:#2980b9;'>{start_time_str} น.</span> <b style='color:#3498db;'>บวกเพิ่ม (+)</b> ไปอีก <span style='color:#8e44ad;'>{hours_add}</span> ชั่วโมง<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;• จะได้เวลาใหม่คือ <b><span style='color:#d35400;'>{end_time_str} น.</span></b><br><br>
+                    
+                    <b>ตอบ: นาฬิกาจะดังพร้อมกันอีกครั้งเวลา {end_time_str} น.</b></span>"""
+
+
+
+
+
 
             elif actual_sub_t == "การคูณเศษส่วน":
                 d1 = random.randint(3, 15)
