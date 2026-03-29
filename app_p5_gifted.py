@@ -2834,10 +2834,13 @@ def generate_questions_logic(grade, main_t, sub_t, num_q, is_challenge=False):
 
 # ================= หมวดที่ 2: โลกของเศษส่วนและทศนิยม (ป.5) =================
             elif actual_sub_t == "โจทย์ปัญหาเศษส่วน และโจทย์ปัญหาเศษส่วนต่อเนื่อง (ของที่เหลือ)":
-                # สุ่ม 3 สถานการณ์ระดับ Gifted: เดินหน้าหาของที่เหลือ, ถอยหลังหาจุดเริ่มต้น (Reverse), กับดักคำลวง
-                scenario = random.choice(["forward_remainder", "backward_remainder", "mixed_keyword_trap"])
+                # สุ่ม 5 สถานการณ์ระดับ Gifted! (เดินหน้า, ถอยหลัง, คำลวง, ถอยหลัง 3 ชั้น, สลับขาหลอก)
+                scenario = random.choice([
+                    "forward_remainder", "backward_remainder", "mixed_keyword_trap", 
+                    "reverse_3_step", "total_vs_remain_trap"
+                ])
 
-                # ✨ ฟังก์ชันวาดเศษส่วนแนวตั้ง (ใช้กล่องทึบ 2px ตัดปัญหาเว็บลบเส้นทิ้ง)
+                # ✨ ฟังก์ชันวาดเศษส่วนแนวตั้ง (ใช้กล่องทึบ 2px ตัดปัญหาเว็บลบเส้น)
                 def make_frac(n, d, w="", color="inherit"):
                     line_color = color if color != "inherit" else "#2c3e50"
                     line_html = f"<div style='height:2px; background-color:{line_color}; margin: 2px 0; width:100%;'></div>"
@@ -2846,26 +2849,19 @@ def generate_questions_logic(grade, main_t, sub_t, num_q, is_challenge=False):
                         return f"<div style='display:inline-block; vertical-align:middle; color:{color}; font-size:20px;'><b>{w}</b>{frac_html}</div>"
                     return f"<div style='display:inline-block; vertical-align:middle; color:{color}; font-weight:bold;'>{frac_html}</div>"
 
-                def simplify_fraction(n, d):
-                    gcd = math.gcd(abs(n), abs(d))
-                    return n // gcd, d // gcd
-
                 if scenario == "forward_remainder":
-                    # ✨ [สไตล์ 1: เดินหน้าหาของที่เหลือ (Fraction of Remainder)]
+                    # [สไตล์ 1: เดินหน้าหาของที่เหลือ (Fraction of Remainder) - โค้ดเดิม]
                     names = ["คุณพ่อ", "ลุงชัย", "ป้าสมศรี", "พี่อาร์ม", "เศรษฐีใจบุญ"]
                     person = random.choice(names)
                     
                     d1 = random.choice([4, 5, 8, 10])
                     n1 = random.choice([x for x in range(1, d1) if math.gcd(x, d1) == 1])
-                    
                     d2 = random.choice([3, 4, 5, 6])
                     n2 = random.choice([x for x in range(1, d2) if math.gcd(x, d2) == 1])
                     
-                    # บังคับให้ตัวเลขลงตัวเป๊ะๆ
                     multiplier = random.choice([100, 200, 500, 1000])
                     total_money = d1 * d2 * multiplier
                     
-                    # คำนวณเบื้องหลัง
                     spent1 = (total_money * n1) // d1
                     rem1 = total_money - spent1
                     spent2 = (rem1 * n2) // d2
@@ -2878,7 +2874,7 @@ def generate_questions_logic(grade, main_t, sub_t, num_q, is_challenge=False):
                     💡 <b>การแปลภาษาไทย เป็น "สมการคณิตศาสตร์":</b><br>
                     • คำว่า <b>"ของ"</b> ➔ แปลว่า <b style='color:#e74c3c;'>การคูณ (×)</b> เสมอ!<br>
                     • คำว่า <b>"ใช้ไป / บริจาคไป"</b> ➔ แปลว่าเงินลดลง ต้อง <b style='color:#c0392b;'>ลบ (-)</b> ออกจากของเดิม<br>
-                    • <b><span style='color:#c0392b;'>⚠️ กับดักอันตราย:</span></b> ห้ามนำเศษส่วนมาบวกหรือลบกันตรงๆ เด็ดขาด! เพราะฐานเปรียบเทียบมันคนละก้อนกัน (ก้อนแรกเทียบจากทั้งหมด ก้อนสองเทียบจากที่เหลือ) ต้องคิดไปทีละสเตปครับ!
+                    • <b><span style='color:#c0392b;'>⚠️ กับดักอันตราย:</span></b> ห้ามนำเศษส่วนมาบวกหรือลบกันตรงๆ เด็ดขาด! เพราะก้อนแรกเทียบจากทั้งหมด ก้อนสองเทียบจากที่เหลือ
                     <br>
                     </div>
                     <b>วิธีทำอย่างละเอียดแบบ Step-by-step:</b><br>
@@ -2887,36 +2883,28 @@ def generate_questions_logic(grade, main_t, sub_t, num_q, is_challenge=False):
                     &nbsp;&nbsp;&nbsp;&nbsp;แปลเป็นสมการ: {make_frac(n1, d1)} <b style='color:#e74c3c;'>×</b> {total_money:,}<br>
                     &nbsp;&nbsp;&nbsp;&nbsp;= ({total_money:,} ÷ {d1}) × {n1} = <b><span style='color:#c0392b;'>{spent1:,} บาท</span></b><br>
                     &nbsp;&nbsp;&nbsp;&nbsp;👇 <i>อัปเดตสถานะเงินล่าสุด:</i><br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;เงินที่เหลือ = เงินเดิม <span style='color:#2980b9;'>{total_money:,}</span> <b style='color:#c0392b;'>-</b> จ่ายไป <span style='color:#c0392b;'>{spent1:,}</span> = <div style='display:inline-block; border: 2px solid #8e44ad; padding: 2px 10px; border-radius: 5px; color:#8e44ad; font-weight:bold;'>{rem1:,} บาท</div><br><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;เงินที่เหลือ = <span style='color:#2980b9;'>{total_money:,}</span> <b style='color:#c0392b;'>-</b> <span style='color:#c0392b;'>{spent1:,}</span> = <div style='display:inline-block; border: 2px solid #8e44ad; padding: 2px 10px; border-radius: 5px; color:#8e44ad; font-weight:bold;'>{rem1:,} บาท</div><br><br>
                     
                     👉 <b>ขั้นที่ 2: คิดเงินค่าคอมพิวเตอร์ก้อนที่สอง</b><br>
                     &nbsp;&nbsp;&nbsp;&nbsp;โจทย์บอก: {make_frac(n2, d2)} <b style='color:#8e44ad;'>ของเงินที่เหลือ</b> <i>(ระวัง! ต้องใช้เงินในกรอบสีม่วงมาคิด)</i><br>
                     &nbsp;&nbsp;&nbsp;&nbsp;แปลเป็นสมการ: {make_frac(n2, d2)} <b style='color:#e74c3c;'>×</b> <span style='color:#8e44ad;'>{rem1:,}</span><br>
                     &nbsp;&nbsp;&nbsp;&nbsp;= (<span style='color:#8e44ad;'>{rem1:,}</span> ÷ {d2}) × {n2} = <b><span style='color:#c0392b;'>{spent2:,} บาท</span></b><br>
                     &nbsp;&nbsp;&nbsp;&nbsp;👇 <i>อัปเดตสถานะเงินล่าสุด:</i><br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;เงินสุทธิ = เงินในกระเป๋า <span style='color:#8e44ad;'>{rem1:,}</span> <b style='color:#c0392b;'>-</b> จ่ายไป <span style='color:#c0392b;'>{spent2:,}</span> = <div style='display:inline-block; border: 2px solid #27ae60; padding: 2px 10px; border-radius: 5px; color:#27ae60; font-weight:bold;'>{final_rem:,} บาท</div><br><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;เงินสุทธิ = <span style='color:#8e44ad;'>{rem1:,}</span> <b style='color:#c0392b;'>-</b> <span style='color:#c0392b;'>{spent2:,}</span> = <div style='display:inline-block; border: 2px solid #27ae60; padding: 2px 10px; border-radius: 5px; color:#27ae60; font-weight:bold;'>{final_rem:,} บาท</div><br><br>
                     <b>ตอบ: {person}เหลือเงินอยู่ {final_rem:,} บาท</b></span>"""
 
                 elif scenario == "backward_remainder":
-                    # ✨ [สไตล์ 2: โจทย์ Reverse Engineering (ทำย้อนกลับจากหลังมาหน้า) - ข้อสอบ Gifted 100%]
-                    d1 = random.choice([3, 4, 5])
-                    n1 = random.choice([1, 2])
+                    # [สไตล์ 2: ถอยหลังหาจุดเริ่มต้น 2 ชั้น (โค้ดเดิม)]
+                    d1 = random.choice([3, 4, 5]); n1 = random.choice([1, 2])
+                    d2 = random.choice([4, 5, 6, 7]); n2 = random.choice([1, 2, 3])
                     
-                    d2 = random.choice([4, 5, 6, 7])
-                    n2 = random.choice([1, 2, 3])
-                    
-                    # คำนวณเศษส่วนที่ "เหลืออยู่จริง"
                     rem_frac1_n = d1 - n1; rem_frac1_d = d1
                     rem_frac2_n = d2 - n2; rem_frac2_d = d2
                     
-                    # สุ่มเงินที่เหลือตอนจบให้ลงตัวกับเศษที่เหลือ
                     base_val = random.choice([50, 100, 150, 200])
                     final_money = base_val * rem_frac1_n * rem_frac2_n
                     
-                    # จำลองการคิดย้อนกลับ
-                    # ก่อนซื้อของก้อน 2 = final_money / (rem_frac2_n / rem_frac2_d)
                     mid_money = (final_money * rem_frac2_d) // rem_frac2_n
-                    # เงินเริ่มต้น = mid_money / (rem_frac1_n / rem_frac1_d)
                     start_money = (mid_money * rem_frac1_d) // rem_frac1_n
 
                     q = f"โจทย์ปริศนาแกะรอย (สอบเข้าห้อง Gifted):<br>คุณแม่มีเงินจำนวนหนึ่ง <br>นำไปซื้อกับข้าว {make_frac(n1, d1)} <b>ของเงินทั้งหมด</b> <br>จากนั้นนำไปจ่ายค่าไฟ {make_frac(n2, d2)} <b><u>ของเงินที่เหลือ</u></b> <br>ปรากฏว่าคุณแม่ <b>เหลือเงินอยู่ {final_money:,} บาท</b> พอดี <br>จงหาว่า <b>เดิมทีคุณแม่มีเงินอยู่กี่บาท?</b>"
@@ -2926,57 +2914,44 @@ def generate_questions_logic(grade, main_t, sub_t, num_q, is_challenge=False):
                     💡 <b>เทคนิค Visual Thinking "คิดย้อนกลับ (Reverse Bar Model)":</b><br>
                     • เมื่อโจทย์ให้ <b>"จุดจบ"</b> แล้วให้หา <b>"จุดเริ่มต้น"</b> เราต้องเดินถอยหลัง!<br>
                     • <b>เคล็ดลับ:</b> อย่าสนใจสิ่งที่ <b>"จ่ายไป"</b> ให้สนใจสิ่งที่ <b>"เหลืออยู่"</b><br>
-                    • ถ้ามีขนม {d2} ส่วน จ่ายไป {n2} ส่วน ➔ แปลว่า <b>เหลือ {rem_frac2_n} ส่วน จากทั้งหมด {rem_frac2_d} ส่วน</b>
-                    <br>
+                    • จ่ายไป {make_frac(n2, d2)} ➔ แปลว่า <b>เหลือ {make_frac(rem_frac2_n, rem_frac2_d, color="#8e44ad")}</b> (มาจาก {d2} ส่วน หักออก {n2} ส่วน)
                     </div>
                     <b>วิธีทำอย่างละเอียดแบบ Step-by-step:</b><br>
                     👉 <b>ขั้นที่ 1: แกะรอยเหตุการณ์ที่ 2 (ถอยหลังก้าวแรก)</b><br>
                     &nbsp;&nbsp;&nbsp;&nbsp;คุณแม่จ่ายค่าไฟไป {make_frac(n2, d2)} แปลว่าต้อง <b>เหลือเงิน {make_frac(rem_frac2_n, rem_frac2_d, color="#8e44ad")}</b> ของเงินตอนนั้น<br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;ซึ่งเราทราบว่าเงินที่เหลือคือ <b>{final_money:,} บาท</b><br>
                     &nbsp;&nbsp;&nbsp;&nbsp;เทียบสัดส่วน: เงิน <span style='color:#8e44ad;'>{rem_frac2_n} ส่วน</span> = {final_money:,} บาท<br>
                     &nbsp;&nbsp;&nbsp;&nbsp;เงิน 1 ส่วน = {final_money:,} <b style='color:#d35400;'>÷</b> {rem_frac2_n} = {final_money // rem_frac2_n:,} บาท<br>
                     &nbsp;&nbsp;&nbsp;&nbsp;เงินเต็มๆ <span style='color:#8e44ad;'>{rem_frac2_d} ส่วน</span> = {final_money // rem_frac2_n:,} <b style='color:#e74c3c;'>×</b> {rem_frac2_d} = <b><span style='color:#2980b9;'>{mid_money:,} บาท</span></b><br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;👇 <i>อัปเดตสถานะเงินล่าสุด:</i><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;👇 <i>อัปเดตสถานะเงิน:</i><br>
                     &nbsp;&nbsp;&nbsp;&nbsp;<div style='display:inline-block; border: 2px solid #2980b9; padding: 2px 10px; border-radius: 5px; color:#2980b9; font-weight:bold;'>ก่อนจ่ายค่าไฟ คุณแม่มีเงิน {mid_money:,} บาท</div><br><br>
                     
                     👉 <b>ขั้นที่ 2: แกะรอยเหตุการณ์ที่ 1 (ถอยหลังกลับไปจุดเริ่มต้น)</b><br>
                     &nbsp;&nbsp;&nbsp;&nbsp;คุณแม่ซื้อกับข้าวไป {make_frac(n1, d1)} แปลว่าต้อง <b>เหลือเงิน {make_frac(rem_frac1_n, rem_frac1_d, color="#e67e22")}</b> ของเงินก้อนแรกสุด<br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;ซึ่งเงินที่เหลือนี้ก็คือ <b><span style='color:#2980b9;'>{mid_money:,} บาท</span></b> (ที่เราเพิ่งหามาได้จากขั้นที่ 1)<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;ซึ่งเงินที่เหลือนี้ก็คือ <b><span style='color:#2980b9;'>{mid_money:,} บาท</span></b> (จากขั้นที่ 1)<br>
                     &nbsp;&nbsp;&nbsp;&nbsp;เทียบสัดส่วน: เงิน <span style='color:#e67e22;'>{rem_frac1_n} ส่วน</span> = <span style='color:#2980b9;'>{mid_money:,}</span> บาท<br>
                     &nbsp;&nbsp;&nbsp;&nbsp;เงิน 1 ส่วน = <span style='color:#2980b9;'>{mid_money:,}</span> <b style='color:#d35400;'>÷</b> {rem_frac1_n} = {mid_money // rem_frac1_n:,} บาท<br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;เงินเต็มๆ <span style='color:#e67e22;'>{rem_frac1_d} ส่วน</span> (เงินก้อนแรกสุด) = {mid_money // rem_frac1_n:,} <b style='color:#e74c3c;'>×</b> {rem_frac1_d} = <b><span style='color:#27ae60;'>{start_money:,} บาท</span></b><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;เงินเต็มๆ <span style='color:#e67e22;'>{rem_frac1_d} ส่วน</span> = {mid_money // rem_frac1_n:,} <b style='color:#e74c3c;'>×</b> {rem_frac1_d} = <b><span style='color:#27ae60;'>{start_money:,} บาท</span></b><br>
                     &nbsp;&nbsp;&nbsp;&nbsp;👇 <i>อัปเดตสถานะสมการล่าสุด (สำเร็จ!):</i><br>
                     &nbsp;&nbsp;&nbsp;&nbsp;<div style='display:inline-block; border: 2px solid #27ae60; padding: 2px 10px; border-radius: 5px; color:#27ae60; font-weight:bold;'>เงินเริ่มต้น = {start_money:,} บาท</div><br><br>
                     <b>ตอบ: เดิมทีคุณแม่มีเงินอยู่ {start_money:,} บาท</b></span>"""
 
-                else:
-                    # ✨ [สไตล์ 3: โจทย์กับดักคำลวง (Mixed Keyword Trap) - ทดสอบความรอบคอบ]
+                elif scenario == "mixed_keyword_trap":
+                    # [สไตล์ 3: โจทย์กับดักคำลวง (ของทั้งหมด vs ของที่เหลือ)]
                     items = ["แสตมป์", "ลูกแก้ว", "สติกเกอร์สะสม"]
                     item = random.choice(items)
                     
-                    d1 = random.choice([3, 4, 5])
-                    n1 = 1
+                    d1 = random.choice([3, 4, 5]); n1 = 1
+                    d2 = random.choice([4, 5, 6]); n2 = 1
+                    d3 = random.choice([2, 3]); n3 = 1
                     
-                    d2 = random.choice([4, 5, 6])
-                    n2 = 1
-                    
-                    d3 = random.choice([2, 3])
-                    n3 = 1
-                    
-                    # หา ค.ร.น. ของ d1, d2 เพื่อให้บวกกันได้ลงตัว
                     lcm_12 = (d1 * d2) // math.gcd(d1, d2)
-                    
-                    # คำนวณเศษส่วนรวมของการแจก 2 ครั้งแรก
                     sum_n = n1 * (lcm_12 // d1) + n2 * (lcm_12 // d2)
                     sum_d = lcm_12
-                    rem_n = sum_d - sum_n
-                    rem_d = sum_d
+                    rem_n = sum_d - sum_n; rem_d = sum_d
                     
-                    # บังคับให้จำนวนของลงตัว
                     multiplier = random.choice([20, 30, 40, 50])
                     total_items = sum_d * d3 * multiplier
                     
-                    # จำลองการแจก
                     give1 = (total_items * n1) // d1
                     give2 = (total_items * n2) // d2
                     rem_after_2 = total_items - give1 - give2
@@ -2988,25 +2963,130 @@ def generate_questions_logic(grade, main_t, sub_t, num_q, is_challenge=False):
                     sol = f"""<span style='color:#2c3e50; line-height: 1.8;'>
                     <div style='background-color:#fef5e7; border-left:4px solid #e67e22; padding:15px; margin-bottom:15px; border-radius:8px;'>
                     💡 <b>ถอดรหัสกับดักคำลวง:</b><br>
-                    ข้อนี้คือตัวหลอกชั้นดี! สังเกตคำว่า <b>"ของทั้งหมด"</b> กับ <b>"ของที่เหลือ"</b> ให้ดีนะครับ!<br>
-                    • วันจันทร์และวันอังคาร เทียบจาก <b>"ของทั้งหมด"</b> เหมือนกัน ➔ สามารถนำจำนวนมา <b style='color:#c0392b;'>ลบ (-)</b> ออกจากก้อนหลักด้วยกันได้เลย<br>
-                    • แต่วันพุธ เทียบจาก <b>"ของที่เหลือ"</b> ➔ เราต้องอัปเดตยอดคงเหลือก่อน แล้วค่อยนำไป <b style='color:#e74c3c;'>คูณ (×)</b> ครับ!
+                    • สังเกตคำว่า <b>"ของทั้งหมด"</b> กับ <b>"ของที่เหลือ"</b> ให้ดี!<br>
+                    • วันจันทร์และวันอังคาร เทียบจาก <b>"ของทั้งหมด"</b> ➔ สามารถนำมา <b style='color:#c0392b;'>ลบ (-)</b> ออกจากก้อนหลักด้วยกันได้เลย<br>
+                    • แต่วันพุธ เทียบจาก <b>"ของที่เหลือ"</b> ➔ ต้องอัปเดตยอดคงเหลือก่อน แล้วค่อยนำไป <b style='color:#e74c3c;'>คูณ (×)</b>
                     </div>
                     <b>วิธีทำอย่างละเอียดแบบ Step-by-step:</b><br>
                     👉 <b>ขั้นที่ 1: เคลียร์ยอดวันจันทร์และอังคาร (หักจากของทั้งหมด)</b><br>
                     &nbsp;&nbsp;&nbsp;&nbsp;• วันจันทร์ให้ไป: {make_frac(n1, d1)} <b style='color:#e74c3c;'>×</b> {total_items:,} = <b><span style='color:#c0392b;'>{give1:,} ดวง</span></b><br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;• วันอังคารให้ไป: {make_frac(n2, d2)} <b style='color:#e74c3c;'>×</b> {total_items:,} = <b><span style='color:#c0392b;'>{give2:,} ดวง</span></b> <i>(สังเกตว่าคูณกับ {total_items} เหมือนกัน เพราะโจทย์บอก "ของทั้งหมด")</i><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;• วันอังคารให้ไป: {make_frac(n2, d2)} <b style='color:#e74c3c;'>×</b> {total_items:,} = <b><span style='color:#c0392b;'>{give2:,} ดวง</span></b> <i>(คูณกับ {total_items} เหมือนกัน!)</i><br>
                     &nbsp;&nbsp;&nbsp;&nbsp;👇 <i>อัปเดตสถานะของล่าสุด:</i><br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;ของที่เหลือ = ของเดิม <span style='color:#2980b9;'>{total_items:,}</span> <b style='color:#c0392b;'>-</b> (<span style='color:#c0392b;'>{give1:,}</span> + <span style='color:#c0392b;'>{give2:,}</span>) = <div style='display:inline-block; border: 2px solid #8e44ad; padding: 2px 10px; border-radius: 5px; color:#8e44ad; font-weight:bold;'>{rem_after_2:,} ดวง</div><br><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;ของที่เหลือ = <span style='color:#2980b9;'>{total_items:,}</span> <b style='color:#c0392b;'>-</b> (<span style='color:#c0392b;'>{give1:,}</span> + <span style='color:#c0392b;'>{give2:,}</span>) = <div style='display:inline-block; border: 2px solid #8e44ad; padding: 2px 10px; border-radius: 5px; color:#8e44ad; font-weight:bold;'>{rem_after_2:,} ดวง</div><br><br>
                     
                     👉 <b>ขั้นที่ 2: เคลียร์ยอดวันพุธ (หักจากของที่เหลือ)</b><br>
                     &nbsp;&nbsp;&nbsp;&nbsp;โจทย์บอก: นำไปบริจาค {make_frac(n3, d3)} <b style='color:#8e44ad;'>ของที่เหลือ</b> <i>(ต้องใช้ยอดในกรอบสีม่วงมาคิด!)</i><br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;แปลงเป็นสมการ: {make_frac(n3, d3)} <b style='color:#e74c3c;'>×</b> <span style='color:#8e44ad;'>{rem_after_2:,}</span><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;แปลเป็นสมการ: {make_frac(n3, d3)} <b style='color:#e74c3c;'>×</b> <span style='color:#8e44ad;'>{rem_after_2:,}</span><br>
                     &nbsp;&nbsp;&nbsp;&nbsp;= (<span style='color:#8e44ad;'>{rem_after_2:,}</span> ÷ {d3}) × {n3} = <b><span style='color:#c0392b;'>{give3:,} ดวง</span></b><br>
                     &nbsp;&nbsp;&nbsp;&nbsp;👇 <i>อัปเดตสถานะสมการล่าสุด:</i><br>
                     &nbsp;&nbsp;&nbsp;&nbsp;ของคงเหลือสุทธิ = <span style='color:#8e44ad;'>{rem_after_2:,}</span> <b style='color:#c0392b;'>-</b> <span style='color:#c0392b;'>{give3:,}</span> = <div style='display:inline-block; border: 2px solid #27ae60; padding: 2px 10px; border-radius: 5px; color:#27ae60; font-weight:bold;'>{final_rem:,} ดวง</div><br><br>
                     <b>ตอบ: พายุเหลือ{item}อยู่ {final_rem:,} ดวง</b></span>"""
 
+                elif scenario == "reverse_3_step":
+                    # ✨ [สไตล์ 4 ใหม่ล่าสุด!: มหากาพย์ถอยหลัง 3 ชั้น (Reverse 3-Step Bar Model)]
+                    d1 = random.choice([3, 4]); n1 = 1
+                    d2 = random.choice([4, 5]); n2 = random.choice([1, 2])
+                    d3 = random.choice([2, 3, 5]); n3 = 1
+                    
+                    rem1_n = d1 - n1; rem1_d = d1
+                    rem2_n = d2 - n2; rem2_d = d2
+                    rem3_n = d3 - n3; rem3_d = d3
+                    
+                    base_val = random.choice([10, 20, 30, 50])
+                    final_rem = base_val * rem1_n * rem2_n * rem3_n
+                    
+                    # ถอยหลังสเตปที่ 1
+                    mid2_val = (final_rem * rem3_d) // rem3_n
+                    # ถอยหลังสเตปที่ 2
+                    mid1_val = (mid2_val * rem2_d) // rem2_n
+                    # ถอยหลังสเตปที่ 3
+                    total_val = (mid1_val * rem1_d) // rem1_n
+
+                    q = f"โจทย์ระดับโอลิมปิก (The Endless Journey):<br>คุณลุงมีที่ดินแปลงใหญ่ <br>• แบ่งให้ลูกคนโต {make_frac(n1, d1)} <b>ของที่ดินทั้งหมด</b><br>• แบ่งให้ลูกคนกลาง {make_frac(n2, d2)} <b>ของที่ดิน<u>ที่เหลือ</u></b><br>• แบ่งให้ลูกคนเล็ก {make_frac(n3, d3)} <b>ของที่ดิน<u>ที่เหลือ</u></b><br>ปรากฏว่าคุณลุง <b>เหลือที่ดินเก็บไว้เอง {final_rem:,} ไร่</b> พอดี <br>จงหาว่า <b>เดิมทีคุณลุงมีที่ดินทั้งหมดกี่ไร่?</b>"
+
+                    sol = f"""<span style='color:#2c3e50; line-height: 1.8;'>
+                    <div style='background-color:#e8f8f5; border-left:4px solid #1abc9c; padding:15px; margin-bottom:15px; border-radius:8px;'>
+                    💡 <b>เทคนิคแกะรอยระดับสูง "ถอยหลัง 3 ชั้น":</b><br>
+                    • ค่อยๆ ถอยหลังทำย้อนกลับไปทีละชั้น โดยสนใจแค่ <b>"ส่วนที่เหลือ (Remainder)"</b> เท่านั้น!<br>
+                    • ให้ลูกคนเล็กไป {make_frac(n3, d3)} ➔ แปลว่าเหลือ <b>{make_frac(rem3_n, rem3_d, color="#8e44ad")}</b><br>
+                    • ให้ลูกคนกลางไป {make_frac(n2, d2)} ➔ แปลว่าเหลือ <b>{make_frac(rem2_n, rem2_d, color="#e67e22")}</b><br>
+                    • ให้ลูกคนโตไป {make_frac(n1, d1)} ➔ แปลว่าเหลือ <b>{make_frac(rem1_n, rem1_d, color="#2980b9")}</b>
+                    </div>
+                    <b>วิธีทำอย่างละเอียดแบบ Step-by-step:</b><br>
+                    👉 <b>ขั้นที่ 1: ถอยหลังผ่านลูกคนเล็ก</b><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;เทียบสัดส่วน: เหลือ <span style='color:#8e44ad;'>{rem3_n} ส่วน</span> = {final_rem:,} ไร่<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;หาเต็มก้อน: ({final_rem:,} ÷ {rem3_n}) × {rem3_d} = <b><span style='color:#8e44ad;'>{mid2_val:,} ไร่</span></b><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;👇 <div style='display:inline-block; border: 2px solid #8e44ad; padding: 2px 10px; border-radius: 5px; color:#8e44ad; font-weight:bold;'>ก่อนแบ่งให้คนเล็ก มีที่ดิน {mid2_val:,} ไร่</div><br><br>
+                    
+                    👉 <b>ขั้นที่ 2: ถอยหลังผ่านลูกคนกลาง</b><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;เทียบสัดส่วน: เหลือ <span style='color:#e67e22;'>{rem2_n} ส่วน</span> = <span style='color:#8e44ad;'>{mid2_val:,}</span> ไร่ <i>(เอาตัวเลขในกรอบมาใช้)</i><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;หาเต็มก้อน: (<span style='color:#8e44ad;'>{mid2_val:,}</span> ÷ {rem2_n}) × {rem2_d} = <b><span style='color:#e67e22;'>{mid1_val:,} ไร่</span></b><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;👇 <div style='display:inline-block; border: 2px solid #e67e22; padding: 2px 10px; border-radius: 5px; color:#e67e22; font-weight:bold;'>ก่อนแบ่งให้คนกลาง มีที่ดิน {mid1_val:,} ไร่</div><br><br>
+                    
+                    👉 <b>ขั้นที่ 3: ถอยหลังผ่านลูกคนโต (ถึงจุดเริ่มต้น!)</b><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;เทียบสัดส่วน: เหลือ <span style='color:#2980b9;'>{rem1_n} ส่วน</span> = <span style='color:#e67e22;'>{mid1_val:,}</span> ไร่<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;หาเต็มก้อน: (<span style='color:#e67e22;'>{mid1_val:,}</span> ÷ {rem1_n}) × {rem1_d} = <b><span style='color:#27ae60;'>{total_val:,} ไร่</span></b><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;👇 <div style='display:inline-block; border: 2px solid #27ae60; padding: 2px 10px; border-radius: 5px; color:#27ae60; font-weight:bold;'>ที่ดินตอนแรกสุด = {total_val:,} ไร่</div><br><br>
+                    <b>ตอบ: เดิมทีคุณลุงมีที่ดินทั้งหมด {total_val:,} ไร่</b></span>"""
+
+                else:
+                    # ✨ [สไตล์ 5 ใหม่ล่าสุด!: สลับขาหลอก (The "Total vs Remainder" Trap)]
+                    # จ่าย 1: n1/d1 ของทั้งหมด
+                    # จ่าย 2: n2/d2 ของที่เหลือ
+                    # จ่าย 3: n3/d3 ของทั้งหมด (กับดัก!)
+                    d1 = random.choice([4, 5, 8]); n1 = random.choice([1, 2])
+                    d2 = random.choice([3, 4, 5]); n2 = random.choice([1, 2])
+                    d3 = random.choice([4, 5, 10]); n3 = 1
+                    
+                    lcm_d1d3 = (d1 * d3) // math.gcd(d1, d3)
+                    base_total = lcm_d1d3 * d2 * random.choice([5, 10, 20])
+                    
+                    # ตรวจสอบไม่ให้เงินติดลบ
+                    while True:
+                        t = base_total
+                        s1 = (t * n1) // d1
+                        rem1 = t - s1
+                        s2 = (rem1 * n2) // d2
+                        rem2 = rem1 - s2
+                        s3 = (t * n3) // d3 # ของทั้งหมด!
+                        if rem2 - s3 > 0:
+                            break
+                        base_total += lcm_d1d3 * d2
+                        
+                    total_money = base_total
+                    spent1 = (total_money * n1) // d1
+                    remain1 = total_money - spent1
+                    spent2 = (remain1 * n2) // d2
+                    remain2 = remain1 - spent2
+                    spent3 = (total_money * n3) // d3 # Trap!
+                    final_remain = remain2 - spent3
+
+                    q = f"โจทย์สลับขาหลอก (ระวังโดนแกง!):<br>คุณแม่มีเงินเดือน <b>{total_money:,} บาท</b> <br>• จ่ายค่าบ้าน {make_frac(n1, d1)} <b><u>ของเงินทั้งหมด</u></b><br>• จ่ายค่าอาหาร {make_frac(n2, d2)} <b><u>ของเงินที่เหลือ</u></b><br>• จ่ายค่าผ่อนรถ {make_frac(n3, d3)} <b><u>ของเงินทั้งหมด</u></b> <br>จงหาว่าคุณแม่ <b>เหลือเงินเก็บกี่บาท?</b>"
+
+                    sol = f"""<span style='color:#2c3e50; line-height: 1.8;'>
+                    <div style='background-color:#fef5e7; border-left:4px solid #e67e22; padding:15px; margin-bottom:15px; border-radius:8px;'>
+                    💡 <b>ถอดรหัสกับดักคำลวง:</b><br>
+                    • โจทย์ข้อนี้จงใจสลับคำไปมาเพื่อทดสอบสติ!<br>
+                    • <b>ค่าบ้าน & ค่าผ่อนรถ:</b> คำนวณจาก <b>"เงินทั้งหมด"</b> ({total_money:,} บาท)<br>
+                    • <b>ค่าอาหาร:</b> คำนวณจาก <b>"เงินที่เหลือ"</b> (หลังหักค่าบ้าน)
+                    </div>
+                    <b>วิธีทำอย่างละเอียดแบบ Step-by-step:</b><br>
+                    👉 <b>ขั้นที่ 1: หักค่าบ้าน</b><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;{make_frac(n1, d1)} <b>ของเงินทั้งหมด</b> ➔ {make_frac(n1, d1)} × {total_money:,} = <span style='color:#c0392b;'>{spent1:,} บาท</span><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;👇 <i>อัปเดตสถานะเงินล่าสุด:</i><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;เหลือเงิน = {total_money:,} - <span style='color:#c0392b;'>{spent1:,}</span> = <div style='display:inline-block; border: 2px solid #8e44ad; padding: 2px 10px; border-radius: 5px; color:#8e44ad; font-weight:bold;'>{remain1:,} บาท</div><br><br>
+                    
+                    👉 <b>ขั้นที่ 2: หักค่าอาหาร</b><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;{make_frac(n2, d2)} <b>ของเงินที่เหลือ</b> ➔ {make_frac(n2, d2)} × <span style='color:#8e44ad;'>{remain1:,}</span> = <span style='color:#c0392b;'>{spent2:,} บาท</span><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;👇 <i>อัปเดตสถานะเงินล่าสุด:</i><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;เหลือเงิน = <span style='color:#8e44ad;'>{remain1:,}</span> - <span style='color:#c0392b;'>{spent2:,}</span> = <div style='display:inline-block; border: 2px solid #2980b9; padding: 2px 10px; border-radius: 5px; color:#2980b9; font-weight:bold;'>{remain2:,} บาท</div><br><br>
+                    
+                    👉 <b>ขั้นที่ 3: หักค่าผ่อนรถ (ระวังกับดัก!)</b><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;{make_frac(n3, d3)} <b>ของเงินทั้งหมด</b> ➔ ต้องกลับไปคูณเงินก้อนแรกสุด!<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;สมการ: {make_frac(n3, d3)} × {total_money:,} = <span style='color:#c0392b;'>{spent3:,} บาท</span><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;👇 <i>อัปเดตสถานะเงินสุทธิ:</i><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;เงินเก็บ = เงินที่เหลือ <span style='color:#2980b9;'>{remain2:,}</span> - ค่ารถ <span style='color:#c0392b;'>{spent3:,}</span> = <div style='display:inline-block; border: 2px solid #27ae60; padding: 2px 10px; border-radius: 5px; color:#27ae60; font-weight:bold;'>{final_remain:,} บาท</div><br><br>
+                    <b>ตอบ: คุณแม่เหลือเงินเก็บ {final_remain:,} บาท</b></span>"""
 
 
 
