@@ -482,6 +482,8 @@ def generate_questions_logic(grade, main_t, sub_t, num_q, is_challenge=False):
                     
                 sol += f"<b>ตอบ: {ans_disp}</b></span>"
 
+
+
             elif actual_sub_t == "การคูณเศษส่วน":
                 d1 = random.randint(3, 15)
                 n1 = random.randint(1, d1 * 2) if is_challenge else random.randint(1, d1 - 1)
@@ -517,6 +519,8 @@ def generate_questions_logic(grade, main_t, sub_t, num_q, is_challenge=False):
                     &nbsp;&nbsp;&nbsp;&nbsp;ใช้แม่ <b>{gcd_ans}</b> หารทั้งบนและล่าง จะได้ <b>{draw_frac(final_n, final_d) if final_d != 1 else final_n}</b><br><br>"""
                 
                 sol += f"<b>ตอบ: {ans_disp}</b></span>"
+
+
 
             elif actual_sub_t == "การหารเศษส่วน":
                 d1 = random.randint(2, 10)
@@ -558,6 +562,8 @@ def generate_questions_logic(grade, main_t, sub_t, num_q, is_challenge=False):
                     
                 sol += f"<b>ตอบ: {ans_disp}</b></span>"
 
+
+
             # ================= หมวดที่ 2: ทศนิยม (ป.5) =================
             elif actual_sub_t == "การบวกและการลบทศนิยม":
                 op = random.choice(["+", "-"])
@@ -579,6 +585,8 @@ def generate_questions_logic(grade, main_t, sub_t, num_q, is_challenge=False):
                 💡 <b>เทคนิค:</b> เมื่อตำแหน่งทศนิยมไม่เท่ากัน ให้ <b>"เติม 0"</b> ด้านหลังตัวที่ตำแหน่งน้อยกว่า เพื่อให้การตั้งจุดทศนิยมและการยืมเลขไม่ผิดพลาด
                 </div>
                 {generate_decimal_vertical_html(a, b, op, is_key=True)}</span>"""
+
+
 
             elif actual_sub_t == "การคูณและการหารทศนิยม":
                 op = random.choice(["×", "÷"])
@@ -644,6 +652,8 @@ def generate_questions_logic(grade, main_t, sub_t, num_q, is_challenge=False):
                     {long_div_html}<br>
                     <b>ตอบ: {ans_raw}</b></span>"""
 
+
+
 # ================= หมวดที่ 3: สถิติ, เรขาคณิต, ร้อยละ, สมการ (ป.5) =================
             elif actual_sub_t == "การหาค่าเฉลี่ย (Average)":
                 items_count = random.randint(4, 6)
@@ -682,6 +692,8 @@ def generate_questions_logic(grade, main_t, sub_t, num_q, is_challenge=False):
                 👉 <b>ขั้นที่ 3: นำผลรวมหารด้วยจำนวนข้อมูล</b><br>
                 &nbsp;&nbsp;&nbsp;&nbsp;{total} ÷ {items_count} = <b>{target_avg}</b><br><br>
                 <b>ตอบ: ค่าเฉลี่ยของข้อมูลชุดนี้คือ {target_avg}</b></span>"""
+
+
 
             elif actual_sub_t == "ความน่าจะเป็นเบื้องต้น (สุ่มหยิบของ)":
                 colors = ["สีแดง", "สีฟ้า", "สีเขียว", "สีเหลือง"]
@@ -722,6 +734,8 @@ def generate_questions_logic(grade, main_t, sub_t, num_q, is_challenge=False):
                 if gcd_val > 1:
                     sol += f"&nbsp;&nbsp;&nbsp;&nbsp;ตัดทอนเป็นเศษส่วนอย่างต่ำโดยใช้แม่ {gcd_val} หาร จะได้ = <b>{draw_frac(ans_n, ans_d)}</b><br><br>"
                 sol += f"<b>ตอบ: โอกาสที่จะได้{target_color}คือ {ans_str}</b></span>"
+
+
 
             elif actual_sub_t == "โจทย์ปัญหาพื้นที่และความยาวรอบรูป":
                 # ป.5 จะเริ่มมีโจทย์พลิกแพลง เช่น ให้เส้นรอบรูปมา ถามหาพื้นที่
@@ -772,6 +786,8 @@ def generate_questions_logic(grade, main_t, sub_t, num_q, is_challenge=False):
                     &nbsp;&nbsp;&nbsp;&nbsp;แทนค่า: {side} × {side} = <b>{area} ตารางเซนติเมตร</b><br><br>
                     <b>ตอบ: กระเบื้องแผ่นนี้มีพื้นที่ {area} ตารางเซนติเมตร</b></span>"""
 
+
+
             elif actual_sub_t == "เส้นขนานและมุมแย้ง":
                 # สุ่มมุมและตำแหน่งของเส้นขนาน
                 base_angle = random.randint(45, 135)
@@ -821,6 +837,8 @@ def generate_questions_logic(grade, main_t, sub_t, num_q, is_challenge=False):
                 👉 ดังนั้น <b>{eq_str}</b><br><br>
                 <b>ตอบ: ขนาดของมุม x คือ {ans_val}°</b></span>"""
 
+
+
             elif actual_sub_t == "ปริมาตรและความจุทรงสี่เหลี่ยมมุมฉาก":
                 scenario = random.choice(["volume", "water"])
                 
@@ -863,6 +881,8 @@ def generate_questions_logic(grade, main_t, sub_t, num_q, is_challenge=False):
                     &nbsp;&nbsp;&nbsp;&nbsp;{w} × {l} × {h_water} = <b>{vol_water:,}</b> ลูกบาศก์เซนติเมตร<br><br>
                     <b>ตอบ: ปริมาตรของน้ำคือ {vol_water:,} ลูกบาศก์เซนติเมตร</b></span>"""
 
+
+
             elif actual_sub_t == "การเขียนเศษส่วนในรูปร้อยละ":
                 # ป.5 จะเน้นตัวส่วนที่เป็นพหุคูณของ 100 เช่น 2, 4, 5, 10, 20, 25, 50
                 d = random.choice([2, 4, 5, 10, 20, 25, 50])
@@ -887,6 +907,8 @@ def generate_questions_logic(grade, main_t, sub_t, num_q, is_challenge=False):
                 &nbsp;&nbsp;&nbsp;&nbsp;เมื่อส่วนเป็น 100 แล้ว สามารถนำตัวเศษมาเขียนเป็นร้อยละได้เลย<br>
                 &nbsp;&nbsp;&nbsp;&nbsp;➔ <b>ร้อยละ {percent_val}</b> หรือ <b>{percent_val}%</b><br><br>
                 <b>ตอบ: ร้อยละ {percent_val} (หรือ {percent_val}%)</b></span>"""
+
+
 
             elif actual_sub_t == "การแก้สมการ (คูณ/หาร)":
                 mode = random.choice(["mul", "div"])
@@ -936,6 +958,8 @@ def generate_questions_logic(grade, main_t, sub_t, num_q, is_challenge=False):
                     👉 <b>ขั้นที่ 3: คำนวณผลลัพธ์</b><br>
                     &nbsp;&nbsp;&nbsp;&nbsp;{var} = <b>{res * divisor}</b><br><br>
                     <b>ตอบ: {var} = {res * divisor}</b></span>"""
+
+
 
 # ================= หมวดที่ 4: เตรียมสอบเข้า ม.1 Gifted (ป.5) =================
             elif actual_sub_t == "โจทย์ปัญหา ห.ร.ม. และ ค.ร.น.":
@@ -1005,6 +1029,8 @@ def generate_questions_logic(grade, main_t, sub_t, num_q, is_challenge=False):
                     👉 นับต่อจากเวลา {start_str} น. ไปอีก {ans_lcm//60} ชั่วโมง จะตรงกับเวลา <b>{next_str} น.</b><br><br>
                     <b>ตอบ: รถจะออกพร้อมกันอีกครั้งเวลา {next_str} น.</b></span>"""
 
+
+
             elif actual_sub_t == "โจทย์ปัญหาคลาสสิก (สมการประยุกต์)":
                 # โจทย์หัวขาสัตว์ ยอดฮิตสอบเข้า ม.1
                 animals = [("ไก่", 2, "วัว", 4), ("นก", 2, "สุนัข", 4), ("เป็ด", 2, "หมู", 4)]
@@ -1039,6 +1065,8 @@ def generate_questions_logic(grade, main_t, sub_t, num_q, is_challenge=False):
                 &nbsp;&nbsp;&nbsp;&nbsp;ต้องการขาเพิ่ม {diff_legs} ขา จึงต้องมี{a2_name}ทั้งหมด {diff_legs} ÷ {leg_diff_per_animal} = <b>{ans_a2} ตัว</b><br><br>
                 <i>(ตรวจคำตอบ: {a2_name} {ans_a2} ตัว = {ans_a2*a2_legs} ขา, {a1_name} {total_heads-ans_a2} ตัว = {(total_heads-ans_a2)*a1_legs} ขา, รวม = {ans_a2*a2_legs + (total_heads-ans_a2)*a1_legs} ขา ตรงเป๊ะ!)</i><br><br>
                 <b>ตอบ: มี{a2_name}ทั้งหมด {ans_a2} ตัว</b></span>"""
+
+
 
             elif actual_sub_t == "แบบรูปและอนุกรม (Number Patterns)":
                 pattern_type = random.choice(["arithmetic", "geometric", "quadratic"])
@@ -1083,6 +1111,8 @@ def generate_questions_logic(grade, main_t, sub_t, num_q, is_challenge=False):
                     แสดงว่าส่วนต่างตัวต่อไปจะต้องเป็น <b>+{current_step}</b><br>
                     ดังนั้น จำนวนถัดไปคือ {seq[4]} + {current_step} = <b>{ans}</b></span>"""
 
+
+
             elif actual_sub_t == "มาตราส่วนและทิศทาง":
                 scale = random.choice([1000, 50000, 100000, 500000])
                 map_dist = round(random.uniform(2.0, 12.5), 1)
@@ -1109,6 +1139,8 @@ def generate_questions_logic(grade, main_t, sub_t, num_q, is_challenge=False):
                 &nbsp;&nbsp;&nbsp;&nbsp;เนื่องจาก 1 กม. = 100,000 ซม. จึงต้องนำไป <b>หารด้วย 100,000</b><br>
                 &nbsp;&nbsp;&nbsp;&nbsp;{real_dist_cm:,.0f} ÷ 100,000 = <b>{real_dist_km:,.2f} กิโลเมตร</b><br><br>
                 <b>ตอบ: ระยะทางจริงคือ {real_dist_km:,.2f} กิโลเมตร</b></span>"""
+
+
 
             elif actual_sub_t == "เรขาคณิตประยุกต์ (หาพื้นที่แรเงา)":
                 scenario = random.choice(["frame", "cross_path", "triangle_in_rect"])
