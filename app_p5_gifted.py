@@ -472,68 +472,166 @@ def generate_questions_logic(grade, main_t, sub_t, num_q, is_challenge=False):
                 rand_main = random.choice(list(curriculum_db[grade].keys()))
                 actual_sub_t = random.choice(curriculum_db[grade][rand_main])
 
-            # ================= หมวดที่ 1: เศษส่วน (ป.5) =================
-            if actual_sub_t in ["การบวกเศษส่วน", "การลบเศษส่วน"]:
-                op = "+" if actual_sub_t == "การบวกเศษส่วน" else "-"
-                
-                # ป.5 ตัวส่วนจะไม่เท่ากัน ต้องหา ค.ร.น.
-                d1 = random.choice([3, 4, 5, 6, 8, 9, 10, 12])
-                d2 = random.choice([x for x in [3, 4, 5, 6, 8, 9, 10, 12, 15] if x != d1])
-                lcm = (d1 * d2) // math.gcd(d1, d2)
-                
-                if is_challenge:
-                    n1 = random.randint(d1 + 1, d1 * 3) # เศษเกิน
-                    n2 = random.randint(1, d2 * 2)
-                else:
-                    n1 = random.randint(1, d1 - 1)
-                    n2 = random.randint(1, d2 - 1)
-                
-                # ถ้าเป็นการลบ ต้องแน่ใจว่าตัวตั้งมากกว่าตัวลบ
-                if op == "-" and (n1/d1) < (n2/d2):
-                    n1, n2 = n2, n1
-                    d1, d2 = d2, d1
-                
-                m1, m2 = lcm // d1, lcm // d2
-                new_n1, new_n2 = n1 * m1, n2 * m2
-                
-                if op == "+":
-                    ans_n = new_n1 + new_n2
-                else:
-                    ans_n = new_n1 - new_n2
-                
-                gcd_ans = math.gcd(ans_n, lcm)
-                final_n, final_d = ans_n // gcd_ans, lcm // gcd_ans
-                
-                # แปลงเป็นจำนวนคละถ้าจำเป็น
-                if final_n > final_d and final_d != 1:
-                    whole = final_n // final_d
-                    rem = final_n % final_d
-                    ans_disp = f"{whole}{draw_frac(rem, final_d)}" if rem != 0 else str(whole)
-                else:
-                    ans_disp = str(final_n) if final_d == 1 else draw_frac(final_n, final_d)
+            # ================= หมวดที่ 1: รากฐานตัวเลขและการดำเนินการ (ป.5) =================
+            if actual_sub_t == "การบวก ลบ คูณ หารระคน (กฎ PEMDAS)":
+                # สุ่มรูปแบบโจทย์ 4 สไตล์ เพื่อความหลากหลาย
+                scenario = random.choice(["pure_math", "shopping", "harvest", "factory"])
 
-                q = f"จงหาผลลัพธ์ของ {draw_frac(n1, d1)} <b style='color:#e74c3c;'>{op}</b> {draw_frac(n2, d2)}"
-                
-                sol = f"""<span style='color:#2c3e50;'>
-                <div style='background-color:#fcf3cf; border-left:4px solid #f1c40f; padding:10px; margin-bottom:15px; border-radius:4px;'>
-                💡 <b>เทคนิคการ{actual_sub_t.replace('การ','')} (ตัวส่วนไม่เท่ากัน):</b><br>
-                ต้องทำ <b>"ตัวส่วน"</b> ให้เท่ากันก่อน โดยการหา ค.ร.น. ของ {d1} และ {d2} ซึ่งก็คือ <b>{lcm}</b>
-                </div>
-                <b>วิธีทำอย่างละเอียด:</b><br>
-                👉 <b>ขั้นที่ 1: ทำส่วนให้เท่ากัน (เป็น {lcm})</b><br>
-                &nbsp;&nbsp;&nbsp;&nbsp;• {draw_frac(f"{n1} × <b style='color:#e74c3c;'>{m1}</b>", f"{d1} × <b style='color:#e74c3c;'>{m1}</b>")} = <b style='color:#2980b9;'>{draw_frac(new_n1, lcm)}</b><br>
-                &nbsp;&nbsp;&nbsp;&nbsp;• {draw_frac(f"{n2} × <b style='color:#e74c3c;'>{m2}</b>", f"{d2} × <b style='color:#e74c3c;'>{m2}</b>")} = <b style='color:#2980b9;'>{draw_frac(new_n2, lcm)}</b><br><br>
-                👉 <b>ขั้นที่ 2: นำเศษมา{op.replace('+','บวก').replace('-','ลบ')}กัน</b><br>
-                &nbsp;&nbsp;&nbsp;&nbsp;{draw_frac(new_n1, lcm)} <b style='color:#e74c3c;'>{op}</b> {draw_frac(new_n2, lcm)} = {draw_frac(f"{new_n1} {op} {new_n2}", lcm)} = <b>{draw_frac(ans_n, lcm)}</b><br><br>
-                """
-                if gcd_ans > 1:
-                    sol += f"""👉 <b>ขั้นที่ 3: ตัดทอนเป็นเศษส่วนอย่างต่ำ</b><br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;นำ <b>{gcd_ans}</b> มาหารทั้งเศษและส่วน จะได้ <b>{draw_frac(final_n, final_d)}</b><br><br>"""
-                
-                if final_n > final_d and final_d != 1:
-                    sol += f"👉 <b>ขั้นที่ 4: แปลงเป็นจำนวนคละ</b> ➔ <b>{ans_disp}</b><br><br>"
+                if scenario == "pure_math":
+                    # สไตล์ที่ 1: สมการตัวเลขเพียวๆ (วัดความแม่นยำกฎ PEMDAS ลำดับการคำนวณ)
+                    # รูปแบบ: A + (B × C) - (D ÷ E)
+                    c = random.randint(12, 25)
+                    b = random.randint(5, 15)
+                    a = random.randint(100, 500)
+                    e = random.randint(4, 12)
+                    d = e * random.randint(5, 20) # บังคับหารลงตัว
                     
-                sol += f"<b>ตอบ: {ans_disp}</b></span>"
+                    mul_res = b * c
+                    div_res = d // e
+                    add_res = a + mul_res
+                    final_ans = add_res - div_res
+                    
+                    q = f"จงหาผลลัพธ์ของสมการต่อไปนี้ โดยใช้กฎลำดับการคำนวณทางคณิตศาสตร์<br><br><div style='text-align:center; font-size:28px; font-weight:bold; letter-spacing:2px; background:#f8f9fa; padding:15px; border-radius:10px; border:2px dashed #bdc3c7;'>{a:,} + {b} × {c} - {d:,} ÷ {e} = ?</div>"
+                    
+                    sol = f"""<span style='color:#2c3e50; line-height: 1.8;'>
+                    <div style='background-color:#fcf3cf; border-left:4px solid #f1c40f; padding:15px; margin-bottom:15px; border-radius:8px;'>
+                    💡 <b>กฎข้อตกลงระดับโลก (PEMDAS / ลำดับการคำนวณ):</b><br>
+                    เมื่อเจอสมการยาวๆ ที่ไม่มีวงเล็บ <b>ห้ามคิดเรียงจากซ้ายไปขวาเด็ดขาด!</b> ต้องทำตามลำดับนี้เสมอ:<br>
+                    <b>อันดับ 1:</b> ทำในวงเล็บ (ถ้ามี)<br>
+                    <b>อันดับ 2:</b> ทำ <b>คูณ (×)</b> หรือ <b>หาร (÷)</b> ก่อน โดยไล่จากซ้ายไปขวา<br>
+                    <b>อันดับ 3:</b> ค่อยทำ <b>บวก (+)</b> หรือ <b>ลบ (-)</b> เป็นลำดับสุดท้าย โดยไล่จากซ้ายไปขวา
+                    </div>
+                    <b>วิธีทำอย่างละเอียดแบบ Step-by-step:</b><br>
+                    👉 <b>ขั้นที่ 1: สำรวจสมการ</b><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;โจทย์คือ: {a:,} + <b style='color:#e74c3c;'>{b} × {c}</b> - <b style='color:#8e44ad;'>{d:,} ÷ {e}</b><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;<i>(เราพบเครื่องหมาย × และ ÷ ซึ่งมีพลังมากกว่า + และ - จึงต้องแอบใส่วงเล็บให้มันและคิดมันก่อน!)</i><br><br>
+                    
+                    👉 <b>ขั้นที่ 2: จัดการคู่คูณ (×) และ หาร (÷)</b><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;• คู่คูณ: <span style='color:#e74c3c;'>{b} × {c}</span> = <b><span style='color:#27ae60;'>{mul_res:,}</span></b> <i>(ตัวเลข {b} และ {c} ยุบรวมร่างกันกลายเป็น {mul_res:,})</i><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;• คู่หาร: <span style='color:#8e44ad;'>{d:,} ÷ {e}</span> = <b><span style='color:#27ae60;'>{div_res:,}</span></b> <i>(ตัวเลข {d:,} และ {e} ยุบรวมร่างกันกลายเป็น {div_res:,})</i><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;นำตัวเลขใหม่กลับไปวางในสมการเดิม จะได้: <b>{a:,} + <span style='color:#27ae60;'>{mul_res:,}</span> - <span style='color:#27ae60;'>{div_res:,}</span></b><br><br>
+                    
+                    👉 <b>ขั้นที่ 3: จัดการบวก (+) และ ลบ (-) จากซ้ายไปขวา</b><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;• เริ่มจากซ้ายสุด (บวก): <span style='color:#3498db;'>{a:,} + {mul_res:,}</span> = <b><span style='color:#2980b9;'>{add_res:,}</span></b><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;สมการจะเหลือแค่: <b><span style='color:#2980b9;'>{add_res:,}</span> - <span style='color:#27ae60;'>{div_res:,}</span></b><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;• ทำการลบขั้นตอนสุดท้าย: {add_res:,} - {div_res:,} = <b><span style='color:#c0392b;'>{final_ans:,}</span></b><br><br>
+                    <b>ตอบ: {final_ans:,}</b></span>"""
+
+                elif scenario == "shopping":
+                    # สไตล์ที่ 2: โจทย์ปัญหาการซื้อของและเงินทอน
+                    item1_name, item2_name = random.sample(["เสื้อยืด", "กางเกง", "หนังสือ", "สมุดโน้ต", "กระเป๋า"], 2)
+                    q1, q2 = random.randint(3, 8), random.randint(2, 5) # จำนวนชิ้น
+                    p1, p2 = random.randint(80, 250), random.randint(150, 450) # ราคาต่อชิ้น
+                    
+                    total_cost = (q1 * p1) + (q2 * p2)
+                    
+                    # หาแบงค์ที่จ่าย (ต้องมากกว่าราคาสินค้า)
+                    pay_bills = [1000, 2000, 3000, 5000]
+                    pay = next(x for x in pay_bills if x > total_cost)
+                    
+                    change = pay - total_cost
+                    
+                    q = f"คุณแม่ไปห้างสรรพสินค้า ซื้อ{item1_name} <b>{q1} ตัว</b> ราคาตัวละ <b>{p1} บาท</b> และซื้อ{item2_name} <b>{q2} ตัว</b> ราคาตัวละ <b>{p2} บาท</b><br>ถ้าคุณแม่จ่ายเงินให้แคชเชียร์ด้วยธนบัตร 1,000 บาท จำนวน <b>{pay//1000} ใบ</b> คุณแม่จะได้รับเงินทอนกี่บาท?"
+
+                    sol = f"""<span style='color:#2c3e50; line-height: 1.8;'>
+                    <div style='background-color:#e8f8f5; border-left:4px solid #1abc9c; padding:15px; margin-bottom:15px; border-radius:8px;'>
+                    💡 <b>แปลภาษาไทย ให้เป็น "สมการคณิตศาสตร์":</b><br>
+                    1. <b>"ราคาตัวละ... ซื้อหลายตัว"</b> ➔ การเพิ่มขึ้นครั้งละเท่าๆ กัน ต้องใช้ <b style='color:#e74c3c;'>เครื่องหมายคูณ (×)</b><br>
+                    2. <b>"และซื้อ..."</b> ➔ นำราคาสินค้า 2 อย่างมารวมกัน ต้องใช้ <b style='color:#3498db;'>เครื่องหมายบวก (+)</b><br>
+                    3. <b>"จ่ายเงิน... ได้รับเงินทอน"</b> ➔ การหาเงินทอน คือการนำเงินที่จ่ายตั้ง แล้วหักค่าของออก ต้องใช้ <b style='color:#9b59b6;'>เครื่องหมายลบ (-)</b><br>
+                    <b>ประโยคสัญลักษณ์:</b> {pay:,} <b style='color:#9b59b6;'>-</b> [({q1} <b style='color:#e74c3c;'>×</b> {p1}) <b style='color:#3498db;'>+</b> ({q2} <b style='color:#e74c3c;'>×</b> {p2})] = ?
+                    </div>
+                    <b>วิธีทำและที่มาของตัวเลข:</b><br>
+                    👉 <b>ขั้นที่ 1: คำนวณค่า{item1_name}ทั้งหมด</b><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;ซื้อ {q1} ตัว ตัวละ {p1} บาท ➔ นำมาคูณกัน: {q1} × {p1} = <b><span style='color:#27ae60;'>{q1*p1:,}</span> บาท</b> <i>(ตัวเลข {q1} และ {p1} ถูกใช้ไปแล้ว กลายเป็นยอด {q1*p1:,})</i><br><br>
+                    👉 <b>ขั้นที่ 2: คำนวณค่า{item2_name}ทั้งหมด</b><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;ซื้อ {q2} ตัว ตัวละ {p2} บาท ➔ นำมาคูณกัน: {q2} × {p2} = <b><span style='color:#27ae60;'>{q2*p2:,}</span> บาท</b><br><br>
+                    👉 <b>ขั้นที่ 3: รวมค่าใช้จ่ายทั้งหมด (นำมาบวกกัน)</b><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;นำยอดจากขั้นที่ 1 และ 2 มารวมกัน ➔ {q1*p1:,} + {q2*p2:,} = <b><span style='color:#e67e22;'>{total_cost:,}</span> บาท</b> <i>(นี่คือเงินที่คุณแม่ต้องจ่ายจริง)</i><br><br>
+                    👉 <b>ขั้นที่ 4: คำนวณเงินทอน (หักลบออกจากเงินที่ให้แคชเชียร์)</b><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;คุณแม่ให้ธนบัตร 1,000 บาท จำนวน {pay//1000} ใบ ➔ คิดเป็นเงิน {pay:,} บาท<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;นำเงินที่ให้แคชเชียร์ <b style='color:#9b59b6;'>ลบด้วย</b> ค่าสินค้าทั้งหมด ➔ {pay:,} - <span style='color:#e67e22;'>{total_cost:,}</span> = <b><span style='color:#c0392b;'>{change:,}</span> บาท</b><br><br>
+                    <b>ตอบ: คุณแม่จะได้รับเงินทอน {change:,} บาท</b></span>"""
+
+                elif scenario == "harvest":
+                    # สไตล์ที่ 3: โจทย์ปัญหาการเก็บเกี่ยว หักออก และแบ่งปัน
+                    farmer = random.choice(["ชาวสวน", "คุณลุง", "เกษตรกร"])
+                    item = random.choice(["มะม่วง", "ส้ม", "แอปเปิ้ล", "มังคุด"])
+                    baskets = random.randint(15, 30)
+                    per_basket = random.randint(20, 50)
+                    
+                    keep = random.randint(50, 150)
+                    share_people = random.randint(4, 9)
+                    
+                    total_items = baskets * per_basket
+                    rem_items = total_items - keep
+                    
+                    # ปรับตัวเลข keep เพื่อให้หารลงตัวเป๊ะๆ
+                    remainder = rem_items % share_people
+                    keep += remainder 
+                    
+                    total_items = baskets * per_basket
+                    rem_items = total_items - keep
+                    ans = rem_items // share_people
+                    
+                    q = f"{farmer}เก็บ{item}ได้ <b>{baskets} ตะกร้า</b> แต่ละตะกร้ามี{item} <b>{per_basket} ผล</b> <br>{farmer}คัด{item}ผลใหญ่เก็บไว้กินเอง <b>{keep} ผล</b> จากนั้นนำ{item}ที่เหลือทั้งหมด <b>ไปแบ่งให้ญาติ {share_people} คน คนละเท่าๆ กัน</b> <br>ญาติแต่ละคนจะได้รับ{item}คนละกี่ผล?"
+
+                    sol = f"""<span style='color:#2c3e50; line-height: 1.8;'>
+                    <div style='background-color:#fef5e7; border-left:4px solid #e67e22; padding:15px; margin-bottom:15px; border-radius:8px;'>
+                    💡 <b>แปลภาษาไทย ให้เป็น "สมการคณิตศาสตร์":</b><br>
+                    1. <b>"เก็บได้...ตะกร้า ตะกร้าละ..."</b> ➔ การเพิ่มขึ้นครั้งละเท่าๆ กัน ต้องใช้ <b style='color:#e74c3c;'>เครื่องหมายคูณ (×)</b> เพื่อหาจำนวนผลไม้ทั้งหมด<br>
+                    2. <b>"เก็บไว้กินเอง"</b> ➔ ทำให้ผลไม้ส่วนรวมลดลงไป ต้องใช้ <b style='color:#9b59b6;'>เครื่องหมายลบ (-)</b> เพื่อหักออก<br>
+                    3. <b>"นำที่เหลือแบ่งให้...คนละเท่าๆ กัน"</b> ➔ การแจกจ่ายให้เท่ากัน คือหัวใจหลักของ <b style='color:#3498db;'>เครื่องหมายหาร (÷)</b><br>
+                    <b>ประโยคสัญลักษณ์:</b> [({baskets} <b style='color:#e74c3c;'>×</b> {per_basket}) <b style='color:#9b59b6;'>-</b> {keep}] <b style='color:#3498db;'>÷</b> {share_people} = ?
+                    </div>
+                    <b>วิธีทำและที่มาของตัวเลข:</b><br>
+                    👉 <b>ขั้นที่ 1: หาจำนวน{item}ทั้งหมดก่อน</b><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;มี {baskets} ตะกร้า ตะกร้าละ {per_basket} ผล ➔ นำมาคูณกัน: {baskets} × {per_basket} = <b><span style='color:#27ae60;'>{total_items:,}</span> ผล</b> <i>(ตอนนี้เราทราบแล้วว่ามี{item}กองโตทั้งหมด {total_items:,} ผล)</i><br><br>
+                    👉 <b>ขั้นที่ 2: หักส่วนที่เก็บไว้กินเองออกไป</b><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;นำผลรวมมาหักออกด้วย {keep} ผล ➔ <span style='color:#27ae60;'>{total_items:,}</span> - {keep} = <b><span style='color:#e67e22;'>{rem_items:,}</span> ผล</b> <i>(นี่คือ{item} "ส่วนที่เหลือ" ที่พร้อมจะเอาไปแจกญาติ)</i><br><br>
+                    👉 <b>ขั้นที่ 3: นำส่วนที่เหลือไปแบ่งให้ญาติเท่าๆ กัน</b><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;นำ{item} <span style='color:#e67e22;'>{rem_items:,}</span> ผล หารแบ่งให้ญาติ {share_people} คน ➔ <span style='color:#e67e22;'>{rem_items:,}</span> ÷ {share_people} = <b><span style='color:#c0392b;'>{ans:,}</span> ผล</b><br><br>
+                    <b>ตอบ: ญาติแต่ละคนจะได้รับ{item}คนละ {ans:,} ผล</b></span>"""
+
+                else:
+                    # สไตล์ที่ 4: โจทย์ปัญหาโรงงาน (ผลิตเพิ่ม สะสม และจัดลงกล่อง)
+                    factory = random.choice(["โรงงานผลิตของเล่น", "โรงงานลูกอม", "โรงสีข้าว", "ร้านเบเกอรี่"])
+                    item = random.choice(["หุ่นยนต์", "ลูกอม", "ข้าวสารถุง", "ขนมปัง"])
+                    
+                    stock = random.randint(500, 2000)
+                    produce_per_day = random.randint(150, 400)
+                    days = random.randint(5, 12)
+                    box_size = random.choice([12, 24, 30, 50, 100])
+                    
+                    total_produced = produce_per_day * days
+                    total_all = stock + total_produced
+                    
+                    # ปรับ stock เพื่อให้หารลงตัวเป๊ะๆ
+                    remainder = total_all % box_size
+                    if remainder != 0:
+                        stock += (box_size - remainder)
+                        total_all = stock + total_produced
+                        
+                    ans = total_all // box_size
+                    
+                    q = f"{factory}มี{item}ค้างสต็อกอยู่ในโกดัง <b>{stock:,} ชิ้น</b> <br>ช่วงนี้พนักงานเร่งผลิต{item}เพิ่มได้วันละ <b>{produce_per_day} ชิ้น</b> ติดต่อกันเป็นเวลา <b>{days} วัน</b> <br>จากนั้นนำ{item}ทั้งหมดที่มีไปจัดลงกล่อง กล่องละ <b>{box_size} ชิ้น</b> จะจัดได้ทั้งหมดกี่กล่อง?"
+
+                    sol = f"""<span style='color:#2c3e50; line-height: 1.8;'>
+                    <div style='background-color:#fef5e7; border-left:4px solid #e67e22; padding:15px; margin-bottom:15px; border-radius:8px;'>
+                    💡 <b>แปลภาษาไทย ให้เป็น "สมการคณิตศาสตร์":</b><br>
+                    1. <b>"ผลิตเพิ่มวันละ... เป็นเวลา...วัน"</b> ➔ การเพิ่มปริมาณเดิมซ้ำๆ หลายวัน ต้องใช้ <b style='color:#e74c3c;'>เครื่องหมายคูณ (×)</b> เพื่อหายอดผลิตใหม่<br>
+                    2. <b>"มีค้างสต็อกอยู่... นำมารวมกับของใหม่"</b> ➔ การรวมกัน ต้องใช้ <b style='color:#3498db;'>เครื่องหมายบวก (+)</b><br>
+                    3. <b>"นำทั้งหมดที่มีไปจัดลงกล่อง กล่องละ..."</b> ➔ การจัดกลุ่มย่อยกลุ่มละเท่าๆ กัน ต้องใช้ <b style='color:#9b59b6;'>เครื่องหมายหาร (÷)</b><br>
+                    <b>ประโยคสัญลักษณ์:</b> [{stock:,} <b style='color:#3498db;'>+</b> ({produce_per_day} <b style='color:#e74c3c;'>×</b> {days})] <b style='color:#9b59b6;'>÷</b> {box_size} = ?
+                    </div>
+                    <b>วิธีทำและที่มาของตัวเลข:</b><br>
+                    👉 <b>ขั้นที่ 1: คำนวณยอดที่ผลิตได้ใหม่ทั้งหมด</b><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;ผลิตวันละ {produce_per_day} ชิ้น ทำไป {days} วัน ➔ นำมาคูณกัน: {produce_per_day} × {days} = <b><span style='color:#27ae60;'>{total_produced:,}</span> ชิ้น</b> <i>(ตัวเลข {produce_per_day} และ {days} ยุบรวมกันเป็นยอดผลิตใหม่)</i><br><br>
+                    👉 <b>ขั้นที่ 2: นำของใหม่ไปรวมกับของเก่าในโกดัง</b><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;ของเดิมมี {stock:,} ชิ้น นำมาบวกกับที่เพิ่งผลิตเสร็จ <span style='color:#27ae60;'>{total_produced:,}</span> ชิ้น ➔ {stock:,} + <span style='color:#27ae60;'>{total_produced:,}</span> = <b><span style='color:#e67e22;'>{total_all:,}</span> ชิ้น</b> <i>(นี่คือ{item}ทั้งหมดพร้อมแพ็ก)</i><br><br>
+                    👉 <b>ขั้นที่ 3: นำของทั้งหมดจัดลงกล่อง</b><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;มีของ <span style='color:#e67e22;'>{total_all:,}</span> ชิ้น นำมาหารจัดลงกล่อง กล่องละ {box_size} ชิ้น ➔ <span style='color:#e67e22;'>{total_all:,}</span> ÷ {box_size} = <b><span style='color:#c0392b;'>{ans:,}</span> กล่อง</b><br><br>
+                    <b>ตอบ: จะจัดได้ทั้งหมด {ans:,} กล่อง</b></span>"""
 
 
 
