@@ -1807,9 +1807,10 @@ def generate_questions_logic(grade, main_t, sub_t, num_q, is_challenge=False):
             elif actual_sub_t == "การบวกและการลบเศษส่วน":
                 scenario = random.choice(["chain_operation", "pole_trap", "mixed_borrowing_trap", "equation_balance"])
 
-                # ✨ ฟังก์ชันพิเศษ: วาดเศษส่วนแนวตั้งแบบสวยงาม (แก้ปัญหา Streamlit ไม่เรนเดอร์ LaTeX)
+                # ✨ ฟังก์ชันพิเศษ: วาดเศษส่วนแนวตั้ง (อัปเดตใหม่ ใช้ <hr> บังคับให้มีเส้นขีดเสมอ!)
                 def make_frac(n, d, w="", color="inherit"):
-                    frac_html = f"<span style='display:inline-block; text-align:center; vertical-align:middle; line-height:1.2; font-size:18px; margin:0 4px;'><span style='display:block; border-bottom:2px solid {color}; padding:0 3px;'>{n}</span><span style='display:block; padding:0 3px;'>{d}</span></span>"
+                    line_style = f"margin: 0px; border: none; border-top: 2px solid {color};"
+                    frac_html = f"<span style='display:inline-block; text-align:center; vertical-align:middle; line-height:1.2; font-size:18px; margin:0 4px;'><span style='display:block; padding: 2px 0;'>{n}</span><hr style='{line_style}'/><span style='display:block; padding: 2px 0;'>{d}</span></span>"
                     if w != "":
                         return f"<span style='display:inline-block; vertical-align:middle; color:{color}; font-size:20px;'><b>{w}</b>{frac_html}</span>"
                     return f"<span style='display:inline-block; vertical-align:middle; color:{color};'><b>{frac_html}</b></span>"
@@ -2031,7 +2032,6 @@ def generate_questions_logic(grade, main_t, sub_t, num_q, is_challenge=False):
                     &nbsp;&nbsp;&nbsp;&nbsp;<span style='color:#8e44ad;'>A</span> = {make_frac(new_n2, lcm_all, color="#27ae60")} - {make_frac(new_n1, lcm_all, color="#e74c3c")} = <b>{make_frac(ans_n, lcm_all)}</b><br>
                     &nbsp;&nbsp;&nbsp;&nbsp;คำตอบคือ {make_frac(ans_n, lcm_all)} และตัดทอนอย่างต่ำได้เป็น <b>{ans_str}</b><br><br>
                     <b>ตอบ: ตอนแรกชาวไร่เก็บมะม่วงได้ {ans_str} ตัน</b></span>"""
-
 
 
 
