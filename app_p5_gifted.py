@@ -1608,22 +1608,22 @@ def generate_questions_logic(grade, main_t, sub_t, num_q, is_challenge=False):
 
 # ================= หมวดที่ 1: รากฐานตัวเลขและการดำเนินการ (ป.5) =================
             elif actual_sub_t == "เลขยกกำลังเบื้องต้นและการหาเลขโดดหลักหน่วย":
-                # สุ่ม 3 สถานการณ์: 1. ปูพื้นฐานการเติบโต 2. หาหลักหน่วย (ข้อสอบแจกคะแนน) 3. PEMDAS ผสมยกกำลัง
-                scenario = random.choice(["exponential_growth", "units_digit_cycle", "pemdas_exponents"])
+                # สุ่ม 5 สถานการณ์: เติบโตทวีคูณ, หลักหน่วยตัวเดียว, PEMDAS, กับดักครึ่งหนึ่ง, หลักหน่วยประยุกต์
+                scenario = random.choice([
+                    "exponential_growth", "units_digit_cycle", "pemdas_exponents",
+                    "exponent_trap", "units_digit_sum"
+                ])
 
                 if scenario == "exponential_growth":
-                    # [สไตล์ 1: ชีวิตประจำวัน - การเติบโตแบบทวีคูณ (Exponential Growth)]
+                    # [สไตล์ 1: ชีวิตประจำวัน - การเติบโตแบบทวีคูณ (โค้ดเดิม)]
                     themes = [
                         ("นักวิทยาศาสตร์", "เชื้อแบคทีเรียกลายพันธุ์", "แบ่งเซลล์เพิ่มขึ้น", "เซลล์"),
                         ("แฮกเกอร์", "ไวรัสคอมพิวเตอร์", "คัดลอกตัวเองส่งต่อ", "เครื่อง"),
-                        ("อินฟลูเอนเซอร์", "คลิปวิดีโอไวรัล", "ถูกส่งต่อให้เพื่อน", "คน")
+                        ("อินฟลูเอนเซอร์", "คลิปวิดีโอไวรัล", "ถูกแชร์ต่อให้เพื่อน", "คน")
                     ]
                     person, item, action, unit = random.choice(themes)
-                    
                     base = random.choice([2, 3, 4, 5])
                     power = random.choice([4, 5, 6])
-                    
-                    # คำนวณค่าและสร้าง string กระจายการคูณ
                     ans = base ** power
                     mult_str = " × ".join([str(base)] * power)
                     
@@ -1632,39 +1632,30 @@ def generate_questions_logic(grade, main_t, sub_t, num_q, is_challenge=False):
                     sol = f"""<span style='color:#2c3e50; line-height: 1.8;'>
                     <div style='background-color:#fcf3cf; border-left:4px solid #f1c40f; padding:15px; margin-bottom:15px; border-radius:8px;'>
                     💡 <b>การแปลภาษาไทย เป็น "สมการคณิตศาสตร์":</b><br>
-                    • <b>"เพิ่มขึ้นทีละ {base} {unit}"</b> ➔ จาก 1 เป็น {base}, จาก {base} แต่ละตัวแตกอีก {base} กลายเป็น {base*base}... การเพิ่มขึ้นแบบรวดเร็วโดยนำเลขเดิมมาคูณซ้ำๆ ต้องใช้ <b style='color:#e74c3c;'>เครื่องหมายเลขยกกำลัง (Exponent)</b><br>
-                    • <b>"ผ่านไป {power} ชั่วโมง"</b> ➔ แปลว่าเหตุการณ์นี้เกิดการคูณซ้ำกันทั้งหมด <b>{power} ครั้ง</b><br>
+                    • <b>"เพิ่มขึ้นทีละ {base} {unit}"</b> ➔ การเพิ่มขึ้นแบบรวดเร็วโดยนำเลขเดิมมาคูณซ้ำๆ ต้องใช้ <b style='color:#e74c3c;'>เครื่องหมายเลขยกกำลัง (Exponent)</b><br>
+                    • <b>"ผ่านไป {power} ชั่วโมง"</b> ➔ แปลว่าเกิดการคูณซ้ำกันทั้งหมด <b>{power} ครั้ง</b><br>
                     🔥 <b>ประโยคสัญลักษณ์:</b> นำตัวเลขที่เพิ่ม <span style='color:#e74c3c;'>({base})</span> มาเป็น <b>'ฐาน'</b> และนำจำนวนครั้ง <span style='color:#2980b9;'>({power})</span> มาเป็น <b>'เลขชี้กำลัง'</b> ➔ จะเขียนได้เป็น <b><span style='color:#8e44ad;'>{base}<sup>{power}</sup></span></b>
-                    <br><br>
                     </div>
                     <b>วิธีทำอย่างละเอียดแบบ Step-by-step:</b><br>
                     👉 <b>ขั้นที่ 1: กระจายเลขยกกำลังให้อยู่ในรูปการคูณ</b><br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;<b><span style='color:#8e44ad;'>{base}<sup>{power}</sup></span></b> <b>ไม่ได้แปลว่า</b> {base} × {power} นะครับ! (นี่คือจุดที่คนผิดบ่อยที่สุด)<br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;ความหมายที่แท้จริงคือ: นำเลข <span style='color:#e74c3c;'>{base}</span> มาคูณตัวมันเองเป็นจำนวน <span style='color:#2980b9;'>{power} ครั้ง</span><br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;สมการ: <b><span style='color:#e74c3c;'>{mult_str}</span></b><br><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;<b><span style='color:#8e44ad;'>{base}<sup>{power}</sup></span></b> ความหมายคือ: นำเลข <span style='color:#e74c3c;'>{base}</span> มาคูณตัวมันเองจำนวน <span style='color:#2980b9;'>{power} ครั้ง</span><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;สมการ: <b><span style='color:#e74c3c;'>{mult_str}</span></b><br>
                     
                     👉 <b>ขั้นที่ 2: ค่อยๆ จับคู่คูณ (×) ไปทีละสเตป</b><br>
                     &nbsp;&nbsp;&nbsp;&nbsp;• ชั่วโมงที่ 1: มี <b><span style='color:#27ae60;'>{base}</span></b> {unit}<br>
                     &nbsp;&nbsp;&nbsp;&nbsp;• ชั่วโมงที่ 2: {base} × {base} = <b><span style='color:#27ae60;'>{base**2}</span></b> {unit}<br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;• ชั่วโมงที่ 3: {base**2} × {base} = <b><span style='color:#27ae60;'>{base**3}</span></b> {unit}<br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;<i>(คูณต่อไปเรื่อยๆ จนครบ {power} ครั้ง)</i>...<br><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;<i>(คูณต่อไปเรื่อยๆ จนครบ {power} ครั้ง)</i>...<br>
                     
                     👉 <b>ขั้นที่ 3: สรุปผลลัพธ์</b><br>
                     &nbsp;&nbsp;&nbsp;&nbsp;เมื่อคูณครบ {power} ครั้ง จะได้ผลลัพธ์คือ <b><span style='color:#c0392b;'>{ans:,}</span> {unit}</b><br><br>
                     <b>ตอบ: จะมี {item} ทั้งหมด {ans:,} {unit}</b></span>"""
 
                 elif scenario == "units_digit_cycle":
-                    # [สไตล์ 2: ข้อสอบแข่งขัน - การหาเลขโดดหลักหน่วย (วัฏจักรรอบละ 4)]
+                    # [สไตล์ 2: หาหลักหน่วยตัวเดียว (โค้ดเดิม)]
                     base_num = random.choice([2, 3, 7, 8])
                     power_num = random.randint(1005, 2999)
                     
-                    # ฐาน 2, 3, 7, 8 มีวัฏจักรหลักหน่วยหมุนรอบละ 4 ตัวเสมอ
-                    cycles = {
-                        2: [2, 4, 8, 6],
-                        3: [3, 9, 7, 1],
-                        7: [7, 9, 3, 1],
-                        8: [8, 4, 2, 6]
-                    }
+                    cycles = {2: [2, 4, 8, 6], 3: [3, 9, 7, 1], 7: [7, 9, 3, 1], 8: [8, 4, 2, 6]}
                     cycle_arr = cycles[base_num]
                     
                     rem = power_num % 4
@@ -1672,53 +1663,42 @@ def generate_questions_logic(grade, main_t, sub_t, num_q, is_challenge=False):
                     ans_digit = cycle_arr[rem - 1] if rem != 0 else cycle_arr[3]
                     
                     rem_text = f"เหลือเศษ {rem}" if rem != 0 else "หารลงตัวพอดี (เศษ 0)"
-                    position_text = f"ตัวที่ {rem}" if rem != 0 else "ตัวที่ 4 (ตัวสุดท้ายของรอบ)"
+                    position_text = f"ตัวที่ {rem}" if rem != 0 else "ตัวที่ 4 (ตัวสุดท้าย)"
 
-                    q = f"ในด่านทดสอบเข้าห้องเรียนพิเศษ ผู้เข้าสอบจะต้องถอดรหัสลับเพื่อเปิดประตูห้อง <br>รหัสผ่านคือ <b>'เลขโดดในหลักหน่วย'</b> ของผลลัพธ์ <b><span style='font-size:24px;'>{base_num}<sup>{power_num}</sup></span></b> <br>จงหาว่ารหัสผ่านที่ถูกต้องคือเลขใด?"
+                    q = f"ในด่านทดสอบเข้าห้องเรียนพิเศษ รหัสผ่านคือ <b>'เลขโดดในหลักหน่วย'</b> ของผลลัพธ์ <br><div style='text-align:center;'><span style='font-size:28px; font-weight:bold; color:#2980b9;'>{base_num}<sup>{power_num}</sup></span></div><br>จงหาว่ารหัสผ่านที่ถูกต้องคือเลขใด?"
 
                     sol = f"""<span style='color:#2c3e50; line-height: 1.8;'>
                     <div style='background-color:#fdf2e9; border-left:4px solid #e67e22; padding:15px; margin-bottom:15px; border-radius:8px;'>
                     💡 <b>อาวุธลับสอบแข่งขัน "วงจรหลักหน่วย (Cycle of 4)":</b><br>
-                    ในทางคณิตศาสตร์ เราไม่สามารถเอา {base_num} มาคูณกัน {power_num} ครั้งได้จริงๆ เพราะตัวเลขจะยาวเป็นพันๆ หน้ากระดาษ! <br>
-                    แต่ความมหัศจรรย์คือ <b>"เลขหลักหน่วยของแม่ {base_num} จะวนลูปซ้ำเดิมทุกๆ 4 ครั้งเสมอ!"</b>
-                    <br><br>
+                    ความมหัศจรรย์ของคณิตศาสตร์คือ <b>"เลขหลักหน่วยของแม่ {base_num} จะวนลูปซ้ำเดิมทุกๆ 4 ครั้งเสมอ!"</b> ไม่ว่าเลขชี้กำลังจะเยอะแค่ไหน เราก็หาคำตอบได้โดยไม่ต้องคูณจริง!
                     </div>
                     <b>วิธีทำอย่างละเอียดแบบ Step-by-step:</b><br>
-                    👉 <b>ขั้นที่ 1: หากฎการวนลูป (ลองคูณแม่ {base_num} ไปเรื่อยๆ แล้วดูแค่เลขตัวท้าย)</b><br>
+                    👉 <b>ขั้นที่ 1: หากฎการวนลูป (ลองคูณแม่ {base_num} ไปเรื่อยๆ ดูแค่ตัวท้าย)</b><br>
                     &nbsp;&nbsp;&nbsp;&nbsp;• {base_num}<sup>1</sup> = ลงท้ายด้วย <b><span style='color:#2980b9;'>{cycle_arr[0]}</span></b><br>
                     &nbsp;&nbsp;&nbsp;&nbsp;• {base_num}<sup>2</sup> = ลงท้ายด้วย <b><span style='color:#2980b9;'>{cycle_arr[1]}</span></b><br>
                     &nbsp;&nbsp;&nbsp;&nbsp;• {base_num}<sup>3</sup> = ลงท้ายด้วย <b><span style='color:#2980b9;'>{cycle_arr[2]}</span></b><br>
                     &nbsp;&nbsp;&nbsp;&nbsp;• {base_num}<sup>4</sup> = ลงท้ายด้วย <b><span style='color:#2980b9;'>{cycle_arr[3]}</span></b><br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;<i>(ถ้าไปต่อ {base_num}<sup>5</sup> มันก็จะวนกลับมาลงท้ายด้วย {cycle_arr[0]} อีกครั้ง!)</i><br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;สรุปวงจรคือ: <b>[ {cycle_arr[0]}, {cycle_arr[1]}, {cycle_arr[2]}, {cycle_arr[3]} ]</b> วนไปเรื่อยๆ<br><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;สรุปวงจรคือ: <b>[ {cycle_arr[0]}, {cycle_arr[1]}, {cycle_arr[2]}, {cycle_arr[3]} ]</b> วนไปเรื่อยๆ<br>
                     
-                    👉 <b>ขั้นที่ 2: ใช้เครื่องหมายหาร (÷) เพื่อหาว่าหยุดที่ลูปไหน</b><br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;เราต้องการตัวที่ <span style='color:#e74c3c;'>{power_num}</span> และรู้ว่ามันจัดกลุ่มรอบละ 4 ➔ ดังนั้นนำมา <b style='color:#d35400;'>หาร (÷) ด้วย 4</b><br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;สมการ: <span style='color:#e74c3c;'>{power_num}</span> ÷ 4 = ได้ {quotient} รอบ และ <b><span style='color:#c0392b;'>{rem_text}</span></b><br><br>
+                    👉 <b>ขั้นที่ 2: นำเลขชี้กำลังมา <span style='color:#d35400;'>หาร (÷) ด้วย 4</span></b><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;สมการ: <span style='color:#e74c3c;'>{power_num}</span> ÷ 4 = ได้ {quotient} รอบ และ <b><span style='color:#c0392b;'>{rem_text}</span></b><br>
                     
                     👉 <b>ขั้นที่ 3: ดูเศษเพื่อหาคำตอบ</b><br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;• <b>เศษคือ {rem}</b> แปลว่าตกตำแหน่ง <b><span style='color:#27ae60;'>{position_text}</span></b> ในวงจรของเรา<br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;เมื่อไปดูในวงจร [ {cycle_arr[0]}, {cycle_arr[1]}, {cycle_arr[2]}, {cycle_arr[3]} ] ตัวที่ตำแหน่งนี้คือเลข <b><span style='color:#8e44ad;'>{ans_digit}</span></b><br><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;• <b>เศษคือ {rem}</b> แปลว่าตกตำแหน่ง <b><span style='color:#27ae60;'>{position_text}</span></b> ในวงจร<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;ซึ่งตัวเลขในตำแหน่งนั้นคือ <b><span style='color:#8e44ad;'>{ans_digit}</span></b><br><br>
                     <b>ตอบ: รหัสผ่าน (เลขโดดหลักหน่วย) คือ {ans_digit}</b></span>"""
 
-                else:
-                    # [สไตล์ 3: กฎ PEMDAS ผสมเลขยกกำลัง]
-                    # สมการรูปแบบ: A^p1 + (B^p2 x C) - D^p3
+                elif scenario == "pemdas_exponents":
+                    # [สไตล์ 3: กฎ PEMDAS (โค้ดเดิม)]
                     a = random.choice([2, 3, 4])
-                    p_a = random.choice([3, 4]) # เช่น 2^3=8, 3^3=27
-                    
+                    p_a = random.choice([3, 4]) 
                     b = random.choice([4, 5, 6, 7])
-                    p_b = 2 # เช่น 5^2=25
-                    
+                    p_b = 2
                     c = random.choice([3, 4, 5])
-                    
                     d = random.choice([8, 9, 10])
-                    p_d = 2 # เช่น 10^2=100
+                    p_d = 2 
                     
-                    val_a = a ** p_a
-                    val_b = b ** p_b
-                    val_d = d ** p_d
-                    
+                    val_a, val_b, val_d = a**p_a, b**p_b, d**p_d
                     mult_val = val_b * c
                     final_ans = val_a + mult_val - val_d
 
@@ -1727,30 +1707,98 @@ def generate_questions_logic(grade, main_t, sub_t, num_q, is_challenge=False):
                     sol = f"""<span style='color:#2c3e50; line-height: 1.8;'>
                     <div style='background-color:#e8f8f5; border-left:4px solid #1abc9c; padding:15px; margin-bottom:15px; border-radius:8px;'>
                     💡 <b>กฎลำดับการคำนวณขั้นสูง (PEMDAS with Exponents):</b><br>
-                    เมื่อมี <b>'เลขยกกำลัง'</b> เข้ามาในสมการ กฎเหล็กจะเปลี่ยนไปดังนี้:<br>
-                    <b>อันดับ 1:</b> ทำใน <b>วงเล็บ ( )</b> ก่อนเสมอ!<br>
-                    <b>อันดับ 2:</b> แปลงร่าง <b>เลขยกกำลัง (E - Exponents)</b> ให้เป็นตัวเลขธรรมดาก่อน!<br>
-                    <b>อันดับ 3:</b> ทำ <b>คูณ (×) หรือ หาร (÷)</b> จากซ้ายไปขวา<br>
-                    <b>อันดับ 4:</b> ทำ <b>บวก (+) หรือ ลบ (-)</b> จากซ้ายไปขวา
-                    <br><br>
+                    <b>1.</b> ทำใน <b>วงเล็บ ( )</b> ก่อน<br>
+                    <b>2.</b> แปลงร่าง <b>เลขยกกำลัง (Exponents)</b> ให้เป็นตัวเลขธรรมดา<br>
+                    <b>3.</b> ทำ <b>คูณ (×) หรือ หาร (÷)</b> จากซ้ายไปขวา<br>
+                    <b>4.</b> ทำ <b>บวก (+) หรือ ลบ (-)</b> จากซ้ายไปขวา
                     </div>
                     <b>วิธีทำอย่างละเอียดแบบ Step-by-step:</b><br>
-                    👉 <b>ขั้นที่ 1: แปลงร่างเลขยกกำลังทุกตัว ให้เป็นเลขธรรมดา</b><br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;• <span style='color:#e74c3c;'>{a}<sup>{p_a}</sup></span> หมายถึง {a} คูณกัน {p_a} ครั้ง = <b><span style='color:#2980b9;'>{val_a}</span></b><br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;• <span style='color:#e74c3c;'>{b}<sup>{p_b}</sup></span> หมายถึง {b} คูณกัน {p_b} ครั้ง = <b><span style='color:#2980b9;'>{val_b}</span></b><br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;• <span style='color:#e74c3c;'>{d}<sup>{p_d}</sup></span> หมายถึง {d} คูณกัน {p_d} ครั้ง = <b><span style='color:#2980b9;'>{val_d}</span></b><br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;<i>นำตัวเลขที่แปลงร่างแล้วกลับไปวางในสมการ จะได้สมการใหม่คือ:</i><br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;➔ <span style='color:#2980b9;'>{val_a}</span> + <b>( <span style='color:#2980b9;'>{val_b}</span> × {c} )</b> - <span style='color:#2980b9;'>{val_d}</span><br><br>
+                    👉 <b>ขั้นที่ 1: แปลงร่างเลขยกกำลังให้เป็นเลขธรรมดา</b><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;• <span style='color:#e74c3c;'>{a}<sup>{p_a}</sup></span> = {a} คูณกัน {p_a} ครั้ง = <b><span style='color:#2980b9;'>{val_a}</span></b><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;• <span style='color:#e74c3c;'>{b}<sup>{p_b}</sup></span> = {b} คูณกัน {p_b} ครั้ง = <b><span style='color:#2980b9;'>{val_b}</span></b><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;• <span style='color:#e74c3c;'>{d}<sup>{p_d}</sup></span> = {d} คูณกัน {p_d} ครั้ง = <b><span style='color:#2980b9;'>{val_d}</span></b><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;➔ สมการใหม่: <span style='color:#2980b9;'>{val_a}</span> + <b>( <span style='color:#2980b9;'>{val_b}</span> × {c} )</b> - <span style='color:#2980b9;'>{val_d}</span><br>
                     
-                    👉 <b>ขั้นที่ 2: จัดการในวงเล็บให้เรียบร้อย (ตามกฎข้อ 1)</b><br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;ในวงเล็บคือ ( <span style='color:#2980b9;'>{val_b}</span> <b style='color:#e74c3c;'>×</b> {c} ) = <b><span style='color:#27ae60;'>{mult_val}</span></b><br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;<i>สมการจะยุบเหลือ:</i> <span style='color:#2980b9;'>{val_a}</span> <b style='color:#3498db;'>+</b> <span style='color:#27ae60;'>{mult_val}</span> <b style='color:#9b59b6;'>-</b> <span style='color:#2980b9;'>{val_d}</span><br><br>
+                    👉 <b>ขั้นที่ 2: จัดการในวงเล็บ (คูณ)</b><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;ในวงเล็บ ( <span style='color:#2980b9;'>{val_b}</span> <b style='color:#e74c3c;'>×</b> {c} ) = <b><span style='color:#27ae60;'>{mult_val}</span></b><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;➔ ยุบเหลือ: <span style='color:#2980b9;'>{val_a}</span> <b style='color:#3498db;'>+</b> <span style='color:#27ae60;'>{mult_val}</span> <b style='color:#9b59b6;'>-</b> <span style='color:#2980b9;'>{val_d}</span><br>
                     
-                    👉 <b>ขั้นที่ 3: ทำ บวก(+) และ ลบ(-) เรียงจากซ้ายไปขวา</b><br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;• เอาคู่หน้ามาบวกกันก่อน: <span style='color:#2980b9;'>{val_a}</span> <b style='color:#3498db;'>+</b> <span style='color:#27ae60;'>{mult_val}</span> = <b><span style='color:#8e44ad;'>{val_a + mult_val}</span></b><br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;• เอาผลลัพธ์ไปลบตัวหลังสุด: <span style='color:#8e44ad;'>{val_a + mult_val}</span> <b style='color:#9b59b6;'>-</b> <span style='color:#2980b9;'>{val_d}</span> = <b><span style='color:#c0392b;'>{final_ans}</span></b><br><br>
+                    👉 <b>ขั้นที่ 3: ทำ บวก(+) และ ลบ(-) ซ้ายไปขวา</b><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;• บวก: <span style='color:#2980b9;'>{val_a}</span> <b style='color:#3498db;'>+</b> <span style='color:#27ae60;'>{mult_val}</span> = <b><span style='color:#8e44ad;'>{val_a + mult_val}</span></b><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;• ลบ: <span style='color:#8e44ad;'>{val_a + mult_val}</span> <b style='color:#9b59b6;'>-</b> <span style='color:#2980b9;'>{val_d}</span> = <b><span style='color:#c0392b;'>{final_ans}</span></b><br><br>
                     <b>ตอบ: {final_ans}</b></span>"""
 
+                elif scenario == "exponent_trap":
+                    # ✨ [สไตล์ 4 ใหม่ล่าสุด!: โจทย์กับดัก (Trap) ครึ่งหนึ่งของเลขยกกำลัง]
+                    power_trap = random.choice([20, 50, 100, 256, 1000])
+                    
+                    q = f"โจทย์ปราบเซียนในการสอบแข่งขัน:<br><div style='text-align:center; font-size:24px; font-weight:bold; background:#f8f9fa; padding:15px; border-radius:10px; border:2px dashed #bdc3c7; margin: 10px 0;'>'ครึ่งหนึ่ง' ของ <b><span style='color:#2980b9;'>2<sup>{power_trap}</sup></span></b> มีค่าเท่ากับเท่าใด?</div><br><i>(เด็กส่วนใหญ่มักจะตอบ 1<sup>{power_trap}</sup> หรือ 2<sup>{power_trap // 2}</sup> ซึ่ง <b>ผิด</b>! จงแสดงวิธีคิดที่ถูกต้อง)</i>"
+
+                    sol = f"""<span style='color:#2c3e50; line-height: 1.8;'>
+                    <div style='background-color:#fef5e7; border-left:4px solid #e67e22; padding:15px; margin-bottom:15px; border-radius:8px;'>
+                    💡 <b>ถอดรหัสกับดักคณิตศาสตร์:</b><br>
+                    • คำว่า <b>"ครึ่งหนึ่ง"</b> แปลว่าเราต้องนำของสิ่งนั้นไป <b style='color:#d35400;'>หาร (÷) ด้วย 2</b><br>
+                    • ดังนั้น ประโยคสัญลักษณ์ที่แท้จริงคือ: <b><span style='color:#2980b9;'>2<sup>{power_trap}</sup></span> <b style='color:#d35400;'>÷</b> 2</b><br>
+                    <br>❌ <b>ทำไมถึงห้ามเอา 2 ไปหารฐานตรงๆ?</b><br>
+                    เพราะ 2<sup>{power_trap}</sup> ไม่ใช่เลข 2! แต่มันคือเลข 2 เรียงต่อกันยาวๆ {power_trap} ตัว การเอา 2 ไปหารฐาน ทำให้ความหมายเพี้ยนไปหมดครับ
+                    </div>
+                    <b>วิธีทำอย่างละเอียดแบบ Step-by-step:</b><br>
+                    👉 <b>ขั้นที่ 1: กระจายความหมายของ 2<sup>{power_trap}</sup> ให้เห็นภาพ</b><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;2<sup>{power_trap}</sup> หมายถึง ➔ <b>2 × 2 × 2 × 2 ... (มีเลข 2 อยู่ทั้งหมด <span style='color:#e74c3c;'>{power_trap} ตัว</span>)</b><br><br>
+                    
+                    👉 <b>ขั้นที่ 2: นำมาหารด้วย 2 (เพื่อหาครึ่งหนึ่ง)</b><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;เมื่อนำมาหารด้วย 2 ➔ <b style='color:#d35400;'>÷ 2</b> (หรือเขียนเป็นเศษส่วนคือ ส่วน 2)<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;เลข 2 ที่เป็นตัวหารด้านล่าง จะไป <b>'ตัดกับ'</b> เลข 2 ตัวบนได้ <b style='color:#c0392b;'>หายไป 1 ตัวพอดีเป๊ะ!</b><br><br>
+                    
+                    👉 <b>ขั้นที่ 3: สรุปจำนวนเลข 2 ที่เหลืออยู่</b><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;เดิมมีเลข 2 อยู่ {power_trap} ตัว ถูกตัดทิ้งไป 1 ตัว ➔ <span style='color:#e74c3c;'>{power_trap}</span> - 1 = <b><span style='color:#27ae60;'>{power_trap - 1} ตัว</span></b><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;เมื่อมีเลข 2 คูณกันอยู่ {power_trap - 1} ตัว เราจึงยุบกลับเป็นเลขยกกำลังได้คือ <b><span style='color:#8e44ad;'>2<sup>{power_trap - 1}</sup></span></b><br><br>
+                    <b>ตอบ: ครึ่งหนึ่งของ 2<sup>{power_trap}</sup> คือ 2<sup>{power_trap - 1}</sup></b></span>"""
+
+                else:
+                    # ✨ [สไตล์ 5 ใหม่ล่าสุด!: หลักหน่วยประยุกต์บวกกัน]
+                    base1 = random.choice([2, 3, 7, 8])
+                    base2 = random.choice([x for x in [2, 3, 7, 8] if x != base1])
+                    power_num = random.randint(2025, 2500)
+                    
+                    cycles = {2: [2, 4, 8, 6], 3: [3, 9, 7, 1], 7: [7, 9, 3, 1], 8: [8, 4, 2, 6]}
+                    rem = power_num % 4
+                    q_val = power_num // 4
+                    
+                    ans_d1 = cycles[base1][rem - 1] if rem != 0 else cycles[base1][3]
+                    ans_d2 = cycles[base2][rem - 1] if rem != 0 else cycles[base2][3]
+                    
+                    sum_digits = ans_d1 + ans_d2
+                    final_unit = sum_digits % 10
+
+                    q = f"จงหา <b>'เลขโดดในหลักหน่วย'</b> ของผลลัพธ์จากการบวกกันของ<br><div style='text-align:center;'><span style='font-size:28px; font-weight:bold; color:#8e44ad;'>{base1}<sup>{power_num}</sup> <b style='color:#e74c3c;'>+</b> {base2}<sup>{power_num}</sup></span></div>"
+
+                    sol = f"""<span style='color:#2c3e50; line-height: 1.8;'>
+                    <div style='background-color:#e8f8f5; border-left:4px solid #1abc9c; padding:15px; margin-bottom:15px; border-radius:8px;'>
+                    💡 <b>เทคนิคพิชิตข้อสอบ:</b><br>
+                    ข้อนี้เหมือนเอาด่านถอดรหัส 2 ด่านมารวมกัน!<br>
+                    1. เราต้องหาเลขหลักหน่วยของ <span style='color:#2980b9;'>{base1}<sup>{power_num}</sup></span> ให้ได้ก่อน<br>
+                    2. ไปหาเลขหลักหน่วยของ <span style='color:#27ae60;'>{base2}<sup>{power_num}</sup></span><br>
+                    3. นำ <b>'หลักหน่วยทั้งสองตัวมาบวก (+) กัน'</b> แล้วดูว่าหลักหน่วยของผลลัพธ์สุดท้ายคือเลขอะไร
+                    </div>
+                    <b>วิธีทำอย่างละเอียดแบบ Step-by-step:</b><br>
+                    👉 <b>ขั้นที่ 1: หารอบลูป (Cycle) จากเลขชี้กำลัง</b><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;เลขชี้กำลังคือ <span style='color:#e74c3c;'>{power_num}</span> นำมาหารด้วย 4 (เพราะหลักหน่วยวนทุก 4 ครั้ง)<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;{power_num} ÷ 4 = ได้ {q_val} รอบ และ <b><span style='color:#c0392b;'>เหลือเศษ {rem if rem != 0 else 0}</span></b><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;<i>(เศษ {rem if rem != 0 else 0} แปลว่าเราต้องดูตัวเลข <b>ตำแหน่งที่ {rem if rem != 0 else 4}</b> ในวงจรของมัน)</i><br><br>
+                    
+                    👉 <b>ขั้นที่ 2: หาหลักหน่วยของ {base1}<sup>{power_num}</sup></b><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;วงจรของแม่ {base1} คือ: [ {cycles[base1][0]}, {cycles[base1][1]}, {cycles[base1][2]}, {cycles[base1][3]} ]<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;ตัวที่ {rem if rem != 0 else 4} ในวงจรคือเลข <b><span style='color:#2980b9;'>{ans_d1}</span></b><br><br>
+                    
+                    👉 <b>ขั้นที่ 3: หาหลักหน่วยของ {base2}<sup>{power_num}</sup></b><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;วงจรของแม่ {base2} คือ: [ {cycles[base2][0]}, {cycles[base2][1]}, {cycles[base2][2]}, {cycles[base2][3]} ]<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;ตัวที่ {rem if rem != 0 else 4} ในวงจรคือเลข <b><span style='color:#27ae60;'>{ans_d2}</span></b><br><br>
+                    
+                    👉 <b>ขั้นที่ 4: นำหลักหน่วยมา <span style='color:#c0392b;'>บวก (+)</span> กันตามโจทย์สั่ง</b><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;นำ <span style='color:#2980b9;'>{ans_d1}</span> + <span style='color:#27ae60;'>{ans_d2}</span> = <b><span style='color:#8e44ad;'>{sum_digits}</span></b><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;เลขโดดหลักหน่วยของ {sum_digits} ก็คือ <b><span style='color:#c0392b;'>{final_unit}</span></b><br><br>
+                    <b>ตอบ: เลขโดดหลักหน่วยของผลลัพธ์คือ {final_unit}</b></span>"""
 
 
 
