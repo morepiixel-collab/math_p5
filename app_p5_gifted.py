@@ -2468,7 +2468,6 @@ def generate_questions_logic(grade, main_t, sub_t, num_q, is_challenge=False):
 
 # ================= หมวดที่ 2: โลกของเศษส่วนและทศนิยม (ป.5) =================
             elif actual_sub_t == "เศษส่วนซ้อน (Complex Fractions)":
-                # สุ่ม 5 สถานการณ์ปราบเซียน: (ยุบจากล่าง, กับดักเส้นหลัก, ตัดทอนไขว้ขนาดยักษ์, ตึกระฟ้า 3 ชั้น, หาตัวแปร X)
                 scenario = random.choice(["continuous_fraction", "main_bar_trap", "giant_complex_cross", "deep_inception", "reverse_equation"])
 
                 # ✨ ฟังก์ชันวาดเศษส่วนแนวตั้งแบบปกติ
@@ -2490,7 +2489,7 @@ def generate_questions_logic(grade, main_t, sub_t, num_q, is_challenge=False):
                     return n // gcd, d // gcd
 
                 if scenario == "continuous_fraction":
-                    # [สไตล์ 1: เศษส่วนต่อเนื่อง 2 ชั้น (โค้ดเดิม)]
+                    # [สไตล์ 1: เศษส่วนต่อเนื่อง 2 ชั้น]
                     w1 = random.randint(1, 3); n1 = random.choice([1, 2, 3])
                     w2 = random.randint(1, 3); d2 = random.choice([3, 4, 5]); n2 = random.choice([x for x in range(1, d2) if math.gcd(x, d2) == 1])
 
@@ -2512,6 +2511,9 @@ def generate_questions_logic(grade, main_t, sub_t, num_q, is_challenge=False):
                     complex_part = make_complex_frac(str(n1), bottom_part)
                     full_eq = f"<div style='font-size:24px; font-weight:bold;'>{w1} + {complex_part} = ?</div>"
 
+                    # วาดสมการอัปเดตระหว่างสเตป
+                    eq_after_step1 = f"{w1} + {make_complex_frac(str(n1), make_frac(bot_n, bot_d, color='#2980b9'))}"
+
                     q = f"จงหาผลลัพธ์ของ <b>'เศษส่วนต่อเนื่อง'</b> ต่อไปนี้ในรูปเศษส่วนอย่างต่ำหรือจำนวนคละ:<br><br><div style='text-align:center; background:#f8f9fa; padding:20px; border-radius:10px; border:2px dashed #bdc3c7;'>{full_eq}</div>"
 
                     sol = f"""<span style='color:#2c3e50; line-height: 1.8;'>
@@ -2524,13 +2526,15 @@ def generate_questions_logic(grade, main_t, sub_t, num_q, is_challenge=False):
                     👉 <b>ขั้นที่ 1: ยุบชั้นล่างสุดก่อน ({w2} + {make_frac(n2, d2)})</b><br>
                     &nbsp;&nbsp;&nbsp;&nbsp;แปลงจำนวนคละเป็นเศษเกิน: ({w2} × {d2}) + {n2} = <b><span style='color:#2980b9;'>{bot_n}</span></b><br>
                     &nbsp;&nbsp;&nbsp;&nbsp;ชั้นล่างสุดยุบเหลือ ➔ {make_frac(bot_n, bot_d, color="#2980b9")}<br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;<i>(สมการจะกลายเป็น {w1} + {make_complex_frac(str(n1), make_frac(bot_n, bot_d, color="#2980b9"))} )</i><br><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;👇 <i>อัปเดตสมการล่าสุด:</i><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;<div style='text-align:center; margin: 15px 0; font-size:20px;'><b>{eq_after_step1}</b></div><br>
                     
                     👉 <b>ขั้นที่ 2: ทลายเศษส่วนซ้อน (เปลี่ยนเส้นแดงเป็นเครื่องหมายหาร)</b><br>
                     &nbsp;&nbsp;&nbsp;&nbsp;ความหมายคือ: <span style='color:#e74c3c;'>{n1}</span> <b style='color:#c0392b;'>÷</b> {make_frac(bot_n, bot_d, color="#2980b9")}<br>
                     &nbsp;&nbsp;&nbsp;&nbsp;เปลี่ยนหารเป็นคูณ ตีลังกาตัวหลัง: <span style='color:#e74c3c;'>{n1}</span> <b style='color:#27ae60;'>×</b> {make_frac(bot_d, bot_n, color="#27ae60")}<br>
                     &nbsp;&nbsp;&nbsp;&nbsp;= {make_frac(f"{n1} × {bot_d}", bot_n)} = <b>{make_frac(simp_mid_n, simp_mid_d, color="#8e44ad")}</b><br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;<i>(สมการยุบเหลือแค่: {w1} + {make_frac(simp_mid_n, simp_mid_d, color="#8e44ad")})</i><br><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;👇 <i>อัปเดตสมการล่าสุด:</i><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;<div style='text-align:center; margin: 15px 0; font-size:20px;'><b>{w1} + {make_frac(simp_mid_n, simp_mid_d, color="#8e44ad")}</b></div><br>
                     
                     👉 <b>ขั้นที่ 3: บวกตัวหน้าสุดเพื่อจบเกม</b><br>
                     &nbsp;&nbsp;&nbsp;&nbsp;ทำตัวส่วนให้เท่ากัน: {w1} กลายเป็น {make_frac(w1 * simp_mid_d, simp_mid_d)}<br>
@@ -2644,29 +2648,31 @@ def generate_questions_logic(grade, main_t, sub_t, num_q, is_challenge=False):
                     <b>ตอบ: {ans_str}</b></span>"""
 
                 elif scenario == "deep_inception":
-                    # ✨ [สไตล์ 4 ใหม่ล่าสุด!: เศษส่วนตึกระฟ้า 3 ชั้น (Deep Inception Fraction)]
-                    # รูปแบบ: 1 + ( 1 / (1 + (1 / (1 + 1/d3))) )
+                    # ✨ [สไตล์ 4: เศษส่วนตึกระฟ้า 3 ชั้น - อัปเดตสมการทุกขั้นตอน!]
                     d3 = random.choice([2, 3, 4, 5])
                     
-                    # ชั้น 3 (ล่างสุด): 1 + 1/d3
                     bot_n = d3 + 1
                     bot_d = d3
                     
-                    # ชั้น 2 (กลาง): 1 + 1/(bot_n/bot_d) = 1 + bot_d/bot_n
                     mid_n = bot_n + bot_d
                     mid_d = bot_n
                     
-                    # ชั้น 1 (บนสุด): 1 + 1/(mid_n/mid_d) = 1 + mid_d/mid_n
                     top_n = mid_n + mid_d
                     top_d = mid_n
                     
                     simp_top_n, simp_top_d = simplify_fraction(top_n, top_d)
                     ans_str = make_frac(simp_top_n % simp_top_d, simp_top_d, w=simp_top_n // simp_top_d)
 
-                    # สร้าง HTML ตึกระฟ้า 3 ชั้น
                     layer3 = f"1 + {make_frac(1, d3, color='#e74c3c')}"
                     layer2 = f"1 + {make_complex_frac('1', layer3, main_color='#2980b9')}"
                     full_eq = f"<div style='font-size:24px; font-weight:bold;'>1 + {make_complex_frac('1', layer2, main_color='#8e44ad')} = ?</div>"
+                    
+                    # ภาพสมการหลังขั้นที่ 1 (เหลือ 2 ชั้น)
+                    step1_layer2 = f"1 + {make_complex_frac('1', make_frac(bot_n, bot_d, color='#e74c3c'), main_color='#2980b9')}"
+                    eq_after_step1 = f"1 + {make_complex_frac('1', step1_layer2, main_color='#8e44ad')}"
+                    
+                    # ภาพสมการหลังขั้นที่ 2 (เหลือ 1 ชั้น)
+                    eq_after_step2 = f"1 + {make_complex_frac('1', make_frac(mid_n, mid_d, color='#2980b9'), main_color='#8e44ad')}"
 
                     q = f"โจทย์ทดสอบสมาธิและความแม่นยำ!<br>จงหาผลลัพธ์ของ <b>'เศษส่วนตึกระฟ้า 3 ชั้น'</b> ต่อไปนี้:<br><br><div style='text-align:center; background:#f8f9fa; padding:20px; border-radius:10px; border:2px dashed #bdc3c7;'>{full_eq}</div>"
 
@@ -2675,17 +2681,18 @@ def generate_questions_logic(grade, main_t, sub_t, num_q, is_challenge=False):
                     💡 <b>เทคนิคพิชิตตึกระฟ้า (Inception Method):</b><br>
                     • กฎการเอาตัวรอด: <b>ทำจากล่างสุด ดันขึ้นข้างบนทีละชั้นเท่านั้น!</b><br>
                     • ทริคคิดลัด: สังเกตไหมว่าตัวเศษด้านบนสุดของทุกชั้นคือเลข <b>1</b> ดังนั้นเราไม่ต้องเสียเวลาตั้งหารยาว แค่ <b>"เอาตัวล่างตีลังกาสลับที่กัน (กลับเศษเป็นส่วน)"</b> ก็พังทลายชั้นนั้นได้เลยทันที!
-                    <br>
                     </div>
                     <b>วิธีทำอย่างละเอียดแบบ Step-by-step:</b><br>
                     👉 <b>ขั้นที่ 1: เคลียร์ชั้นล่างสุด (สีแดง)</b><br>
                     &nbsp;&nbsp;&nbsp;&nbsp;1 + {make_frac(1, d3)} = {make_frac(d3, d3)} + {make_frac(1, d3)} = <b><span style='color:#e74c3c;'>{make_frac(bot_n, bot_d)}</span></b><br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;<i>(ตึกตอนนี้เหลือ 2 ชั้นแล้ว!)</i><br><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;👇 <i>ตึกตอนนี้จะยุบเหลือหน้าตาแบบนี้ (เหลือ 2 ชั้น):</i><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;<div style='text-align:center; margin: 15px 0; font-size:20px;'><b>{eq_after_step1}</b></div><br>
                     
                     👉 <b>ขั้นที่ 2: เคลียร์ชั้นกลาง (สีน้ำเงิน)</b><br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;นำผลลัพธ์สีแดงมาตีลังกากลับหัว (เพราะมันถูกหารด้วย 1 อยู่ด้านบน): จาก {make_frac(bot_n, bot_d)} เปลี่ยนเป็น <b><span style='color:#e74c3c;'>{make_frac(bot_d, bot_n)}</span></b><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;นำผลลัพธ์สีแดงมาตีลังกากลับหัว (เพราะมันถูก 1 หารอยู่): จาก {make_frac(bot_n, bot_d)} เปลี่ยนเป็น <b><span style='color:#e74c3c;'>{make_frac(bot_d, bot_n)}</span></b><br>
                     &nbsp;&nbsp;&nbsp;&nbsp;นำไปบวกกับ 1 ที่รออยู่: 1 + <span style='color:#e74c3c;'>{make_frac(bot_d, bot_n)}</span> = {make_frac(bot_n, bot_n)} + {make_frac(bot_d, bot_n)} = <b><span style='color:#2980b9;'>{make_frac(mid_n, mid_d)}</span></b><br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;<i>(ตึกตอนนี้เหลือแค่ชั้นเดียวแล้ว!)</i><br><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;👇 <i>ตึกตอนนี้จะยุบเหลือหน้าตาแบบนี้ (เหลือแค่ชั้นเดียว):</i><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;<div style='text-align:center; margin: 15px 0; font-size:20px;'><b>{eq_after_step2}</b></div><br>
                     
                     👉 <b>ขั้นที่ 3: เคลียร์ชั้นบนสุด (สีม่วง) เพื่อจบเกม</b><br>
                     &nbsp;&nbsp;&nbsp;&nbsp;นำผลลัพธ์สีน้ำเงินมาตีลังกากลับหัวอีกครั้ง: จาก {make_frac(mid_n, mid_d)} เปลี่ยนเป็น <b><span style='color:#2980b9;'>{make_frac(mid_d, mid_n)}</span></b><br>
@@ -2694,23 +2701,19 @@ def generate_questions_logic(grade, main_t, sub_t, num_q, is_challenge=False):
                     <b>ตอบ: {ans_str}</b></span>"""
 
                 else:
-                    # ✨ [สไตล์ 5 ใหม่ล่าสุด!: แก้สมการย้อนกลับ (Reverse Engineering)]
-                    # รูปแบบ A / (B + C/X) = num/den
-                    ans_x = random.choice([2, 3, 4, 5, 7]) # คำตอบ X เป็นจำนวนเต็ม
+                    # [สไตล์ 5: แก้สมการย้อนกลับ (Reverse Engineering)]
+                    ans_x = random.choice([2, 3, 4, 5, 7])
                     c = random.choice([1, 2, 3])
                     b = random.choice([1, 2, 3])
                     a = random.choice([2, 3, 4, 5])
                     
-                    # คำนวณ (B + C/X)
                     bot_n = b * ans_x + c
                     bot_d = ans_x
                     
-                    # คำนวณ A / (bot_n/bot_d) = (A * bot_d) / bot_n
                     final_n = a * bot_d
                     final_d = bot_n
                     simp_n, simp_d = simplify_fraction(final_n, final_d)
                     
-                    # ข้อมูลที่โจทย์ให้มา
                     ans_target = make_frac(simp_n, simp_d, color="#27ae60")
                     bot_complex = f"{b} + {make_frac(c, '<b>X</b>', color='#c0392b')}"
                     full_eq = f"<div style='font-size:24px; font-weight:bold;'>{make_complex_frac(str(a), bot_complex, main_color='#8e44ad')} = {ans_target}</div>"
@@ -2722,7 +2725,6 @@ def generate_questions_logic(grade, main_t, sub_t, num_q, is_challenge=False):
                     💡 <b>เทคนิค Visual Thinking "กล่องปริศนา (Box Method)":</b><br>
                     • เวลาเจอตัวแปรที่ซ่อนอยู่ลึกๆ อย่าเพิ่งรีบย้ายข้างสมการให้ปวดหัว! <br>
                     • ให้เรา <b>"มองก้อนด้านล่างทั้งหมดเป็นกล่องปริศนา 1 ใบ (📦)"</b> แล้วถามตัวเองว่า <span style='color:#8e44ad;'>{a}</span> หารด้วยอะไรน้าา ถึงจะเท่ากับ <span style='color:#27ae60;'>{make_frac(simp_n, simp_d)}</span> ?
-                    <br>
                     </div>
                     <b>วิธีทำอย่างละเอียดแบบ Step-by-step:</b><br>
                     👉 <b>ขั้นที่ 1: หากล่องปริศนา (ก้อนด้านล่างทั้งหมด)</b><br>
