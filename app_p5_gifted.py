@@ -1101,10 +1101,9 @@ def generate_questions_logic(grade, main_t, sub_t, num_q, is_challenge=False):
                     sol = f"""<span style='color:#2c3e50; line-height: 1.8;'>
                     <div style='background-color:#fcf3cf; border-left:4px solid #f1c40f; padding:15px; margin-bottom:15px; border-radius:8px;'>
                     💡 <b>ปูพื้นฐาน: ทำไมมนุษย์ใช้ฐาน 10 แต่หุ่นยนต์ใช้ฐาน 2?</b><br>
-                    • มนุษย์มี 10 นิ้ว เวลาเรานับของ เราจะจัดกล่องทีละ 10 (กล่องหลักหน่วย, กล่องหลักสิบ, กล่องหลักร้อย...)<br>
+                    • มนุษย์มี 10 นิ้ว เวลาเรานับของ เราจะจัดกล่องทีละ 10 (กล่องหลักหน่วย, หลักสิบ, หลักร้อย...)<br>
                     • แต่หุ่นยนต์มีแค่ <b>สวิตช์เปิด (1) กับ สวิตช์ปิด (0)</b> หุ่นยนต์เลยต้องจัดกล่องทีละ 2 (กล่องหลัก 1, กล่องจุ 2, กล่องจุ 4, กล่องจุ 8...)<br>
-                    
-                    </div>
+                                        </div>
                     
                     <div style='background-color:#e8f8f5; border-left:4px solid #1abc9c; padding:15px; margin-bottom:15px; border-radius:8px;'>
                     🧠 <b>การแปลเป็น "สมการคณิตศาสตร์":</b><br>
@@ -1132,7 +1131,6 @@ def generate_questions_logic(grade, main_t, sub_t, num_q, is_challenge=False):
                     planet = "ควินโต (Quinto)" if base_target == 5 else "ควอดรา (Quadra)"
                     decimal_val = random.randint(35, 95)
                     
-                    # หารสั้นเก็บเศษ
                     steps = []
                     current = decimal_val
                     while current > 0:
@@ -1158,8 +1156,7 @@ def generate_questions_logic(grade, main_t, sub_t, num_q, is_challenge=False):
                     • มนุษย์ต่างดาวไม่รู้จักเลข {decimal_val} เพราะพวกเขาจัดของใส่ถุง <b>"ถุงละ {base_target} ชิ้น"</b> เท่านั้น!<br>
                     • <b>"การจัดของใส่ถุงให้เท่าๆ กัน"</b> ➔ เราต้องใช้ <b style='color:#d35400;'>เครื่องหมายหาร (÷)</b> (ใช้วิธีหารสั้น)<br>
                     • <b>"ของที่ล้นถุง (เศษเหลือ)"</b> ➔ ของที่ยัดลงถุงไม่ได้ จะถูกวางไว้ข้างนอก และมันก็คือ <b>ตัวเลขในแต่ละหลัก</b> ของเลขฐานนั่นเอง!
-                    <br>
-                    </div>
+                    <br>                    </div>
                     <b>วิธีทำอย่างละเอียดแบบ Step-by-step (เทคนิคหารจัดกลุ่มแล้วเก็บเศษ):</b><br>
                     👉 <b>ขั้นที่ 1: จัดแอปเปิ้ลลงถุง โดยใช้ <span style='color:#e74c3c;'>แม่ {base_target}</span> หารไปเรื่อยๆ จนกว่าจะไม่เหลือของให้จัด</b><br>
                     {div_html}
@@ -1172,15 +1169,13 @@ def generate_questions_logic(grade, main_t, sub_t, num_q, is_challenge=False):
                     <b>ตอบ: แอปเปิ้ล {decimal_val} ผล เขียนเป็นเลขฐาน {base_target} ได้คือ {base_str}<sub>{base_target}</sub></b></span>"""
 
                 else:
-                    # สไตล์ที่ 3: เปรียบเทียบจำนวนต่างฐาน
+                    # สไตล์ที่ 3: เปรียบเทียบจำนวนต่างฐาน (อัปเกรดความละเอียดขั้นสุด)
                     base_a = 2
                     base_b = 5
                     
-                    # สุ่มเลขฐานให้มีค่าต่างกันนิดหน่อย
                     dec_a = random.randint(15, 25)
                     dec_b = dec_a + random.randint(3, 8)
                     
-                    # ฟังก์ชันแปลงกลับเป็น String ฐานต่างๆ
                     def to_base(n, b):
                         if n == 0: return "0"
                         res = ""
@@ -1193,30 +1188,60 @@ def generate_questions_logic(grade, main_t, sub_t, num_q, is_challenge=False):
                     str_b = to_base(dec_b, base_b)
                     
                     diff_dec = dec_b - dec_a
+
+                    # สร้างขั้นตอนกระจายเลขฐาน A
+                    steps_a_html = ""
+                    powers_a = []
+                    len_a = len(str_a)
+                    for i in range(len_a):
+                        power = len_a - 1 - i
+                        digit = int(str_a[i])
+                        place_val = base_a ** power
+                        val = digit * place_val
+                        powers_a.append(val)
+                        steps_a_html += f"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;• นำเลข <span style='color:#e74c3c;'>{digit}</span> × ขนาดกล่อง {place_val} = <b>{val}</b><br>"
+                    sum_a_str = " + ".join(map(str, powers_a))
+
+                    # สร้างขั้นตอนกระจายเลขฐาน B
+                    steps_b_html = ""
+                    powers_b = []
+                    len_b = len(str_b)
+                    for i in range(len_b):
+                        power = len_b - 1 - i
+                        digit = int(str_b[i])
+                        place_val = base_b ** power
+                        val = digit * place_val
+                        powers_b.append(val)
+                        steps_b_html += f"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;• นำเลข <span style='color:#e74c3c;'>{digit}</span> × ขนาดกล่อง {place_val} = <b>{val}</b><br>"
+                    sum_b_str = " + ".join(map(str, powers_b))
                     
                     q = f"มีกล่องสมบัติ 2 ใบ เขียนรหัสจำนวนเหรียญทองติดไว้หน้ากล่องดังนี้:<br>&nbsp;&nbsp;• กล่องใบที่ 1: <b>{str_a}<sub>{base_a}</sub></b> เหรียญ<br>&nbsp;&nbsp;• กล่องใบที่ 2: <b>{str_b}<sub>{base_b}</sub></b> เหรียญ<br>จงหาว่า <b>กล่องใบใดมีเหรียญทองอยู่จริงบนโลกมนุษย์ (ฐาน 10) มากกว่ากัน? และมากกว่าอยู่กี่เหรียญ?</b>"
 
                     sol = f"""<span style='color:#2c3e50; line-height: 1.8;'>
                     <div style='background-color:#fdf2e9; border-left:4px solid #e67e22; padding:15px; margin-bottom:15px; border-radius:8px;'>
                     💡 <b>ข้อควรระวัง (กับดักคณิตศาสตร์):</b><br>
-                    เรา <b>"ห้าม"</b> นำเลขต่างฐานมาบวกลบหรือเทียบกันตรงๆ เด็ดขาด! (เลข {str_a} ดูเยอะกว่าก็จริง แต่มันเป็นฐาน {base_a} ที่กล่องใบเล็กนิดเดียว) <br>
-                    วิธีที่ถูกต้องคือ ต้อง <b>"เปิดกล่อง" (คูณค่าประจำหลัก)</b> เทของทั้งหมดให้กลายเป็น <b>เลขมนุษย์ (ฐาน 10)</b> ก่อน แล้วค่อยนำมา <b style='color:#c0392b;'>ลบ (-)</b> เพื่อหาความต่างครับ
+                    เรา <b>"ห้าม"</b> นำเลขต่างฐานมาบวกลบกันตรงๆ เด็ดขาด! (เลข {str_a} ดูเยอะกว่าก็จริง แต่มันเป็นฐาน {base_a} ซึ่งกล่องมีขนาดเล็กนิดเดียว) <br>
+                    วิธีที่ถูกต้องคือ ต้อง <b>"เทของออกจากกล่อง" (คูณค่าประจำหลักทีละตัว)</b> ให้กลายเป็น <b>เลขมนุษย์ (ฐาน 10)</b> ก่อน แล้วค่อยนำมา <b style='color:#c0392b;'>ลบ (-)</b> เพื่อหาความต่าง
                     </div>
                     <b>วิธีทำอย่างละเอียดแบบ Step-by-step:</b><br>
-                    👉 <b>ขั้นที่ 1: เปิดกล่องใบที่ 1 (แปลงฐาน {base_a} เป็นฐาน 10)</b><br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;นำตัวเลขรหัส {str_a} ไป <b style='color:#e74c3c;'>คูณ (×)</b> กับขนาดกล่องฐาน {base_a} ของมัน (หลัก 1, 2, 4, 8...)<br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;เมื่อนำของทุกกล่องมา <b style='color:#3498db;'>บวก (+)</b> รวมกัน จะพบว่ามีของอยู่จริง <b><span style='color:#2980b9;'>{dec_a}</span> เหรียญ</b><br><br>
+                    👉 <b>ขั้นที่ 1: แกะกล่องใบที่ 1 (แปลง {str_a} ฐาน {base_a} ➔ ฐาน 10)</b><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;เราจะนำตัวเลขทีละหลัก (จากซ้ายไปขวา) มา <b style='color:#e74c3c;'>คูณ (×)</b> กับขนาดของกล่องฐาน {base_a} (คือ 1, {base_a}, {base_a**2}, {base_a**3}...)<br>
+                    {steps_a_html}
+                    &nbsp;&nbsp;&nbsp;&nbsp;เมื่อนำของที่เทออกมาได้ทั้งหมดมา <b style='color:#3498db;'>บวก (+)</b> รวมกัน:<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;สมการ: {sum_a_str} = <b><span style='color:#2980b9;'>{dec_a}</span> เหรียญ</b><br><br>
                     
-                    👉 <b>ขั้นที่ 2: เปิดกล่องใบที่ 2 (แปลงฐาน {base_b} เป็นฐาน 10)</b><br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;นำตัวเลขรหัส {str_b} ไป <b style='color:#e74c3c;'>คูณ (×)</b> กับขนาดกล่องฐาน {base_b} ของมัน (หลัก 1, 5, 25...)<br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;เมื่อนำของทุกกล่องมา <b style='color:#3498db;'>บวก (+)</b> รวมกัน จะพบว่ามีของอยู่จริง <b><span style='color:#27ae60;'>{dec_b}</span> เหรียญ</b><br><br>
+                    👉 <b>ขั้นที่ 2: แกะกล่องใบที่ 2 (แปลง {str_b} ฐาน {base_b} ➔ ฐาน 10)</b><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;เราจะนำตัวเลขทีละหลัก มา <b style='color:#e74c3c;'>คูณ (×)</b> กับขนาดของกล่องฐาน {base_b} (คือ 1, {base_b}, {base_b**2}...)<br>
+                    {steps_b_html}
+                    &nbsp;&nbsp;&nbsp;&nbsp;เมื่อนำของที่เทออกมาได้ทั้งหมดมา <b style='color:#3498db;'>บวก (+)</b> รวมกัน:<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;สมการ: {sum_b_str} = <b><span style='color:#27ae60;'>{dec_b}</span> เหรียญ</b><br><br>
                     
-                    👉 <b>ขั้นที่ 3: เปรียบเทียบและหาความต่าง (ลบ)</b><br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;• กล่อง 1 มี <span style='color:#2980b9;'>{dec_a}</span> เหรียญ<br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;• กล่อง 2 มี <span style='color:#27ae60;'>{dec_b}</span> เหรียญ<br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;สรุปได้ว่า <b>กล่องใบที่ 2 มีมากกว่า!</b><br>
+                    👉 <b>ขั้นที่ 3: เปรียบเทียบและหาความต่าง</b><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;• หีบใบที่ 1 มีของจริง <span style='color:#2980b9;'>{dec_a}</span> เหรียญ<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;• หีบใบที่ 2 มีของจริง <span style='color:#27ae60;'>{dec_b}</span> เหรียญ<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;เห็นชัดเจนว่า <b>หีบใบที่ 2 มีมากกว่า!</b><br>
                     &nbsp;&nbsp;&nbsp;&nbsp;หาว่ามากกว่าอยู่เท่าไหร่ โดยนำมา <b style='color:#c0392b;'>ลบ (-)</b> กัน ➔ <span style='color:#27ae60;'>{dec_b}</span> - <span style='color:#2980b9;'>{dec_a}</span> = <b><span style='color:#c0392b;'>{diff_dec}</span> เหรียญ</b><br><br>
-                    <b>ตอบ: กล่องใบที่ 2 มีเหรียญทองมากกว่า และมากกว่าอยู่ {diff_dec} เหรียญ</b></span>"""
+                    <b>ตอบ: หีบใบที่ 2 มีเหรียญทองมากกว่า และมากกว่าอยู่ {diff_dec} เหรียญ</b></span>"""
 
 
 
