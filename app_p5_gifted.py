@@ -1807,7 +1807,7 @@ def generate_questions_logic(grade, main_t, sub_t, num_q, is_challenge=False):
             elif actual_sub_t == "การบวกและการลบเศษส่วน":
                 scenario = random.choice(["chain_operation", "pole_trap", "mixed_borrowing_trap", "equation_balance"])
 
-                # ✨ ฟังก์ชันพิเศษฉบับไม้ตาย: วาดเศษส่วนด้วย "กล่องทึบ 2px" (ไม่มีทางโดนเว็บลบทิ้งแน่นอน)
+                # ฟังก์ชันพิเศษ: วาดเศษส่วนด้วย "กล่องทึบ 2px" (ไม่มีทางโดนเว็บลบทิ้งแน่นอน)
                 def make_frac(n, d, w="", color="inherit"):
                     line_color = color if color != "inherit" else "#2c3e50"
                     line_html = f"<div style='height:2px; background-color:{line_color}; margin: 2px 0; width:100%;'></div>"
@@ -1822,7 +1822,7 @@ def generate_questions_logic(grade, main_t, sub_t, num_q, is_challenge=False):
                     return n // gcd, d // gcd
 
                 if scenario == "chain_operation":
-                    # [สไตล์ 1: บวกลบต่อเนื่อง 3 ตัว]
+                    # [สไตล์ 1: บวกลบต่อเนื่อง 3 ตัว] - แก้ไขบั๊กตัวเลขไม่ตรงกัน
                     d_sets = [(3, 4, 6), (4, 5, 10), (3, 5, 15), (4, 6, 8), (5, 6, 10)]
                     d1, d2, d3 = random.choice(d_sets)
                     n1 = random.randint(1, d1 - 1)
@@ -1836,10 +1836,10 @@ def generate_questions_logic(grade, main_t, sub_t, num_q, is_challenge=False):
                     new_n2 = n2 * (lcm_all // d2)
                     new_n3 = n3 * (lcm_all // d3)
                     
-                    if new_n1 + new_n2 <= new_n3:
-                        new_n1 += new_n3
-                        n1 = new_n1 // (lcm_all // d1) 
-                        if n1 == 0: n1 = 1; new_n1 = n1 * (lcm_all // d1)
+                    # ลอจิกใหม่: ค่อยๆ เพิ่มค่า n1 จนกว่าผลลัพธ์จะไม่ติดลบ เพื่อให้ n1 และ new_n1 เชื่อมโยงกันเสมอ
+                    while new_n1 + new_n2 <= new_n3:
+                        n1 += 1
+                        new_n1 = n1 * (lcm_all // d1)
                     
                     ans_n = new_n1 + new_n2 - new_n3
                     simp_n, simp_d = simplify_fraction(ans_n, lcm_all)
@@ -1991,30 +1991,27 @@ def generate_questions_logic(grade, main_t, sub_t, num_q, is_challenge=False):
                     <b>ตอบ: จะเหลือเชือกยาว {ans_str} เมตร</b></span>"""
 
                 elif scenario == "equation_balance":
-                    # ✨ [สไตล์ 4: สมการตัวแปร - แก้ไขบั๊ก ค.ร.น. สมบูรณ์ 100%]
-                    d1 = random.choice([3, 4, 5, 6, 8])
-                    d2 = random.choice([x for x in [2, 3, 4, 5, 6, 8, 10, 12] if x != d1])
-                    lcm_all = (d1 * d2) // math.gcd(d1, d2)
-                    
-                    while lcm_all > 40:
-                        d1 = random.choice([3, 4, 5, 6, 8])
-                        d2 = random.choice([x for x in [2, 3, 4, 5, 6, 8, 10, 12] if x != d1])
-                        lcm_all = (d1 * d2) // math.gcd(d1, d2)
-                        
+                    # ✨ [สไตล์ 4: สมการตัวแปร - แก้ไขบั๊ก ค.ร.น. เพี้ยนให้สมบูรณ์ 100%]
+                    lcm_pool = random.choice([12, 18, 20, 24, 30, 36, 40])
+                    d1 = random.choice([x for x in [3, 4, 5, 6, 8, 9, 10, 12] if lcm_pool % x == 0])
                     n1 = random.randint(1, d1 - 1)
                     
-                    min_n2 = (n1 * d2) // d1 + 1
-                    if min_n2 >= d2:
-                        n1 = 1
-                        min_n2 = (n1 * d2) // d1 + 1
-                        
-                    n2 = random.randint(min_n2, d2 + 2) 
+                    ans_n = random.randint(1, lcm_pool // 2)
                     
-                    new_n1 = n1 * (lcm_all // d1)
-                    new_n2 = n2 * (lcm_all // d2)
+                    new_n1 = n1 * (lcm_pool // d1)
+                    new_n2 = ans_n + new_n1
                     
-                    ans_n = new_n2 - new_n1
-                    simp_ans_n, simp_ans_d = simplify_fraction(ans_n, lcm_all)
+                    # ตัดทอนให้กลายเป็น n2/d2 ที่เด็กจะเห็นในโจทย์
+                    n2, d2 = simplify_fraction(new_n2, lcm_pool)
+                    
+                    # ลอจิกใหม่: คำนวณหา ค.ร.น. ที่แท้จริงจากมุมมองของนักเรียน (ระหว่าง d1 และ d2 ที่เด็กเห็น)
+                    student_lcm = (d1 * d2) // math.gcd(d1, d2)
+                    
+                    student_new_n1 = n1 * (student_lcm // d1)
+                    student_new_n2 = n2 * (student_lcm // d2)
+                    
+                    student_ans_n = student_new_n2 - student_new_n1
+                    simp_ans_n, simp_ans_d = simplify_fraction(student_ans_n, student_lcm)
                     ans_str = make_frac(simp_ans_n, simp_ans_d)
 
                     q = f"ชาวไร่เก็บเกี่ยวมะม่วงได้จำนวนหนึ่ง (สมมติว่าเป็นตะกร้า <b>A</b>) <br>ต่อมาเก็บมะม่วงเพิ่มได้อีก {make_frac(n1, d1)} <b>ตัน</b> <br>เมื่อนำไปชั่งน้ำหนักรวมกัน พบว่ามีมะม่วงทั้งหมด {make_frac(n2, d2)} <b>ตัน</b> <br>จงหาว่า ในตอนแรกชาวไร่เก็บมะม่วงได้ (ตะกร้า <b>A</b>) หนักกี่ตัน?"
@@ -2026,6 +2023,7 @@ def generate_questions_logic(grade, main_t, sub_t, num_q, is_challenge=False):
                     • <b>"เก็บเพิ่มได้อีก"</b> ➔ ใช้เครื่องหมาย <b style='color:#27ae60;'>บวก (+)</b><br>
                     • <b>"รวมกันพบว่ามี..."</b> ➔ คือผลลัพธ์หลังเครื่องหมาย <b>เท่ากับ (=)</b><br>
                     🔥 <b>ประโยคสัญลักษณ์:</b> <b><span style='color:#8e44ad;'>A</span> + {make_frac(n1, d1)} = {make_frac(n2, d2)}</b>
+                    <br>
                     </div>
                     <b>วิธีทำอย่างละเอียดแบบ Step-by-step:</b><br>
                     👉 <b>ขั้นที่ 1: การย้ายข้างสมการ (Balancing)</b><br>
@@ -2034,13 +2032,13 @@ def generate_questions_logic(grade, main_t, sub_t, num_q, is_challenge=False):
                     &nbsp;&nbsp;&nbsp;&nbsp;สมการใหม่: <span style='color:#8e44ad;'>A</span> = <b>{make_frac(n2, d2)} <span style='color:#c0392b;'>-</span> {make_frac(n1, d1)}</b><br><br>
                     
                     👉 <b>ขั้นที่ 2: หา ค.ร.น. ของ {d2} และ {d1} เพื่อปรับตัวส่วน</b><br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;ค.ร.น. ที่แท้จริงคือ <b><span style='color:#2980b9;'>{lcm_all}</span></b><br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;• {make_frac(n2, d2)} ➔ {make_frac(new_n2, lcm_all, color="#27ae60")}<br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;• {make_frac(n1, d1)} ➔ {make_frac(new_n1, lcm_all, color="#e74c3c")}<br><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;ค.ร.น. ของ {d2} และ {d1} คือ <b><span style='color:#2980b9;'>{student_lcm}</span></b><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;• {make_frac(n2, d2)} ➔ {make_frac(student_new_n2, student_lcm, color="#27ae60")}<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;• {make_frac(n1, d1)} ➔ {make_frac(student_new_n1, student_lcm, color="#e74c3c")}<br><br>
                     
                     👉 <b>ขั้นที่ 3: ลบตัวเศษ</b><br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;<span style='color:#8e44ad;'>A</span> = {make_frac(new_n2, lcm_all, color="#27ae60")} - {make_frac(new_n1, lcm_all, color="#e74c3c")} = <b>{make_frac(ans_n, lcm_all)}</b><br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;คำตอบคือ {make_frac(ans_n, lcm_all)} และตัดทอนอย่างต่ำได้เป็น <b>{ans_str}</b><br><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;<span style='color:#8e44ad;'>A</span> = {make_frac(student_new_n2, student_lcm, color="#27ae60")} - {make_frac(student_new_n1, student_lcm, color="#e74c3c")} = <b>{make_frac(student_ans_n, student_lcm)}</b><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;คำตอบคือ {make_frac(student_ans_n, student_lcm)} และตัดทอนอย่างต่ำได้เป็น <b>{ans_str}</b><br><br>
                     <b>ตอบ: ตอนแรกชาวไร่เก็บมะม่วงได้ {ans_str} ตัน</b></span>"""
 
 
