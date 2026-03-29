@@ -2468,8 +2468,8 @@ def generate_questions_logic(grade, main_t, sub_t, num_q, is_challenge=False):
 
 # ================= หมวดที่ 2: โลกของเศษส่วนและทศนิยม (ป.5) =================
             elif actual_sub_t == "เศษส่วนซ้อน (Complex Fractions)":
-                # สุ่ม 3 สถานการณ์ปราบเซียน: เศษส่วนต่อเนื่อง (ยุบจากล่าง), กับดักเส้นขีดหลัก, เศษส่วนซ้อนขนาดยักษ์ (ตัดทอนไขว้)
-                scenario = random.choice(["continuous_fraction", "main_bar_trap", "giant_complex_cross"])
+                # สุ่ม 5 สถานการณ์ปราบเซียน: (ยุบจากล่าง, กับดักเส้นหลัก, ตัดทอนไขว้ขนาดยักษ์, ตึกระฟ้า 3 ชั้น, หาตัวแปร X)
+                scenario = random.choice(["continuous_fraction", "main_bar_trap", "giant_complex_cross", "deep_inception", "reverse_equation"])
 
                 # ✨ ฟังก์ชันวาดเศษส่วนแนวตั้งแบบปกติ
                 def make_frac(n, d, w="", color="inherit", line_thick="2px"):
@@ -2480,7 +2480,7 @@ def generate_questions_logic(grade, main_t, sub_t, num_q, is_challenge=False):
                         return f"<div style='display:inline-block; vertical-align:middle; color:{color}; font-size:20px;'><b>{w}</b>{frac_html}</div>"
                     return f"<div style='display:inline-block; vertical-align:middle; color:{color}; font-weight:bold;'>{frac_html}</div>"
 
-                # ✨ ฟังก์ชันพิเศษสุด! วาด "เศษส่วนซ้อน" โดยเน้นเส้นหลักให้หนาและยาวกว่า
+                # ✨ ฟังก์ชันวาด "เศษส่วนซ้อน" โดยเน้นเส้นหลัก (Main Bar)
                 def make_complex_frac(top_html, bottom_html, main_color="#c0392b"):
                     main_bar = f"<div style='height:4px; background-color:{main_color}; margin: 4px 0; width:100%; border-radius:2px;'></div>"
                     return f"<div style='display:inline-block; text-align:center; vertical-align:middle; margin:0 10px;'><div>{top_html}</div>{main_bar}<div>{bottom_html}</div></div>"
@@ -2490,26 +2490,15 @@ def generate_questions_logic(grade, main_t, sub_t, num_q, is_challenge=False):
                     return n // gcd, d // gcd
 
                 if scenario == "continuous_fraction":
-                    # ✨ [สไตล์ 1: เศษส่วนต่อเนื่อง (Continuous Fraction) - ทริคยุบจากล่างขึ้นบน]
-                    # รูปแบบ: w1 + ( n1 / (w2 + n2/d2) )
-                    w1 = random.randint(1, 3)
-                    n1 = random.choice([1, 2, 3])
-                    w2 = random.randint(1, 3)
-                    d2 = random.choice([3, 4, 5])
-                    n2 = random.choice([x for x in range(1, d2) if math.gcd(x, d2) == 1])
+                    # [สไตล์ 1: เศษส่วนต่อเนื่อง 2 ชั้น (โค้ดเดิม)]
+                    w1 = random.randint(1, 3); n1 = random.choice([1, 2, 3])
+                    w2 = random.randint(1, 3); d2 = random.choice([3, 4, 5]); n2 = random.choice([x for x in range(1, d2) if math.gcd(x, d2) == 1])
 
-                    # ขั้นที่ 1: ทำชั้นล่างสุด (w2 + n2/d2)
-                    bot_n = w2 * d2 + n2
-                    bot_d = d2
-                    
-                    # ขั้นที่ 2: กลับเศษเป็นส่วน (n1 / (bot_n/bot_d))
-                    mid_n = n1 * bot_d
-                    mid_d = bot_n
+                    bot_n = w2 * d2 + n2; bot_d = d2
+                    mid_n = n1 * bot_d; mid_d = bot_n
                     simp_mid_n, simp_mid_d = simplify_fraction(mid_n, mid_d)
                     
-                    # ขั้นที่ 3: บวกตัวหน้าสุด (w1 + simp_mid)
-                    final_n = w1 * simp_mid_d + simp_mid_n
-                    final_d = simp_mid_d
+                    final_n = w1 * simp_mid_d + simp_mid_n; final_d = simp_mid_d
                     simp_final_n, simp_final_d = simplify_fraction(final_n, final_d)
                     
                     if simp_final_n > simp_final_d and simp_final_d != 1:
@@ -2519,57 +2508,46 @@ def generate_questions_logic(grade, main_t, sub_t, num_q, is_challenge=False):
                     else:
                         ans_str = make_frac(simp_final_n, simp_final_d)
 
-                    # สร้างโจทย์ด้วย HTML
                     bottom_part = f"{w2} + {make_frac(n2, d2)}"
                     complex_part = make_complex_frac(str(n1), bottom_part)
                     full_eq = f"<div style='font-size:24px; font-weight:bold;'>{w1} + {complex_part} = ?</div>"
 
-                    q = f"ในด่านสุดท้ายของการสอบเข้าห้อง Gifted นักเรียนต้องหาคำตอบของ <b>'เศษส่วนต่อเนื่อง'</b> ต่อไปนี้:<br><br><div style='text-align:center; background:#f8f9fa; padding:20px; border-radius:10px; border:2px dashed #bdc3c7;'>{full_eq}</div><br>จงหาผลลัพธ์ในรูปเศษส่วนอย่างต่ำหรือจำนวนคละ?"
+                    q = f"จงหาผลลัพธ์ของ <b>'เศษส่วนต่อเนื่อง'</b> ต่อไปนี้ในรูปเศษส่วนอย่างต่ำหรือจำนวนคละ:<br><br><div style='text-align:center; background:#f8f9fa; padding:20px; border-radius:10px; border:2px dashed #bdc3c7;'>{full_eq}</div>"
 
                     sol = f"""<span style='color:#2c3e50; line-height: 1.8;'>
                     <div style='background-color:#fef5e7; border-left:4px solid #e67e22; padding:15px; margin-bottom:15px; border-radius:8px;'>
                     💡 <b>เทคนิคพิชิตเศษส่วนต่อเนื่อง (Bottom-Up Method):</b><br>
-                    • เมื่อเจอเศษส่วนซ้อนกันเป็นตึกหลายชั้น กฎเหล็กคือ <b>"ต้องเริ่มยุบจากชั้นล่างสุด ขึ้นไปหาชั้นบนสุดเสมอ!"</b><br>
+                    • กฎเหล็กคือ <b>"ต้องเริ่มยุบจากชั้นล่างสุด ขึ้นไปหาชั้นบนสุดเสมอ!"</b><br>
                     • เส้นแบ่งเศษส่วนหลัก <span style='color:#c0392b;'>(เส้นสีแดงหนา)</span> มีความหมายเหมือน <b>เครื่องหมายหาร (÷)</b>
-                    <br>
                     </div>
                     <b>วิธีทำอย่างละเอียดแบบ Step-by-step:</b><br>
                     👉 <b>ขั้นที่ 1: ยุบชั้นล่างสุดก่อน ({w2} + {make_frac(n2, d2)})</b><br>
                     &nbsp;&nbsp;&nbsp;&nbsp;แปลงจำนวนคละเป็นเศษเกิน: ({w2} × {d2}) + {n2} = <b><span style='color:#2980b9;'>{bot_n}</span></b><br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;ดังนั้นชั้นล่างสุดยุบเหลือ ➔ {make_frac(bot_n, bot_d, color="#2980b9")}<br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;<i>(สมการตอนนี้จะกลายเป็น {w1} + {make_complex_frac(str(n1), make_frac(bot_n, bot_d, color="#2980b9"))} )</i><br><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;ชั้นล่างสุดยุบเหลือ ➔ {make_frac(bot_n, bot_d, color="#2980b9")}<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;<i>(สมการจะกลายเป็น {w1} + {make_complex_frac(str(n1), make_frac(bot_n, bot_d, color="#2980b9"))} )</i><br><br>
                     
                     👉 <b>ขั้นที่ 2: ทลายเศษส่วนซ้อน (เปลี่ยนเส้นแดงเป็นเครื่องหมายหาร)</b><br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;ก้อนเศษส่วนซ้อนหมายถึง: <span style='color:#e74c3c;'>{n1}</span> <b style='color:#c0392b;'>÷</b> {make_frac(bot_n, bot_d, color="#2980b9")}<br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;ใช้คาถาเปลี่ยนหารเป็นคูณ ตีลังกาตัวหลัง: <span style='color:#e74c3c;'>{n1}</span> <b style='color:#27ae60;'>×</b> {make_frac(bot_d, bot_n, color="#27ae60")}<br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;= {make_frac(f"{n1} × {bot_d}", bot_n)} = <b>{make_frac(mid_n, mid_d, color="#8e44ad")}</b><br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;<i>(สมการยุบเหลือแค่บรรทัดเดียวแล้ว คือ {w1} + {make_frac(mid_n, mid_d, color="#8e44ad")})</i><br><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;ความหมายคือ: <span style='color:#e74c3c;'>{n1}</span> <b style='color:#c0392b;'>÷</b> {make_frac(bot_n, bot_d, color="#2980b9")}<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;เปลี่ยนหารเป็นคูณ ตีลังกาตัวหลัง: <span style='color:#e74c3c;'>{n1}</span> <b style='color:#27ae60;'>×</b> {make_frac(bot_d, bot_n, color="#27ae60")}<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;= {make_frac(f"{n1} × {bot_d}", bot_n)} = <b>{make_frac(simp_mid_n, simp_mid_d, color="#8e44ad")}</b><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;<i>(สมการยุบเหลือแค่: {w1} + {make_frac(simp_mid_n, simp_mid_d, color="#8e44ad")})</i><br><br>
                     
                     👉 <b>ขั้นที่ 3: บวกตัวหน้าสุดเพื่อจบเกม</b><br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;ทำตัวส่วนให้เท่ากัน (ค.ร.น. คือ {mid_d}):<br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;{w1} กลายเป็น {make_frac(w1 * mid_d, mid_d)}<br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;นำมาบวกกัน: {make_frac(w1 * mid_d, mid_d)} + {make_frac(mid_n, mid_d, color="#8e44ad")} = {make_frac(final_n, final_d)}<br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;ตัดทอนและจัดรูปเป็นจำนวนคละ จะได้ <b><span style='color:#c0392b;'>{ans_str}</span></b><br><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;ทำตัวส่วนให้เท่ากัน: {w1} กลายเป็น {make_frac(w1 * simp_mid_d, simp_mid_d)}<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;บวกกัน: {make_frac(w1 * simp_mid_d, simp_mid_d)} + {make_frac(simp_mid_n, simp_mid_d, color="#8e44ad")} = {make_frac(final_n, final_d)}<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;จัดรูปเป็นจำนวนคละ จะได้ <b><span style='color:#c0392b;'>{ans_str}</span></b><br><br>
                     <b>ตอบ: {ans_str}</b></span>"""
 
                 elif scenario == "main_bar_trap":
-                    # ✨ [สไตล์ 2: โจทย์กับดักเส้นขีดหลัก (The Main Bar Trap)]
-                    # สุ่มตัวเลข 3 ตัว
-                    a = random.choice([2, 3, 5, 7])
-                    b = random.choice([4, 5, 8, 9])
-                    c = random.choice([3, 4, 5])
+                    # [สไตล์ 2: โจทย์กับดักเส้นขีดหลัก (โค้ดเดิม)]
+                    a = random.choice([2, 3, 5, 7]); b = random.choice([4, 5, 8, 9]); c = random.choice([3, 4, 5])
                     
-                    # รูปแบบที่ 1: (A/B) / C (แบ่งของที่มีอยู่แล้ว A/B ออกเป็น C ส่วน)
-                    val1_n = a
-                    val1_d = b * c
+                    val1_n = a; val1_d = b * c
                     simp1_n, simp1_d = simplify_fraction(val1_n, val1_d)
                     
-                    # รูปแบบที่ 2: A / (B/C) (มีของ A ชิ้น แบ่งใส่ถุง ถุงละ B/C)
-                    val2_n = a * c
-                    val2_d = b
+                    val2_n = a * c; val2_d = b
                     simp2_n, simp2_d = simplify_fraction(val2_n, val2_d)
                     
-                    # หาผลต่าง
                     lcm_all = (simp1_d * simp2_d) // math.gcd(simp1_d, simp2_d)
                     new_n1 = simp1_n * (lcm_all // simp1_d)
                     new_n2 = simp2_n * (lcm_all // simp2_d)
@@ -2593,69 +2571,50 @@ def generate_questions_logic(grade, main_t, sub_t, num_q, is_challenge=False):
                     <div style='background-color:#fdf2e9; border-left:4px solid #e67e22; padding:15px; margin-bottom:15px; border-radius:8px;'>
                     💡 <b>ถอดรหัสกับดัก "เส้นขีดหลอกตา":</b><br>
                     • พายุพูด <b><span style='color:#c0392b;'>ผิดเต็มๆ ครับ!</span></b> ในเศษส่วนซ้อน <b>"ความยาวของเส้นขีด"</b> คือตัวกำหนดชีวิต!<br>
-                    • เส้นที่ยาวที่สุด (Main Bar) คือ <b>เครื่องหมายหารหลัก</b> ที่จะบอกว่าใครคือ 'ตัวตั้ง' และใครคือ 'ตัวหาร'<br>
-                    <br>
+                    • เส้นที่ยาวที่สุด (Main Bar) คือ <b>เครื่องหมายหารหลัก</b> ที่จะบอกว่าใครคือ 'ตัวตั้ง' และใครคือ 'ตัวหาร'
                     </div>
                     <b>วิธีทำอย่างละเอียดแบบ Step-by-step:</b><br>
                     👉 <b>ขั้นที่ 1: ถอดรหัสจำนวนที่ 1 (เส้นหลักอยู่ด้านล่าง)</b><br>
                     &nbsp;&nbsp;&nbsp;&nbsp;รูปแบบนี้คือ ตัวตั้ง {make_frac(a, b)} <b style='color:#c0392b;'>หารด้วย (÷)</b> ตัวหาร {c}<br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;เปลี่ยนหารเป็นคูณ ตีลังกาตัวหลัง (จาก {c} หรือ {make_frac(c,1)} เปลี่ยนเป็น {make_frac(1,c)})<br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;= {make_frac(a, b)} <b style='color:#27ae60;'>×</b> {make_frac(1, c)} = <b>{make_frac(simp1_n, simp1_d, color="#c0392b")}</b> <i>(ได้ค่าน้อยมาก เพราะถูกแบ่งย่อย)</i><br><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;เปลี่ยนหารเป็นคูณ ตีลังกาตัวหลัง: {make_frac(a, b)} <b style='color:#27ae60;'>×</b> {make_frac(1, c)} = <b>{make_frac(simp1_n, simp1_d, color="#c0392b")}</b> <i>(ได้ค่าน้อยมาก เพราะถูกแบ่งย่อย)</i><br><br>
                     
                     👉 <b>ขั้นที่ 2: ถอดรหัสจำนวนที่ 2 (เส้นหลักอยู่ด้านบน)</b><br>
                     &nbsp;&nbsp;&nbsp;&nbsp;รูปแบบนี้คือ ตัวตั้ง {a} <b style='color:#2980b9;'>หารด้วย (÷)</b> ตัวหาร {make_frac(b, c)}<br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;เปลี่ยนหารเป็นคูณ ตีลังกาเศษส่วน: {a} <b style='color:#27ae60;'>×</b> {make_frac(c, b)}<br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;= {make_frac(f"{a} × {c}", b)} = <b>{make_frac(simp2_n, simp2_d, color="#2980b9")}</b> <i>(ได้ค่าเยอะมาก!)</i><br><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;เปลี่ยนหารเป็นคูณ ตีลังกาเศษส่วน: {a} <b style='color:#27ae60;'>×</b> {make_frac(c, b)} = <b>{make_frac(simp2_n, simp2_d, color="#2980b9")}</b> <i>(ได้ค่าเยอะมาก!)</i><br><br>
                     
                     👉 <b>ขั้นที่ 3: หาผลต่าง (นำมาลบกัน)</b><br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;เห็นได้ชัดว่าจำนวนที่ 2 มีค่ามากกว่า นำมาตั้งแล้วลบด้วยจำนวนที่ 1<br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;สมการ: {make_frac(simp2_n, simp2_d, color="#2980b9")} - {make_frac(simp1_n, simp1_d, color="#c0392b")}<br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;หา ค.ร.น. ของ {simp2_d} และ {simp1_d} ได้ {lcm_all}<br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;แปลงร่าง: {make_frac(new_n2, lcm_all)} - {make_frac(new_n1, lcm_all)} = {make_frac(diff_n, lcm_all)}<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;นำจำนวนที่ 2 มาตั้งแล้วลบด้วยจำนวนที่ 1: {make_frac(simp2_n, simp2_d, color="#2980b9")} - {make_frac(simp1_n, simp1_d, color="#c0392b")} = {make_frac(diff_n, lcm_all)}<br>
                     &nbsp;&nbsp;&nbsp;&nbsp;ตัดทอนเป็นเศษส่วนอย่างต่ำ/จำนวนคละ จะได้ <b><span style='color:#8e44ad;'>{ans_str}</span></b><br><br>
                     <b>ตอบ: พายุพูดผิด และจำนวนทั้งสองมีค่าต่างกันอยู่ {ans_str}</b></span>"""
 
-                else:
-                    # ✨ [สไตล์ 3: เศษส่วนซ้อนขนาดยักษ์ (Cross Cancellation Fiesta)]
-                    # รูปแบบ: (N1/D1 * N2/D2) / (N3/D3 * N4/D4)
+                elif scenario == "giant_complex_cross":
+                    # [สไตล์ 3: เศษส่วนซ้อนขนาดยักษ์ ตัดทอนไขว้ (โค้ดเดิม)]
                     pool = [12, 14, 15, 16, 18, 20, 21, 24, 25, 27, 28, 30, 32, 35, 36]
                     n1, d1, n2, d2, n3, d3, n4, d4 = random.sample(pool, 8)
-                    
-                    # แปลงรูป: (n1*n2)/(d1*d2) ÷ (n3*n4)/(d3*d4)
-                    # = (n1*n2*d3*d4) / (d1*d2*n3*n4)
                     
                     top_frac = f"{make_frac(n1, d1)} × {make_frac(n2, d2)}"
                     bot_frac = f"{make_frac(n3, d3)} × {make_frac(n4, d4)}"
                     eq_html = make_complex_frac(top_frac, bot_frac, main_color="#8e44ad")
                     
-                    # จำลองการตัดทอนแนวทแยง (Algorithm พิเศษ)
-                    nums = [n1, n2, d3, d4] # d3, d4 ย้ายขึ้นมาข้างบน
-                    dens = [d1, d2, n3, n4] # n3, n4 ย้ายลงมาข้างล่าง
-                    cancel_steps_html = ""
-                    step_count = 1
+                    nums = [n1, n2, d3, d4]; dens = [d1, d2, n3, n4]
+                    cancel_steps_html = ""; step_count = 1
                     
                     for i in range(4):
                         for j in range(4):
                             g = math.gcd(nums[i], dens[j])
                             if g > 1:
-                                old_n = nums[i]
-                                old_d = dens[j]
-                                nums[i] //= g
-                                dens[j] //= g
-                                cancel_steps_html += f"&nbsp;&nbsp;&nbsp;&nbsp;✂️ <b>ตัดครั้งที่ {step_count}:</b> นำแม่ <b>{g}</b> ตัด <span style='text-decoration: line-through; color:#95a5a6;'>{old_n}</span> (บน) คู่กับ <span style='text-decoration: line-through; color:#95a5a6;'>{old_d}</span> (ล่าง) ➔ เหลือ <b><span style='color:#e74c3c;'>{nums[i]}</span></b> และ <b><span style='color:#2980b9;'>{dens[j]}</span></b><br>"
+                                old_n, old_d = nums[i], dens[j]
+                                nums[i] //= g; dens[j] //= g
+                                cancel_steps_html += f"&nbsp;&nbsp;&nbsp;&nbsp;✂️ <b>ตัดครั้งที่ {step_count}:</b> นำแม่ <b>{g}</b> ตัด <span style='text-decoration: line-through; color:#95a5a6;'>{old_n}</span>(บน) คู่กับ <span style='text-decoration: line-through; color:#95a5a6;'>{old_d}</span>(ล่าง) ➔ เหลือ <b><span style='color:#e74c3c;'>{nums[i]}</span></b> และ <b><span style='color:#2980b9;'>{dens[j]}</span></b><br>"
                                 step_count += 1
                                 
-                    if cancel_steps_html == "":
-                        cancel_steps_html = "&nbsp;&nbsp;&nbsp;&nbsp;<i>(ข้อนี้ตัวเลขไม่มีตัวร่วมที่ตัดทอนกันได้)</i><br>"
+                    if cancel_steps_html == "": cancel_steps_html = "&nbsp;&nbsp;&nbsp;&nbsp;<i>(ข้อนี้ไม่มีตัวร่วมที่ตัดทอนกันได้)</i><br>"
                         
-                    final_n = nums[0] * nums[1] * nums[2] * nums[3]
-                    final_d = dens[0] * dens[1] * dens[2] * dens[3]
+                    final_n = nums[0] * nums[1] * nums[2] * nums[3]; final_d = dens[0] * dens[1] * dens[2] * dens[3]
                     
                     simp_n, simp_d = simplify_fraction(final_n, final_d)
                     if simp_n > simp_d and simp_d != 1:
-                        w = simp_n // simp_d
-                        rem = simp_n % simp_d
-                        ans_str = make_frac(rem, simp_d, w=w)
+                        ans_str = make_frac(simp_n % simp_d, simp_d, w=simp_n // simp_d)
                     elif simp_d == 1:
                         ans_str = f"<b>{simp_n}</b>"
                     else:
@@ -2666,24 +2625,143 @@ def generate_questions_logic(grade, main_t, sub_t, num_q, is_challenge=False):
                     sol = f"""<span style='color:#2c3e50; line-height: 1.8;'>
                     <div style='background-color:#e8f8f5; border-left:4px solid #1abc9c; padding:15px; margin-bottom:15px; border-radius:8px;'>
                     💡 <b>เทคนิคเคลียร์เศษส่วนยักษ์ (Flat Equation):</b><br>
-                    • อย่าเพิ่งตกใจกับความใหญ่มหึมา! เส้นแบ่งสีม่วงตรงกลาง ก็คือ <b>"เครื่องหมายหาร (÷)"</b> ธรรมดาๆ นี่เอง<br>
-                    • เราแค่หยิบก้อนด้านล่างขึ้นมา <b>เปลี่ยนหารเป็นคูณ แล้วตีลังกากลับหัวทีละตัว!</b> จากนั้นก็จับคู่ตัดทอนได้เลยสนุกๆ ครับ
+                    • อย่าเพิ่งตกใจกับความใหญ่มหึมา! เส้นแบ่งสีม่วงตรงกลาง ก็คือ <b>"เครื่องหมายหาร (÷)"</b> ธรรมดาๆ<br>
+                    • เราแค่หยิบก้อนด้านล่างขึ้นมา <b>เปลี่ยนหารเป็นคูณ แล้วตีลังกากลับหัวทีละตัว!</b> จากนั้นก็จับคู่ตัดทอนได้เลยครับ
                     </div>
                     <b>วิธีทำอย่างละเอียดแบบ Step-by-step:</b><br>
                     👉 <b>ขั้นที่ 1: ทุบตึกให้กลายเป็นสมการแนวนอน (ตีลังกาก้อนล่าง)</b><br>
                     &nbsp;&nbsp;&nbsp;&nbsp;ก้อนบนคือ: {make_frac(n1, d1)} × {make_frac(n2, d2)}<br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;ก้อนล่างตีลังกา: จาก {make_frac(n3, d3)} กลายเป็น <b>{make_frac(d3, n3, color="#c0392b")}</b> และจาก {make_frac(n4, d4)} กลายเป็น <b>{make_frac(d4, n4, color="#c0392b")}</b><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;ก้อนล่างตีลังกา: จาก {make_frac(n3, d3)} เป็น <b>{make_frac(d3, n3, color="#c0392b")}</b> และจาก {make_frac(n4, d4)} เป็น <b>{make_frac(d4, n4, color="#c0392b")}</b><br>
                     &nbsp;&nbsp;&nbsp;&nbsp;สมการแนวราบคือ: <b>{make_frac(n1, d1)} × {make_frac(n2, d2)} <span style='color:#e74c3c;'>×</span> {make_frac(d3, n3, color="#c0392b")} <span style='color:#e74c3c;'>×</span> {make_frac(d4, n4, color="#c0392b")}</b><br><br>
                     
                     👉 <b>ขั้นที่ 2: ร่ายคาถา 'จับคู่ตัดทอนแนวทแยง' (Cross Cancellation)</b><br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;เราจะหา 'แม่สูตรคูณ' มาหารตัดตัวเลข <b>(ตัวบน คู่กับ ตัวล่างตัวไหนก็ได้)</b> ทีละคู่ดังนี้:<br>
                     {cancel_steps_html}<br>
                     
                     👉 <b>ขั้นที่ 3: นำตัวเลขผู้รอดชีวิตมาคูณกัน (บนคูณบน ล่างคูณล่าง)</b><br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;• ตัวเศษ (ด้านบน) จะเหลือแค่: {nums[0]} × {nums[1]} × {nums[2]} × {nums[3]} = <b><span style='color:#8e44ad;'>{final_n:,}</span></b><br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;• ตัวส่วน (ด้านล่าง) จะเหลือแค่: {dens[0]} × {dens[1]} × {dens[2]} × {dens[3]} = <b><span style='color:#8e44ad;'>{final_d:,}</span></b><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;• ตัวเศษ: {nums[0]} × {nums[1]} × {nums[2]} × {nums[3]} = <b><span style='color:#8e44ad;'>{final_n:,}</span></b><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;• ตัวส่วน: {dens[0]} × {dens[1]} × {dens[2]} × {dens[3]} = <b><span style='color:#8e44ad;'>{final_d:,}</span></b><br>
                     &nbsp;&nbsp;&nbsp;&nbsp;เมื่อนำมาจัดรูปให้เป็นเศษส่วนอย่างต่ำ/จำนวนคละ จะได้คำตอบคือ <b><span style='color:#c0392b;'>{ans_str}</span></b><br><br>
                     <b>ตอบ: {ans_str}</b></span>"""
+
+                elif scenario == "deep_inception":
+                    # ✨ [สไตล์ 4 ใหม่ล่าสุด!: เศษส่วนตึกระฟ้า 3 ชั้น (Deep Inception Fraction)]
+                    # รูปแบบ: 1 + ( 1 / (1 + (1 / (1 + 1/d3))) )
+                    d3 = random.choice([2, 3, 4, 5])
+                    
+                    # ชั้น 3 (ล่างสุด): 1 + 1/d3
+                    bot_n = d3 + 1
+                    bot_d = d3
+                    
+                    # ชั้น 2 (กลาง): 1 + 1/(bot_n/bot_d) = 1 + bot_d/bot_n
+                    mid_n = bot_n + bot_d
+                    mid_d = bot_n
+                    
+                    # ชั้น 1 (บนสุด): 1 + 1/(mid_n/mid_d) = 1 + mid_d/mid_n
+                    top_n = mid_n + mid_d
+                    top_d = mid_n
+                    
+                    simp_top_n, simp_top_d = simplify_fraction(top_n, top_d)
+                    ans_str = make_frac(simp_top_n % simp_top_d, simp_top_d, w=simp_top_n // simp_top_d)
+
+                    # สร้าง HTML ตึกระฟ้า 3 ชั้น
+                    layer3 = f"1 + {make_frac(1, d3, color='#e74c3c')}"
+                    layer2 = f"1 + {make_complex_frac('1', layer3, main_color='#2980b9')}"
+                    full_eq = f"<div style='font-size:24px; font-weight:bold;'>1 + {make_complex_frac('1', layer2, main_color='#8e44ad')} = ?</div>"
+
+                    q = f"โจทย์ทดสอบสมาธิและความแม่นยำ!<br>จงหาผลลัพธ์ของ <b>'เศษส่วนตึกระฟ้า 3 ชั้น'</b> ต่อไปนี้:<br><br><div style='text-align:center; background:#f8f9fa; padding:20px; border-radius:10px; border:2px dashed #bdc3c7;'>{full_eq}</div>"
+
+                    sol = f"""<span style='color:#2c3e50; line-height: 1.8;'>
+                    <div style='background-color:#fef5e7; border-left:4px solid #e67e22; padding:15px; margin-bottom:15px; border-radius:8px;'>
+                    💡 <b>เทคนิคพิชิตตึกระฟ้า (Inception Method):</b><br>
+                    • กฎการเอาตัวรอด: <b>ทำจากล่างสุด ดันขึ้นข้างบนทีละชั้นเท่านั้น!</b><br>
+                    • ทริคคิดลัด: สังเกตไหมว่าตัวเศษด้านบนสุดของทุกชั้นคือเลข <b>1</b> ดังนั้นเราไม่ต้องเสียเวลาตั้งหารยาว แค่ <b>"เอาตัวล่างตีลังกาสลับที่กัน (กลับเศษเป็นส่วน)"</b> ก็พังทลายชั้นนั้นได้เลยทันที!
+                    <br>
+                    </div>
+                    <b>วิธีทำอย่างละเอียดแบบ Step-by-step:</b><br>
+                    👉 <b>ขั้นที่ 1: เคลียร์ชั้นล่างสุด (สีแดง)</b><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;1 + {make_frac(1, d3)} = {make_frac(d3, d3)} + {make_frac(1, d3)} = <b><span style='color:#e74c3c;'>{make_frac(bot_n, bot_d)}</span></b><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;<i>(ตึกตอนนี้เหลือ 2 ชั้นแล้ว!)</i><br><br>
+                    
+                    👉 <b>ขั้นที่ 2: เคลียร์ชั้นกลาง (สีน้ำเงิน)</b><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;นำผลลัพธ์สีแดงมาตีลังกากลับหัว (เพราะมันถูกหารด้วย 1 อยู่ด้านบน): จาก {make_frac(bot_n, bot_d)} เปลี่ยนเป็น <b><span style='color:#e74c3c;'>{make_frac(bot_d, bot_n)}</span></b><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;นำไปบวกกับ 1 ที่รออยู่: 1 + <span style='color:#e74c3c;'>{make_frac(bot_d, bot_n)}</span> = {make_frac(bot_n, bot_n)} + {make_frac(bot_d, bot_n)} = <b><span style='color:#2980b9;'>{make_frac(mid_n, mid_d)}</span></b><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;<i>(ตึกตอนนี้เหลือแค่ชั้นเดียวแล้ว!)</i><br><br>
+                    
+                    👉 <b>ขั้นที่ 3: เคลียร์ชั้นบนสุด (สีม่วง) เพื่อจบเกม</b><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;นำผลลัพธ์สีน้ำเงินมาตีลังกากลับหัวอีกครั้ง: จาก {make_frac(mid_n, mid_d)} เปลี่ยนเป็น <b><span style='color:#2980b9;'>{make_frac(mid_d, mid_n)}</span></b><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;นำไปบวกกับ 1 ตัวสุดท้าย: 1 + <span style='color:#2980b9;'>{make_frac(mid_d, mid_n)}</span> = {make_frac(mid_n, mid_n)} + {make_frac(mid_d, mid_n)} = <b><span style='color:#8e44ad;'>{make_frac(top_n, top_d)}</span></b><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;จัดรูปเป็นจำนวนคละ จะได้ <b><span style='color:#c0392b;'>{ans_str}</span></b><br><br>
+                    <b>ตอบ: {ans_str}</b></span>"""
+
+                else:
+                    # ✨ [สไตล์ 5 ใหม่ล่าสุด!: แก้สมการย้อนกลับ (Reverse Engineering)]
+                    # รูปแบบ A / (B + C/X) = num/den
+                    ans_x = random.choice([2, 3, 4, 5, 7]) # คำตอบ X เป็นจำนวนเต็ม
+                    c = random.choice([1, 2, 3])
+                    b = random.choice([1, 2, 3])
+                    a = random.choice([2, 3, 4, 5])
+                    
+                    # คำนวณ (B + C/X)
+                    bot_n = b * ans_x + c
+                    bot_d = ans_x
+                    
+                    # คำนวณ A / (bot_n/bot_d) = (A * bot_d) / bot_n
+                    final_n = a * bot_d
+                    final_d = bot_n
+                    simp_n, simp_d = simplify_fraction(final_n, final_d)
+                    
+                    # ข้อมูลที่โจทย์ให้มา
+                    ans_target = make_frac(simp_n, simp_d, color="#27ae60")
+                    bot_complex = f"{b} + {make_frac(c, '<b>X</b>', color='#c0392b')}"
+                    full_eq = f"<div style='font-size:24px; font-weight:bold;'>{make_complex_frac(str(a), bot_complex, main_color='#8e44ad')} = {ans_target}</div>"
+
+                    q = f"โจทย์ <b>'ไขปริศนาตัวแปรที่ซ่อนอยู่'</b> (ข้อสอบ Gifted ยอดฮิต):<br>กำหนดให้สมการเศษส่วนซ้อนมีค่าเท่ากับ {ans_target} ดังภาพ<br><br><div style='text-align:center; background:#f8f9fa; padding:20px; border-radius:10px; border:2px dashed #bdc3c7;'>{full_eq}</div><br>จงหาว่าตัวแปร <b>X</b> มีค่าเท่ากับเท่าใด?"
+
+                    sol = f"""<span style='color:#2c3e50; line-height: 1.8;'>
+                    <div style='background-color:#e8f8f5; border-left:4px solid #1abc9c; padding:15px; margin-bottom:15px; border-radius:8px;'>
+                    💡 <b>เทคนิค Visual Thinking "กล่องปริศนา (Box Method)":</b><br>
+                    • เวลาเจอตัวแปรที่ซ่อนอยู่ลึกๆ อย่าเพิ่งรีบย้ายข้างสมการให้ปวดหัว! <br>
+                    • ให้เรา <b>"มองก้อนด้านล่างทั้งหมดเป็นกล่องปริศนา 1 ใบ (📦)"</b> แล้วถามตัวเองว่า <span style='color:#8e44ad;'>{a}</span> หารด้วยอะไรน้าา ถึงจะเท่ากับ <span style='color:#27ae60;'>{make_frac(simp_n, simp_d)}</span> ?
+                    <br>
+                    </div>
+                    <b>วิธีทำอย่างละเอียดแบบ Step-by-step:</b><br>
+                    👉 <b>ขั้นที่ 1: หากล่องปริศนา (ก้อนด้านล่างทั้งหมด)</b><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;สมการปัจจุบันคือ: <span style='color:#8e44ad;'>{a}</span> <b style='color:#8e44ad;'>÷</b> 📦 = <span style='color:#27ae60;'>{make_frac(simp_n, simp_d)}</span><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;ถ้าอยากรู้ว่า 📦 มีค่าเท่าไหร่ ให้เอาตัวตั้งมาหารผลลัพธ์: 📦 = <span style='color:#8e44ad;'>{a}</span> <b style='color:#8e44ad;'>÷</b> <span style='color:#27ae60;'>{make_frac(simp_n, simp_d)}</span><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;เปลี่ยนหารเป็นคูณ ตีลังกาตัวหลัง: {a} × {make_frac(simp_d, simp_n)} = <b><span style='color:#2980b9;'>{make_frac(a * simp_d, simp_n)}</span></b> <i>(ตอนนี้เรารู้แล้วว่าก้อนล่างทั้งหมดมีค่าเท่ากับเลขนี้)</i><br><br>
+                    
+                    👉 <b>ขั้นที่ 2: แกะกล่องปริศนาออกทีละชั้น</b><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;เราเปิดกล่องออกมาพบว่า 📦 คือ: <b>{b} + {make_frac(c, 'X')} = <span style='color:#2980b9;'>{make_frac(a * simp_d, simp_n)}</span></b><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;ย้าย {b} ไปลบฝั่งขวา: {make_frac(c, 'X')} = <span style='color:#2980b9;'>{make_frac(a * simp_d, simp_n)}</span> <b style='color:#c0392b;'>-</b> {b}<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;แปลง {b} ให้ตัวส่วนเท่ากัน ({simp_n}): <span style='color:#2980b9;'>{make_frac(a * simp_d, simp_n)}</span> - {make_frac(b * simp_n, simp_n)} = <b><span style='color:#e67e22;'>{make_frac((a * simp_d) - (b * simp_n), simp_n)}</span></b><br><br>
+                    
+                    👉 <b>ขั้นที่ 3: เทียบหาค่า X ในขั้นตอนสุดท้าย</b><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;ตอนนี้สมการเหลือแค่: <b>{make_frac(c, 'X')} = <span style='color:#e67e22;'>{make_frac((a * simp_d) - (b * simp_n), simp_n)}</span></b><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;<i>(ลองสังเกตตัวเลขให้ดี!)</i> ตัดทอนฝั่งขวาให้ตัวเศษด้านบนมีค่าเท่ากับ {c} (โดยหาร {((a * simp_d) - (b * simp_n)) // c} ทั้งบนและล่าง)<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;จะได้: {make_frac(c, 'X')} = <b>{make_frac(c, ans_x)}</b><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;เมื่อตัวบนเท่ากันแล้ว ตัวล่างก็ต้องเท่ากันด้วย ดังนั้น <b>X = <span style='color:#c0392b;'>{ans_x}</span></b><br><br>
+                    <b>ตอบ: ตัวแปร X มีค่าเท่ากับ {ans_x}</b></span>"""
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
