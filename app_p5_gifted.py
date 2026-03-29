@@ -3098,7 +3098,7 @@ def generate_questions_logic(grade, main_t, sub_t, num_q, is_challenge=False):
                     "mixed_operation", "algebraic_proof"
                 ])
 
-                # ✨ ฟังก์ชันวาดเศษส่วนแนวตั้ง
+                # ✨ ฟังก์ชันวาดเศษส่วนแนวตั้ง (มีเส้นขีดตรงกลางแน่นอน 100%)
                 def make_frac(n, d, w="", color="inherit", line_thick="2px"):
                     line_color = color if color != "inherit" else "#2c3e50"
                     line_html = f"<div style='height:{line_thick}; background-color:{line_color}; margin: 2px 0; width:100%;'></div>"
@@ -3112,8 +3112,7 @@ def generate_questions_logic(grade, main_t, sub_t, num_q, is_challenge=False):
                     return n // gcd, d // gcd
 
                 if scenario == "pure_repeating":
-                    # ✨ [สไตล์ 1: ทศนิยมซ้ำล้วน (Pure Repeating Decimal)]
-                    # สุ่มตัวเลข 2 หลักที่ซ้ำกัน (เช่น 0.454545...)
+                    # ✨ [สไตล์ 1: ทศนิยมซ้ำล้วน]
                     repeating_digits = random.choice([12, 15, 18, 24, 27, 36, 45, 54, 63, 72, 81])
                     d1 = repeating_digits // 10
                     d2 = repeating_digits % 10
@@ -3130,7 +3129,6 @@ def generate_questions_logic(grade, main_t, sub_t, num_q, is_challenge=False):
                     💡 <b>เทคนิค "รหัสลับเลข 9" (สำหรับทศนิยมซ้ำล้วน):</b><br>
                     • ทศนิยมซ้ำแบบไม่มีตัวเบรก (ซ้ำตั้งแต่หลังจุดตัวแรก) เราไม่ต้องตั้งสมการให้เมื่อย!<br>
                     • <b>กฎเหล็ก:</b> ตัวเลขที่ซ้ำมีกี่ตัว ให้ใส่ <b>'เลข 9'</b> เป็นตัวส่วนด้านล่างให้เท่ากับจำนวนตัวที่ซ้ำได้เลย!
-                    <br>
                     </div>
                     <b>วิธีทำอย่างละเอียดแบบ Step-by-step:</b><br>
                     👉 <b>ขั้นที่ 1: ถอดรหัสทศนิยม</b><br>
@@ -3147,8 +3145,7 @@ def generate_questions_logic(grade, main_t, sub_t, num_q, is_challenge=False):
                     <b>ตอบ: สารละลายมีน้ำหนัก {ans_str} กรัม</b></span>"""
 
                 elif scenario == "mixed_repeating":
-                    # ✨ [สไตล์ 2: ทศนิยมซ้ำแบบผสม (Mixed Repeating Decimal) - รหัสลับ 9 และ 0]
-                    # สุ่มตัวเลข เช่น 0.1666... (ไม่ซ้ำ 1 ตัว, ซ้ำ 1 ตัว)
+                    # ✨ [สไตล์ 2: ทศนิยมซ้ำแบบผสม]
                     non_repeat = random.randint(1, 8)
                     repeat = random.choice([x for x in range(1, 9) if x != non_repeat])
                     
@@ -3182,22 +3179,18 @@ def generate_questions_logic(grade, main_t, sub_t, num_q, is_challenge=False):
                     <b>ตอบ: ระยะทางคือ {ans_str} เมตร</b></span>"""
 
                 elif scenario == "truncation_trap":
-                    # ✨ [สไตล์ 3: กับดักการปัดเศษ (The Truncation Trap)]
-                    # 0.8333... - 0.444...
+                    # ✨ [สไตล์ 3: กับดักการปัดเศษ]
                     num1_nr = 8; num1_r = 3
-                    num2_nr = 4; num2_r = 4 # 0.444... is pure repeating 0.4
+                    num2_nr = 4; num2_r = 4 
                     
-                    # Fraction 1: 0.8333... = (83-8)/90 = 75/90 = 5/6
                     f1_n = (num1_nr * 10 + num1_r) - num1_nr
                     f1_d = 90
                     simp1_n, simp1_d = simplify_fraction(f1_n, f1_d)
                     
-                    # Fraction 2: 0.444... = 4/9
                     f2_n = num2_nr
                     f2_d = 9
                     simp2_n, simp2_d = simplify_fraction(f2_n, f2_d)
                     
-                    # ลบกัน: simp1_n/simp1_d - simp2_n/simp2_d
                     lcm_d = (simp1_d * simp2_d) // math.gcd(simp1_d, simp2_d)
                     new_n1 = simp1_n * (lcm_d // simp1_d)
                     new_n2 = simp2_n * (lcm_d // simp2_d)
@@ -3206,7 +3199,6 @@ def generate_questions_logic(grade, main_t, sub_t, num_q, is_challenge=False):
                     simp_ans_n, simp_ans_d = simplify_fraction(ans_n, lcm_d)
                     ans_str = make_frac(simp_ans_n, simp_ans_d, color="#c0392b")
 
-                    # ค่าหลอก (ปัดเป็น 2 ตำแหน่ง 0.83 - 0.44 = 0.39 = 39/100)
                     fake_ans = make_frac(39, 100)
 
                     q = f"โจทย์กับดัก (ข้อสอบแข่งขัน):<br>จงหาผลลัพธ์ของ <b>0.{num1_nr}{num1_r}{num1_r}... <span style='color:#e74c3c;'>-</span> 0.{num2_nr}{num2_r}{num2_r}...</b> ให้อยู่ในรูปเศษส่วนอย่างต่ำ<br><i>(เด็กชายพายุเอาทศนิยมมาลบกันตรงๆ แล้วตอบ {fake_ans} จงหาว่าคำตอบที่ถูกต้องจริงๆ คือเท่าใด?)</i>"
@@ -3235,14 +3227,11 @@ def generate_questions_logic(grade, main_t, sub_t, num_q, is_challenge=False):
                     <b>ตอบ: คำตอบที่ถูกต้องที่แท้จริงคือ {ans_str}</b></span>"""
 
                 elif scenario == "mixed_operation":
-                    # ✨ [สไตล์ 4: การคูณทศนิยมซ้ำ (Mixed Operation with Fractions)]
-                    # 0.A(ซ้ำ) * D/N
+                    # ✨ [สไตล์ 4: การคูณทศนิยมซ้ำ]
                     rep_digit = random.choice([3, 6, 9])
-                    f1_n = rep_digit
-                    f1_d = 9
+                    f1_n = rep_digit; f1_d = 9
                     simp1_n, simp1_d = simplify_fraction(f1_n, f1_d)
                     
-                    # สุ่มเศษส่วนอีกตัวมาคูณ
                     simp2_d = random.choice([2, 4, 5, 7, 8])
                     simp2_n = random.choice([x for x in range(1, simp2_d*2) if math.gcd(x, simp2_d) == 1])
                     
@@ -3275,20 +3264,15 @@ def generate_questions_logic(grade, main_t, sub_t, num_q, is_challenge=False):
                     👉 <b>ขั้นที่ 2: ตั้งสมการและคำนวณ (บนคูณบน ล่างคูณล่าง)</b><br>
                     &nbsp;&nbsp;&nbsp;&nbsp;นำพื้นที่ทั้งหมดมา <b>คูณ</b> กับสัดส่วนที่ต้องการแบ่ง<br>
                     &nbsp;&nbsp;&nbsp;&nbsp;สมการ: <span style='color:#2980b9;'>{make_frac(simp1_n, simp1_d)}</span> <b style='color:#e74c3c;'>×</b> <span style='color:#e67e22;'>{make_frac(simp2_n, simp2_d)}</span><br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;= {make_frac(f"{simp1_n} × {simp2_n}", f"{simp1_d} × {simp2_d}")}<br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;= <b>{make_frac(ans_n, ans_d)}</b><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;= {make_frac(f"{simp1_n} × {simp2_n}", f"{simp1_d} × {simp2_d}")} = <b>{make_frac(ans_n, ans_d)}</b><br>
                     &nbsp;&nbsp;&nbsp;&nbsp;จัดเป็นเศษส่วนอย่างต่ำ/จำนวนคละ จะได้ <b>{ans_str}</b><br><br>
                     <b>ตอบ: พื้นที่ปลูกผักคิดเป็น {ans_str} ไร่</b></span>"""
 
                 else:
-                    # ✨ [สไตล์ 5: พิสูจน์สมการพีชคณิต (Algebraic Proof) - เลื่อนจุดทศนิยม]
+                    # ✨ [สไตล์ 5: พิสูจน์สมการพีชคณิต (Algebraic Proof)]
                     num1_nr = random.randint(1, 4)
                     num1_r = random.choice([x for x in range(1, 9) if x != num1_nr])
                     
-                    # 0.ab... = N
-                    # 10N = a.b...
-                    # 100N = ab.b...
-                    # 90N = ab - a
                     top_n = (num1_nr * 10 + num1_r) - num1_nr
                     bot_d = 90
                     simp_n, simp_d = simplify_fraction(top_n, bot_d)
@@ -3324,7 +3308,6 @@ def generate_questions_logic(grade, main_t, sub_t, num_q, is_challenge=False):
                     &nbsp;&nbsp;&nbsp;&nbsp;ย้าย 90 ไปหาร ➔ N = {make_frac(top_n, 90)}<br>
                     &nbsp;&nbsp;&nbsp;&nbsp;ตัดทอนอย่างต่ำ = <b>{ans_str}</b><br><br>
                     <b>สรุป: นี่คือที่มาของสูตร (ทั้งหมด-ไม่ซ้ำ) / 90 นั่นเอง!</b></span>"""
-
 
 
 
