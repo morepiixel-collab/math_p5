@@ -3090,6 +3090,242 @@ def generate_questions_logic(grade, main_t, sub_t, num_q, is_challenge=False):
 
 
 
+# ================= หมวดที่ 2: โลกของเศษส่วนและทศนิยม (ป.5) =================
+            elif actual_sub_t == "ทศนิยมซ้ำและการแปลงเป็นเศษส่วน":
+                # สุ่ม 5 สถานการณ์ปราบเซียน: ซ้ำล้วน, ซ้ำผสม, กับดักการปัดเศษ, ระคนทศนิยมซ้ำ, พิสูจน์สมการพีชคณิต
+                scenario = random.choice([
+                    "pure_repeating", "mixed_repeating", "truncation_trap", 
+                    "mixed_operation", "algebraic_proof"
+                ])
+
+                # ✨ ฟังก์ชันวาดเศษส่วนแนวตั้ง
+                def make_frac(n, d, w="", color="inherit", line_thick="2px"):
+                    line_color = color if color != "inherit" else "#2c3e50"
+                    line_html = f"<div style='height:{line_thick}; background-color:{line_color}; margin: 2px 0; width:100%;'></div>"
+                    frac_html = f"<div style='display:inline-block; text-align:center; vertical-align:middle; line-height:1.1; font-size:18px; margin:0 4px;'><div style='padding:0 2px;'>{n}</div>{line_html}<div style='padding:0 2px;'>{d}</div></div>"
+                    if w != "":
+                        return f"<div style='display:inline-block; vertical-align:middle; color:{color}; font-size:20px;'><b>{w}</b>{frac_html}</div>"
+                    return f"<div style='display:inline-block; vertical-align:middle; color:{color}; font-weight:bold;'>{frac_html}</div>"
+
+                def simplify_fraction(n, d):
+                    gcd = math.gcd(abs(n), abs(d))
+                    return n // gcd, d // gcd
+
+                if scenario == "pure_repeating":
+                    # ✨ [สไตล์ 1: ทศนิยมซ้ำล้วน (Pure Repeating Decimal)]
+                    # สุ่มตัวเลข 2 หลักที่ซ้ำกัน (เช่น 0.454545...)
+                    repeating_digits = random.choice([12, 15, 18, 24, 27, 36, 45, 54, 63, 72, 81])
+                    d1 = repeating_digits // 10
+                    d2 = repeating_digits % 10
+                    
+                    num = repeating_digits
+                    den = 99
+                    simp_n, simp_d = simplify_fraction(num, den)
+                    ans_str = make_frac(simp_n, simp_d, color="#c0392b")
+
+                    q = f"ในห้องทดลองเคมี นักวิทยาศาสตร์ชั่งน้ำหนักของสารละลายได้ <b>0.{d1}{d2}{d1}{d2}{d1}{d2}... กรัม</b> <br>(เป็นทศนิยมซ้ำ {d1}{d2} ไปเรื่อยๆ ไม่มีที่สิ้นสุด) <br>เพื่อความแม่นยำในการคำนวณ เขาต้องแปลงเป็น <b>'เศษส่วนอย่างต่ำ'</b> <br>จงหาว่าสารละลายนี้มีน้ำหนักคิดเป็นเศษส่วนเท่าใด?"
+
+                    sol = f"""<span style='color:#2c3e50; line-height: 1.8;'>
+                    <div style='background-color:#fef5e7; border-left:4px solid #e67e22; padding:15px; margin-bottom:15px; border-radius:8px;'>
+                    💡 <b>เทคนิค "รหัสลับเลข 9" (สำหรับทศนิยมซ้ำล้วน):</b><br>
+                    • ทศนิยมซ้ำแบบไม่มีตัวเบรก (ซ้ำตั้งแต่หลังจุดตัวแรก) เราไม่ต้องตั้งสมการให้เมื่อย!<br>
+                    • <b>กฎเหล็ก:</b> ตัวเลขที่ซ้ำมีกี่ตัว ให้ใส่ <b>'เลข 9'</b> เป็นตัวส่วนด้านล่างให้เท่ากับจำนวนตัวที่ซ้ำได้เลย!
+                    <br>
+                    </div>
+                    <b>วิธีทำอย่างละเอียดแบบ Step-by-step:</b><br>
+                    👉 <b>ขั้นที่ 1: ถอดรหัสทศนิยม</b><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;ตัวเลขคือ 0.{d1}{d2}{d1}{d2}... ➔ ตัวเลขที่วนลูปซ้ำคือ <b><span style='color:#2980b9;'>{repeating_digits}</span></b> (มีตัวเลขซ้ำทั้งหมด <span style='color:#e74c3c;'>2 ตำแหน่ง</span>)<br><br>
+                    
+                    👉 <b>ขั้นที่ 2: ร่ายคาถาสร้างเศษส่วน</b><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;• <b>ตัวเศษ (ด้านบน):</b> เอาตัวเลขที่ซ้ำมาเขียนเลย ➔ <b><span style='color:#2980b9;'>{repeating_digits}</span></b><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;• <b>ตัวส่วน (ด้านล่าง):</b> ซ้ำ <span style='color:#e74c3c;'>2 ตำแหน่ง</span> ก็ใส่เลข 9 ไป <span style='color:#e74c3c;'>2 ตัว</span> ➔ <b><span style='color:#e74c3c;'>99</span></b><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;สมการที่ได้คือ: <b>{make_frac(repeating_digits, 99)}</b><br><br>
+                    
+                    👉 <b>ขั้นที่ 3: ตัดทอนเป็นเศษส่วนอย่างต่ำ</b><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;นำแม่สูตรคูณ {math.gcd(repeating_digits, 99)} มา <b style='color:#d35400;'>หาร (÷)</b> ตัดทอนทั้งบนและล่าง<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;➔ {make_frac(f"{repeating_digits} ÷ {math.gcd(repeating_digits, 99)}", f"99 ÷ {math.gcd(repeating_digits, 99)}")} = <b><span style='color:#c0392b;'>{ans_str}</span></b><br><br>
+                    <b>ตอบ: สารละลายมีน้ำหนัก {ans_str} กรัม</b></span>"""
+
+                elif scenario == "mixed_repeating":
+                    # ✨ [สไตล์ 2: ทศนิยมซ้ำแบบผสม (Mixed Repeating Decimal) - รหัสลับ 9 และ 0]
+                    # สุ่มตัวเลข เช่น 0.1666... (ไม่ซ้ำ 1 ตัว, ซ้ำ 1 ตัว)
+                    non_repeat = random.randint(1, 8)
+                    repeat = random.choice([x for x in range(1, 9) if x != non_repeat])
+                    
+                    num_top = (non_repeat * 10 + repeat) - non_repeat
+                    den_bot = 90
+                    simp_n, simp_d = simplify_fraction(num_top, den_bot)
+                    ans_str = make_frac(simp_n, simp_d, color="#27ae60")
+
+                    q = f"โจทย์ทดสอบระดับ สสวท.:<br>ในการวัดระยะทางของกลไกหุ่นยนต์ เซนเซอร์อ่านค่าได้ <b>0.{non_repeat}{repeat}{repeat}{repeat}... เมตร</b> <br>(สังเกตว่าเลข {non_repeat} <u>ไม่ซ้ำ</u> แต่เลข {repeat} ซ้ำไปเรื่อยๆ) <br>จงเขียนระยะทางนี้ให้อยู่ในรูป <b>'เศษส่วนอย่างต่ำ'</b>"
+
+                    sol = f"""<span style='color:#2c3e50; line-height: 1.8;'>
+                    <div style='background-color:#e8f8f5; border-left:4px solid #1abc9c; padding:15px; margin-bottom:15px; border-radius:8px;'>
+                    💡 <b>เทคนิค "รหัสลับ 9 และ 0" (สำหรับทศนิยมซ้ำแบบผสม):</b><br>
+                    • <b>ตัวเศษ (บน):</b> เอาตัวเลขทั้งหมด <b style='color:#c0392b;'>ลบ (-)</b> ตัวที่ไม่ซ้ำ<br>
+                    • <b>ตัวส่วน (ล่าง):</b> ตัวที่ซ้ำให้รหัส <b>'9'</b> / ตัวที่ไม่ซ้ำให้รหัส <b>'0'</b>
+                    </div>
+                    <b>วิธีทำอย่างละเอียดแบบ Step-by-step:</b><br>
+                    👉 <b>ขั้นที่ 1: สร้างตัวเศษ (ด้านบน)</b><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;ตัวเลขหลังจุดทั้งหมดคือ <span style='color:#2980b9;'>{non_repeat}{repeat}</span><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;ตัวเลขที่ <b>"ไม่ซ้ำ"</b> คือเลข <span style='color:#e74c3c;'>{non_repeat}</span><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;นำมาลบกัน: <span style='color:#2980b9;'>{non_repeat}{repeat}</span> <b style='color:#c0392b;'>-</b> <span style='color:#e74c3c;'>{non_repeat}</span> = <b><span style='color:#8e44ad;'>{num_top}</span></b><br><br>
+                    
+                    👉 <b>ขั้นที่ 2: สร้างตัวส่วน (ด้านล่าง)</b><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;• เลขซ้ำมี 1 ตัว (เลข {repeat}) ➔ ใส่เลข <b><span style='color:#27ae60;'>9</span></b><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;• เลขไม่ซ้ำมี 1 ตัว (เลข {non_repeat}) ➔ ใส่เลข <b><span style='color:#27ae60;'>0</span></b> ต่อท้าย<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;ประกอบร่างกันจะได้ตัวส่วนคือ <b><span style='color:#8e44ad;'>90</span></b><br><br>
+                    
+                    👉 <b>ขั้นที่ 3: ประกอบร่างเป็นเศษส่วนและตัดทอน</b><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;สมการ: {make_frac(num_top, den_bot)}<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;นำแม่ {math.gcd(num_top, den_bot)} มาตัดทอนทั้งบนและล่าง จะได้ <b><span style='color:#27ae60;'>{ans_str}</span></b><br><br>
+                    <b>ตอบ: ระยะทางคือ {ans_str} เมตร</b></span>"""
+
+                elif scenario == "truncation_trap":
+                    # ✨ [สไตล์ 3: กับดักการปัดเศษ (The Truncation Trap)]
+                    # 0.8333... - 0.444...
+                    num1_nr = 8; num1_r = 3
+                    num2_nr = 4; num2_r = 4 # 0.444... is pure repeating 0.4
+                    
+                    # Fraction 1: 0.8333... = (83-8)/90 = 75/90 = 5/6
+                    f1_n = (num1_nr * 10 + num1_r) - num1_nr
+                    f1_d = 90
+                    simp1_n, simp1_d = simplify_fraction(f1_n, f1_d)
+                    
+                    # Fraction 2: 0.444... = 4/9
+                    f2_n = num2_nr
+                    f2_d = 9
+                    simp2_n, simp2_d = simplify_fraction(f2_n, f2_d)
+                    
+                    # ลบกัน: simp1_n/simp1_d - simp2_n/simp2_d
+                    lcm_d = (simp1_d * simp2_d) // math.gcd(simp1_d, simp2_d)
+                    new_n1 = simp1_n * (lcm_d // simp1_d)
+                    new_n2 = simp2_n * (lcm_d // simp2_d)
+                    
+                    ans_n = new_n1 - new_n2
+                    simp_ans_n, simp_ans_d = simplify_fraction(ans_n, lcm_d)
+                    ans_str = make_frac(simp_ans_n, simp_ans_d, color="#c0392b")
+
+                    # ค่าหลอก (ปัดเป็น 2 ตำแหน่ง 0.83 - 0.44 = 0.39 = 39/100)
+                    fake_ans = make_frac(39, 100)
+
+                    q = f"โจทย์กับดัก (ข้อสอบแข่งขัน):<br>จงหาผลลัพธ์ของ <b>0.{num1_nr}{num1_r}{num1_r}... <span style='color:#e74c3c;'>-</span> 0.{num2_nr}{num2_r}{num2_r}...</b> ให้อยู่ในรูปเศษส่วนอย่างต่ำ<br><i>(เด็กชายพายุเอาทศนิยมมาลบกันตรงๆ แล้วตอบ {fake_ans} จงหาว่าคำตอบที่ถูกต้องจริงๆ คือเท่าใด?)</i>"
+
+                    sol = f"""<span style='color:#2c3e50; line-height: 1.8;'>
+                    <div style='background-color:#fdf2e9; border-left:4px solid #e67e22; padding:15px; margin-bottom:15px; border-radius:8px;'>
+                    💡 <b>ถอดรหัสกับดัก "การปัดเศษมั่วซั่ว":</b><br>
+                    • พายุทำ <b><span style='color:#c0392b;'>ผิดเต็มๆ!</span></b> เพราะพายุแอบตัดจบตัวเลขแค่ 2 ตำแหน่ง (0.83 - 0.44) ซึ่งความจริงมันมีเลขต่อท้ายยาวไปถึงอินฟินิตี้!<br>
+                    • <b>กฎเหล็ก:</b> ห้ามนำทศนิยมซ้ำมาบวกลบกันตรงๆ เด็ดขาด! ต้องแปลงร่างเป็น <b>'เศษส่วน'</b> ให้เรียบร้อยก่อนเสมอ
+                    </div>
+                    <b>วิธีทำอย่างละเอียดแบบ Step-by-step:</b><br>
+                    👉 <b>ขั้นที่ 1: แปลง 0.{num1_nr}{num1_r}{num1_r}... เป็นเศษส่วน</b><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;ใช้สูตร (ทั้งหมด - ไม่ซ้ำ) / 90<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;= ({num1_nr}{num1_r} - {num1_nr}) / 90 = {make_frac(f1_n, f1_d)}<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;ตัดทอนอย่างต่ำ = <b><span style='color:#2980b9;'>{make_frac(simp1_n, simp1_d)}</span></b><br><br>
+                    
+                    👉 <b>ขั้นที่ 2: แปลง 0.{num2_nr}{num2_r}{num2_r}... เป็นเศษส่วน</b><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;นี่คือซ้ำตัวเดียวล้วนๆ ใช้สูตรส่วน 9 ได้เลย<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;= <b><span style='color:#e67e22;'>{make_frac(simp2_n, simp2_d)}</span></b><br><br>
+                    
+                    👉 <b>ขั้นที่ 3: นำเศษส่วนมาลบกันอย่างปลอดภัย</b><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;สมการที่แท้จริง: <span style='color:#2980b9;'>{make_frac(simp1_n, simp1_d)}</span> <b style='color:#c0392b;'>-</b> <span style='color:#e67e22;'>{make_frac(simp2_n, simp2_d)}</span><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;ทำ ค.ร.น. ของ {simp1_d} และ {simp2_d} ซึ่งก็คือ <b>{lcm_d}</b><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;แปลงร่าง: {make_frac(new_n1, lcm_d)} - {make_frac(new_n2, lcm_d)} = <b>{make_frac(ans_n, lcm_d)}</b><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;เมื่อนำมาจัดรูปให้เป็นเศษส่วนอย่างต่ำ จะได้ <b><span style='color:#c0392b;'>{ans_str}</span></b><br><br>
+                    <b>ตอบ: คำตอบที่ถูกต้องที่แท้จริงคือ {ans_str}</b></span>"""
+
+                elif scenario == "mixed_operation":
+                    # ✨ [สไตล์ 4: การคูณทศนิยมซ้ำ (Mixed Operation with Fractions)]
+                    # 0.A(ซ้ำ) * D/N
+                    rep_digit = random.choice([3, 6, 9])
+                    f1_n = rep_digit
+                    f1_d = 9
+                    simp1_n, simp1_d = simplify_fraction(f1_n, f1_d)
+                    
+                    # สุ่มเศษส่วนอีกตัวมาคูณ
+                    simp2_d = random.choice([2, 4, 5, 7, 8])
+                    simp2_n = random.choice([x for x in range(1, simp2_d*2) if math.gcd(x, simp2_d) == 1])
+                    
+                    ans_n = simp1_n * simp2_n
+                    ans_d = simp1_d * simp2_d
+                    
+                    final_simp_n, final_simp_d = simplify_fraction(ans_n, ans_d)
+                    if final_simp_n > final_simp_d and final_simp_d != 1:
+                        w = final_simp_n // final_simp_d
+                        ans_str = make_frac(final_simp_n % final_simp_d, final_simp_d, w=w, color="#8e44ad")
+                    elif final_simp_d == 1:
+                        ans_str = f"<b><span style='color:#8e44ad;'>{final_simp_n}</span></b>"
+                    else:
+                        ans_str = make_frac(final_simp_n, final_simp_d, color="#8e44ad")
+
+                    q = f"ชาวไร่มีที่ดินทั้งหมด <b>0.{rep_digit}{rep_digit}{rep_digit}... ไร่</b> (ทศนิยมซ้ำ {rep_digit}) <br>ต้องการแบ่งพื้นที่ {make_frac(simp2_n, simp2_d)} <b><u>ของที่ดินทั้งหมด</u></b> ไปปลูกผักออร์แกนิก <br>จงหาว่าพื้นที่ปลูกผักออร์แกนิกคิดเป็นกี่ไร่? <br><i>(ให้ตอบในรูปเศษส่วนอย่างต่ำ)</i>"
+
+                    sol = f"""<span style='color:#2c3e50; line-height: 1.8;'>
+                    <div style='background-color:#e8f8f5; border-left:4px solid #1abc9c; padding:15px; margin-bottom:15px; border-radius:8px;'>
+                    💡 <b>การแปลเป็น "สมการคณิตศาสตร์":</b><br>
+                    • คำว่า <b>"ของ"</b> ➔ ใช้เครื่องหมาย <b style='color:#e74c3c;'>คูณ (×)</b><br>
+                    • เราไม่สามารถนำเศษส่วนไปคูณทศนิยมซ้ำตรงๆ ได้ ต้องแปลงทศนิยมซ้ำให้เป็น <b>'เศษส่วน'</b> ก่อน!
+                    </div>
+                    <b>วิธีทำอย่างละเอียดแบบ Step-by-step:</b><br>
+                    👉 <b>ขั้นที่ 1: แปลงทศนิยมซ้ำเป็นเศษส่วน</b><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;0.{rep_digit}{rep_digit}{rep_digit}... เป็นทศนิยมซ้ำ 1 ตำแหน่ง (เลข {rep_digit})<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;สูตรรหัสลับ 9: ตัวเศษคือ {rep_digit} ตัวส่วนคือ 9 ➔ <b>{make_frac(rep_digit, 9)}</b><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;ตัดทอนอย่างต่ำ จะได้ <b><span style='color:#2980b9;'>{make_frac(simp1_n, simp1_d)}</span></b> ไร่<br><br>
+                    
+                    👉 <b>ขั้นที่ 2: ตั้งสมการและคำนวณ (บนคูณบน ล่างคูณล่าง)</b><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;นำพื้นที่ทั้งหมดมา <b>คูณ</b> กับสัดส่วนที่ต้องการแบ่ง<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;สมการ: <span style='color:#2980b9;'>{make_frac(simp1_n, simp1_d)}</span> <b style='color:#e74c3c;'>×</b> <span style='color:#e67e22;'>{make_frac(simp2_n, simp2_d)}</span><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;= {make_frac(f"{simp1_n} × {simp2_n}", f"{simp1_d} × {simp2_d}")}<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;= <b>{make_frac(ans_n, ans_d)}</b><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;จัดเป็นเศษส่วนอย่างต่ำ/จำนวนคละ จะได้ <b>{ans_str}</b><br><br>
+                    <b>ตอบ: พื้นที่ปลูกผักคิดเป็น {ans_str} ไร่</b></span>"""
+
+                else:
+                    # ✨ [สไตล์ 5: พิสูจน์สมการพีชคณิต (Algebraic Proof) - เลื่อนจุดทศนิยม]
+                    num1_nr = random.randint(1, 4)
+                    num1_r = random.choice([x for x in range(1, 9) if x != num1_nr])
+                    
+                    # 0.ab... = N
+                    # 10N = a.b...
+                    # 100N = ab.b...
+                    # 90N = ab - a
+                    top_n = (num1_nr * 10 + num1_r) - num1_nr
+                    bot_d = 90
+                    simp_n, simp_d = simplify_fraction(top_n, bot_d)
+                    ans_str = make_frac(simp_n, simp_d, color="#27ae60")
+
+                    q = f"โจทย์สอบสัมภาษณ์เข้าห้อง Gifted:<br>ครูรู้ว่าหนูจำสูตรลัดแปลงทศนิยมซ้ำเป็นเศษส่วนได้ <br>แต่จงใช้ <b>'วิธีตั้งสมการพีชคณิต'</b> (ให้ <b>N = 0.{num1_nr}{num1_r}{num1_r}{num1_r}...</b>)<br>เพื่อ <b>พิสูจน์</b> ให้ครูดูหน่อยว่าทำไมมันถึงมีค่าเท่ากับเศษส่วนส่วน 90 ?"
+
+                    sol = f"""<span style='color:#2c3e50; line-height: 1.8;'>
+                    <div style='background-color:#fdf2e9; border-left:4px solid #e67e22; padding:15px; margin-bottom:15px; border-radius:8px;'>
+                    💡 <b>เทคนิค "สมการเลื่อนจุด (Decimal Shifting)":</b><br>
+                    • ความลับของสูตรส่วน 90 มาจาก <b>"การคูณด้วย 10 และ 100"</b> เพื่อเลื่อนจุดทศนิยมให้ตัวซ้ำมันตรงกันเป๊ะๆ<br>
+                    • พอจุดตรงกันแล้ว เราแค่เอาสมการมา <b>ลบ (-)</b> กัน ตัวซ้ำด้านหลังก็จะหักล้างกันหายวับไปกับตา!
+                    </div>
+                    <b>วิธีทำอย่างละเอียด (บทพิสูจน์ระดับอัจฉริยะ):</b><br>
+                    👉 <b>ขั้นที่ 1: กำหนดตัวแปรและเลื่อนจุดครั้งที่ 1</b><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;ให้ <span style='color:#8e44ad;'>N</span> = 0.{num1_nr}{num1_r}{num1_r}{num1_r}... &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <i>(สมการที่ 1)</i><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;นำสมการที่ 1 ไป <b style='color:#e74c3c;'>คูณ 10</b> (จุดจะขยับไปด้านหลัง 1 ตำแหน่ง)<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;<span style='color:#2980b9;'>10N</span> = {num1_nr}.{num1_r}{num1_r}{num1_r}... &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <i>(สมการที่ 2)</i><br><br>
+                    
+                    👉 <b>ขั้นที่ 2: เลื่อนจุดครั้งที่ 2</b><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;นำสมการที่ 1 ไป <b style='color:#e74c3c;'>คูณ 100</b> (จุดจะขยับไปด้านหลัง 2 ตำแหน่ง)<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;<span style='color:#c0392b;'>100N</span> = {num1_nr}{num1_r}.{num1_r}{num1_r}{num1_r}... &nbsp;&nbsp;&nbsp; <i>(สมการที่ 3)</i><br><br>
+                    
+                    👉 <b>ขั้นที่ 3: หักล้างตัวเลขซ้ำ (สมการ 3 ลบ สมการ 2)</b><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;สังเกตว่าสมการที่ 2 และ 3 มีหาง <b>.{num1_r}{num1_r}...</b> เหมือนกันเป๊ะ!<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;จับมาลบกันเลย: (<span style='color:#c0392b;'>100N</span> - <span style='color:#2980b9;'>10N</span>) = {num1_nr}{num1_r}.{num1_r}{num1_r}... <b style='color:#c0392b;'>-</b> {num1_nr}.{num1_r}{num1_r}...<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;ฝั่งซ้ายเหลือ: <b><span style='color:#8e44ad;'>90N</span></b><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;ฝั่งขวาหางหายไปเหลือแค่: {num1_nr}{num1_r} - {num1_nr} = <b><span style='color:#e67e22;'>{top_n}</span></b><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;👇 <i>สมการล่าสุด:</i><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;<div style='display:inline-block; border: 2px solid #8e44ad; padding: 2px 10px; border-radius: 5px; color:#8e44ad; font-weight:bold;'>90N = {top_n}</div><br><br>
+                    
+                    👉 <b>ขั้นที่ 4: ย้ายข้างหาค่า N</b><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;ย้าย 90 ไปหาร ➔ N = {make_frac(top_n, 90)}<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;ตัดทอนอย่างต่ำ = <b>{ans_str}</b><br><br>
+                    <b>สรุป: นี่คือที่มาของสูตร (ทั้งหมด-ไม่ซ้ำ) / 90 นั่นเอง!</b></span>"""
+
+
 
 
        
