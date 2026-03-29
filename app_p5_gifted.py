@@ -1807,13 +1807,19 @@ def generate_questions_logic(grade, main_t, sub_t, num_q, is_challenge=False):
             elif actual_sub_t == "การบวกและการลบเศษส่วน":
                 scenario = random.choice(["chain_operation", "pole_trap", "mixed_borrowing_trap", "equation_balance"])
 
-                # ✨ ฟังก์ชันพิเศษ: วาดเศษส่วนแนวตั้ง (อัปเดตใหม่ ใช้ <hr> บังคับให้มีเส้นขีดเสมอ!)
+                # ✨ ฟังก์ชันพิเศษฉบับไม้ตาย: วาดเศษส่วนด้วย "กล่องทึบ 2px" (ไม่มีทางโดนเว็บลบทิ้งแน่นอน)
                 def make_frac(n, d, w="", color="inherit"):
-                    line_style = f"margin: 0px; border: none; border-top: 2px solid {color};"
-                    frac_html = f"<span style='display:inline-block; text-align:center; vertical-align:middle; line-height:1.2; font-size:18px; margin:0 4px;'><span style='display:block; padding: 2px 0;'>{n}</span><hr style='{line_style}'/><span style='display:block; padding: 2px 0;'>{d}</span></span>"
+                    # บังคับสีเส้น ถ้าไม่ส่งสีมาให้ใช้สีดำเข้ม
+                    line_color = color if color != "inherit" else "#2c3e50"
+                    
+                    # วาด 'กล่องสี่เหลี่ยมทึบ' หนา 2px แทนการใช้คำสั่งวาดเส้นขอบ
+                    line_html = f"<div style='height:2px; background-color:{line_color}; margin: 2px 0; width:100%;'></div>"
+                    
+                    frac_html = f"<div style='display:inline-block; text-align:center; vertical-align:middle; line-height:1.1; font-size:18px; margin:0 4px;'><div style='padding:0 2px;'>{n}</div>{line_html}<div style='padding:0 2px;'>{d}</div></div>"
+                    
                     if w != "":
-                        return f"<span style='display:inline-block; vertical-align:middle; color:{color}; font-size:20px;'><b>{w}</b>{frac_html}</span>"
-                    return f"<span style='display:inline-block; vertical-align:middle; color:{color};'><b>{frac_html}</b></span>"
+                        return f"<div style='display:inline-block; vertical-align:middle; color:{color}; font-size:20px;'><b>{w}</b>{frac_html}</div>"
+                    return f"<div style='display:inline-block; vertical-align:middle; color:{color}; font-weight:bold;'>{frac_html}</div>"
 
                 def simplify_fraction(n, d):
                     gcd = math.gcd(abs(n), abs(d))
@@ -1858,7 +1864,7 @@ def generate_questions_logic(grade, main_t, sub_t, num_q, is_challenge=False):
                     • <b>"ตักออกไป"</b> ➔ ทำให้ของลดลง ต้องใช้ <b style='color:#c0392b;'>ลบ (-)</b><br>
                     • ประโยคสัญลักษณ์: <b>( {make_frac(n1, d1)} <span style='color:#27ae60;'>+</span> {make_frac(n2, d2)} ) <span style='color:#c0392b;'>-</span> {make_frac(n3, d3)} = ?</b><br><br>
                     ⚠️ <b>กฎเหล็กของเศษส่วน:</b> เราบวกลบกันตรงๆ ไม่ได้เด็ดขาด! เพราะขนาดของชิ้นส่วน (ตัวส่วนด้านล่าง) ไม่เท่ากัน เราต้องหา <b>ค.ร.น.</b> เพื่อหั่นชิ้นส่วนให้มีขนาดเท่ากันก่อน
-                    <br>                    </div>
+                    </div>
                     <b>วิธีทำอย่างละเอียดแบบ Step-by-step:</b><br>
                     👉 <b>ขั้นที่ 1: หา ค.ร.น. ของตัวส่วน {d1}, {d2} และ {d3}</b><br>
                     &nbsp;&nbsp;&nbsp;&nbsp;นำ {d1}, {d2}, {d3} ไปตั้งหารสั้น จะได้ ค.ร.น. คือ <b><span style='color:#8e44ad;'>{lcm_all}</span></b><br>
@@ -1902,7 +1908,7 @@ def generate_questions_logic(grade, main_t, sub_t, num_q, is_challenge=False):
                     โจทย์ข้อนี้ให้ตัวเลขมาแค่ 2 ตัว เด็กหลายคนจะเอามาแค่บวกหรือลบกันแล้วตอบเลย ซึ่ง <b>ผิด!</b><br>
                     • ความลับคือ: เสาทั้งต้นแบบเต็มๆ 1 ต้น ในทางเศษส่วนเราจะให้ค่ามันเท่ากับ <b>" 1 " (หรือ {make_frac(1, 1)}) เสมอ!</b><br>
                     • ประโยคสัญลักษณ์ที่แท้จริงคือ: <b><span style='color:#c0392b;'>1</span> - ( {make_frac(n1, d1)} + {make_frac(n2, d2)} ) = ?</b>
-                    <br>                    </div>
+                    </div>
                     <b>วิธีทำอย่างละเอียดแบบ Step-by-step:</b><br>
                     👉 <b>ขั้นที่ 1: นำส่วนที่อยู่ในโคลนและน้ำมาบวกรวมกันก่อน</b><br>
                     &nbsp;&nbsp;&nbsp;&nbsp;หา ค.ร.น. ของ {d1} และ {d2} ซึ่งก็คือ <b><span style='color:#8e44ad;'>{lcm_all}</span></b><br>
@@ -2016,7 +2022,8 @@ def generate_questions_logic(grade, main_t, sub_t, num_q, is_challenge=False):
                     • <b>"เก็บเพิ่มได้อีก"</b> ➔ ใช้เครื่องหมาย <b style='color:#27ae60;'>บวก (+)</b><br>
                     • <b>"รวมกันพบว่ามี..."</b> ➔ คือผลลัพธ์หลังเครื่องหมาย <b>เท่ากับ (=)</b><br>
                     🔥 <b>ประโยคสัญลักษณ์:</b> <b><span style='color:#8e44ad;'>A</span> + {make_frac(n1, d1)} = {make_frac(n2, d2)}</b>
-                    <br>                    </div>
+                    <br>
+                    </div>
                     <b>วิธีทำอย่างละเอียดแบบ Step-by-step:</b><br>
                     👉 <b>ขั้นที่ 1: การย้ายข้างสมการ (Balancing)</b><br>
                     &nbsp;&nbsp;&nbsp;&nbsp;เราต้องการหาค่า <span style='color:#8e44ad;'>A</span> จึงต้องย้าย {make_frac(n1, d1)} ไปฝั่งตรงข้าม<br>
@@ -2032,7 +2039,6 @@ def generate_questions_logic(grade, main_t, sub_t, num_q, is_challenge=False):
                     &nbsp;&nbsp;&nbsp;&nbsp;<span style='color:#8e44ad;'>A</span> = {make_frac(new_n2, lcm_all, color="#27ae60")} - {make_frac(new_n1, lcm_all, color="#e74c3c")} = <b>{make_frac(ans_n, lcm_all)}</b><br>
                     &nbsp;&nbsp;&nbsp;&nbsp;คำตอบคือ {make_frac(ans_n, lcm_all)} และตัดทอนอย่างต่ำได้เป็น <b>{ans_str}</b><br><br>
                     <b>ตอบ: ตอนแรกชาวไร่เก็บมะม่วงได้ {ans_str} ตัน</b></span>"""
-
 
 
 
