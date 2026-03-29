@@ -773,6 +773,138 @@ def generate_questions_logic(grade, main_t, sub_t, num_q, is_challenge=False):
 
 
 
+# ================= หมวดที่ 1: รากฐานตัวเลขและการดำเนินการ (ป.5) =================
+            elif actual_sub_t == "เทคนิคคิดเลขเร็วและสมบัติการแจกแจง":
+                # สุ่ม 3 สถานการณ์ (ข้อสอบแข่งขัน, ซื้อของปัดเศษ, ซื้อของจัดกรุ๊ป)
+                scenario = random.choice(["pull_out_exam", "round_up_shop", "group_buy"])
+
+                if scenario == "pull_out_exam":
+                    # สไตล์ที่ 1: การดึงตัวร่วม (สไตล์ข้อสอบแข่งขันยอดฮิต)
+                    # รูปแบบ: (A x B) + (A x C) = A x (B + C) โดยที่ B+C = 100 หรือ 1000
+                    target_sum = random.choice([100, 1000])
+                    common_a = random.choice([45, 99, 125, 255, 345, 875])
+                    b = random.randint(15, target_sum // 2)
+                    c = target_sum - b
+                    
+                    # สลับบวกลบให้หลากหลาย
+                    op = random.choice(["+", "-"])
+                    if op == "-":
+                        # ถ้าเป็นลบ ต้องให้ B - C = 100 หรือ 10
+                        target_diff = random.choice([10, 100])
+                        c = random.randint(15, 90)
+                        b = c + target_diff
+                        
+                    part1 = common_a * b
+                    part2 = common_a * c
+                    final_ans = part1 + part2 if op == "+" else part1 - part2
+                    target_num = b + c if op == "+" else b - c
+                    
+                    op_color = "#3498db" if op == "+" else "#9b59b6"
+                    op_text = "บวก" if op == "+" else "ลบ"
+
+                    q = f"จงหาผลลัพธ์ของสมการต่อไปนี้ <b>(โดยใช้เทคนิคคิดเลขเร็ว)</b><br><br><div style='text-align:center; font-size:28px; font-weight:bold; letter-spacing:2px; background:#f8f9fa; padding:15px; border-radius:10px; border:2px dashed #bdc3c7;'>( {common_a:,} × {b:,} ) <span style='color:{op_color};'>{op}</span> ( {common_a:,} × {c:,} ) = ?</div>"
+
+                    sol = f"""<span style='color:#2c3e50; line-height: 1.8;'>
+                    <div style='background-color:#fcf3cf; border-left:4px solid #f1c40f; padding:15px; margin-bottom:15px; border-radius:8px;'>
+                    💡 <b>สมบัติการแจกแจง (Distributive Property) - "เทคนิคการดึงตัวร่วม":</b><br>
+                    เมื่อเราเห็นตัวเลขหน้าตาเหมือนกันเป๊ะ คูณอยู่กับกลุ่มตัวเลขอื่น เราสามารถ <b>"ดึงตัวที่เหมือนกันออกมาไว้ข้างนอก"</b> ได้เลย เพื่อให้เลขที่เหลือรวมกันเป็นเลขกลมๆ คิดง่ายๆ แบบไม่ต้องตั้งคูณยาวๆ
+                    <br>
+                    </div>
+                    <b>วิธีทำอย่างละเอียดแบบ Step-by-step:</b><br>
+                    👉 <b>ขั้นที่ 1: สังเกตหา "ฝาแฝด" (ตัวร่วม)</b><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;ในโจทย์มีตัวเลขที่เหมือนกันคือ <b style='color:#e74c3c;'>{common_a:,}</b> ซึ่งกำลัง <b style='color:#27ae60;'>คูณ (×)</b> อยู่กับตัวเลขอื่นทั้งสองวงเล็บ<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;วงเล็บหน้า: <span style='color:#e74c3c;'>{common_a:,}</span> คูณอยู่กับ <span style='color:#2980b9;'>{b:,}</span><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;วงเล็บหลัง: <span style='color:#e74c3c;'>{common_a:,}</span> คูณอยู่กับ <span style='color:#2980b9;'>{c:,}</span><br><br>
+                    
+                    👉 <b>ขั้นที่ 2: ใช้เวทมนตร์ "ดึงตัวร่วม" ออกมา</b><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;ให้ดึง <span style='color:#e74c3c;'>{common_a:,}</span> ออกมาวางไว้ข้างหน้าสุดเพียงตัวเดียว แล้วเอาตัวเลขที่เหลือมารวมกันในวงเล็บใหญ่ โดยใช้เครื่องหมาย <b style='color:{op_color};'>{op_text} ({op})</b> ตามโจทย์<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;สมการใหม่จะกลายเป็น: <b><span style='color:#e74c3c;'>{common_a:,}</span> <span style='color:#27ae60;'>×</span> ( <span style='color:#2980b9;'>{b:,}</span> <span style='color:{op_color};'>{op}</span> <span style='color:#2980b9;'>{c:,}</span> )</b><br><br>
+                    
+                    👉 <b>ขั้นที่ 3: คำนวณในวงเล็บ (ซึ่งกลายเป็นเลขกลมๆ คิดง่ายมาก)</b><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;ในวงเล็บ: <span style='color:#2980b9;'>{b:,}</span> <span style='color:{op_color};'>{op}</span> <span style='color:#2980b9;'>{c:,}</span> = <b><span style='color:#8e44ad;'>{target_num:,}</span></b> <i>(ตัวเลขยุบรวมกันอย่างสวยงาม)</i><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;นำกลับไปคูณตัวหน้า: <span style='color:#e74c3c;'>{common_a:,}</span> <span style='color:#27ae60;'>×</span> <span style='color:#8e44ad;'>{target_num:,}</span><br><br>
+                    
+                    👉 <b>ขั้นที่ 4: คูณขั้นสุดท้าย</b><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;การคูณด้วยหลักร้อยหลักสิบ ให้เติม 0 ต่อท้ายได้เลย ➔ {common_a:,} เติมศูนย์ = <b><span style='color:#c0392b;'>{final_ans:,}</span></b><br><br>
+                    <b>ตอบ: {final_ans:,}</b></span>"""
+
+                elif scenario == "round_up_shop":
+                    # สไตล์ที่ 2: ปัดเลข 99 หรือ 98 (เทคนิคซื้อของในชีวิตประจำวัน)
+                    # รูปแบบ: A x 99 = A x (100 - 1)
+                    item = random.choice(["เสื้อยืด", "หนังสือ", "ของเล่น", "หมอน"])
+                    count = random.randint(4, 9)
+                    price = random.choice([98, 99, 198, 199, 998, 999])
+                    
+                    # คำนวณส่วนต่าง
+                    if price in [98, 99]: base = 100
+                    elif price in [198, 199]: base = 200
+                    else: base = 1000
+                    
+                    diff = base - price
+                    total_price = count * price
+                    
+                    q = f"คุณแม่ต้องการซื้อ{item}จำนวน <b>{count} ชิ้น</b> ราคาชิ้นละ <b>{price} บาท</b> <br>คุณแม่จะต้องจ่ายเงินกี่บาท? <b>(จงแสดงวิธีคิดเลขเร็วโดยใช้สมบัติการแจกแจง)</b>"
+
+                    sol = f"""<span style='color:#2c3e50; line-height: 1.8;'>
+                    <div style='background-color:#e8f8f5; border-left:4px solid #1abc9c; padding:15px; margin-bottom:15px; border-radius:8px;'>
+                    💡 <b>การแปลภาษาไทย เป็น "สมการคณิตศาสตร์":</b><br>
+                    • <b>"ราคาชิ้นละ... ซื้อหลายชิ้น"</b> ➔ การนับเพิ่มครั้งละเท่าๆ กัน ต้องใช้ <b style='color:#e74c3c;'>เครื่องหมายคูณ (×)</b><br>
+                    • <b>ประโยคสัญลักษณ์ตั้งต้น:</b> {count} <b style='color:#e74c3c;'>×</b> {price} = ?<br><br>
+                    🔥 <b>เทคนิคคิดเลขเร็ว (ปัดเลขแล้วทอนคืน):</b><br>
+                    ราคา <span style='color:#2980b9;'>{price}</span> บาท มันคิดยาก เราสามารถมองเป็น <b>{base} บาท ลบออกด้วยเงินทอน {diff} บาท</b> ➔ <span style='color:#2980b9;'>({base} - {diff})</span>
+                    </div>
+                    <b>วิธีทำอย่างละเอียดแบบ Step-by-step:</b><br>
+                    👉 <b>ขั้นที่ 1: เปลี่ยนตัวเลขให้คิดง่ายขึ้น</b><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;จากสมการเดิม: {count} <b style='color:#e74c3c;'>×</b> <span style='color:#2980b9;'>{price}</span><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;เปลี่ยนเลข {price} เป็น ({base} - {diff}) ➔ จะได้สมการใหม่: <b>{count} <span style='color:#e74c3c;'>×</span> <span style='color:#8e44ad;'>({base} - {diff})</span></b><br><br>
+                    
+                    👉 <b>ขั้นที่ 2: ใช้ "สมบัติการแจกแจง" (คูณกระจายเข้าไป)</b><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;เราต้องกระจาย {count} เข้าไปคูณตัวเลขในวงเล็บทีละตัว<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;• กระจายเข้าไปหา {base} ➔ ({count} × {base}) = <b><span style='color:#27ae60;'>{count * base:,}</span></b> <i>(คิดเสมือนว่าซื้อของชิ้นละ {base} บาท)</i><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;• กระจายเข้าไปหา {diff} ➔ ({count} × {diff}) = <b><span style='color:#c0392b;'>{count * diff}</span></b> <i>(คิดเสมือนว่าคือเงินทอนที่ต้องได้คืนชิ้นละ {diff} บาท)</i><br><br>
+                    
+                    👉 <b>ขั้นที่ 3: นำมาลบกันเพื่อหาค่าใช้จ่ายจริง</b><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;นำยอดที่คิดเกิน <span style='color:#27ae60;'>{count * base:,}</span> <b style='color:#9b59b6;'>ลบ (-)</b> ด้วยยอดเงินทอนรวม <span style='color:#c0392b;'>{count * diff}</span><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;สมการ: <span style='color:#27ae60;'>{count * base:,}</span> - <span style='color:#c0392b;'>{count * diff}</span> = <b><span style='color:#d35400;'>{total_price:,}</span></b><br><br>
+                    <b>ตอบ: คุณแม่จะต้องจ่ายเงิน {total_price:,} บาท</b></span>"""
+
+                else:
+                    # สไตล์ที่ 3: ซื้อของจัดกรุ๊ป (กระจายแจกแจง)
+                    # รูปแบบ: A x B + A x C = A x (B + C) ประยุกต์ใช้กับชีวิตจริง
+                    item1, item2 = random.sample(["สมุด", "ปากกา", "ยางลบ", "ไม้บรรทัด", "ดินสอ"], 2)
+                    people = random.choice([15, 20, 25, 30, 40])
+                    p1 = random.randint(12, 25)
+                    p2 = random.choice([x for x in range(5, 25) if (p1 + x) % 10 == 0]) # บังคับให้ราคารวมกันลงท้ายด้วย 0
+                    
+                    total_per_person = p1 + p2
+                    total_all = people * total_per_person
+                    
+                    q = f"คุณครูต้องการจัดชุดเครื่องเขียนแจกนักเรียน <b>{people} คน</b> <br>โดยนักเรียนแต่ละคนจะได้รับ {item1} 1 ชิ้น <b>ราคา {p1} บาท</b> และ {item2} 1 ชิ้น <b>ราคา {p2} บาท</b> <br>คุณครูต้องใช้งบประมาณทั้งหมดกี่บาท? <b>(จงแสดงวิธีคิดเลขเร็วโดยใช้สมบัติการแจกแจง)</b>"
+
+                    sol = f"""<span style='color:#2c3e50; line-height: 1.8;'>
+                    <div style='background-color:#fef5e7; border-left:4px solid #e67e22; padding:15px; margin-bottom:15px; border-radius:8px;'>
+                    💡 <b>การแปลภาษาไทย เป็น "สมการคณิตศาสตร์":</b><br>
+                    ข้อนี้มีวิธีคิด 2 แบบ:<br>
+                    • <b>แบบคนทั่วไป:</b> คิดค่า{item1}ของเด็กทุกคนก่อน แล้วไปบวกกับค่า{item2}ของเด็กทุกคน ➔ (<span style='color:#e74c3c;'>{people}</span> × {p1}) + (<span style='color:#e74c3c;'>{people}</span> × {p2})<br>
+                    • <b>แบบคิดเลขเร็ว (ใช้สมบัติการแจกแจง):</b> ในเมื่อเด็กทุกคนได้ของ 2 อย่างเหมือนกัน เราก็ <b>"รวมราคาของ 1 ชุด"</b> ก่อน แล้วค่อย <b>"คูณจำนวนเด็กทีเดียว"</b> ➔ <span style='color:#e74c3c;'>{people}</span> × ({p1} + {p2})<br>
+                    <br>
+                    </div>
+                    <b>วิธีทำอย่างละเอียดแบบ Step-by-step:</b><br>
+                    👉 <b>ขั้นที่ 1: คิดราคาสิ่งของ 1 ชุดก่อน (บวกกันในวงเล็บ)</b><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;ราคา{item1} <span style='color:#2980b9;'>{p1}</span> บาท <b style='color:#3498db;'>บวก (+)</b> ราคา{item2} <span style='color:#2980b9;'>{p2}</span> บาท<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;{p1} + {p2} = <b><span style='color:#8e44ad;'>{total_per_person}</span> บาท/ชุด</b> <i>(ตัวเลขยุบรวมกัน กลายเป็นราคาแพ็กเกจ)</i><br><br>
+                    
+                    👉 <b>ขั้นที่ 2: นำราคาชุด ไปคูณจำนวนนักเรียน</b><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;มีนักเรียน <span style='color:#e74c3c;'>{people}</span> คน ต้องการคนละ 1 ชุด ➔ ต้องใช้ <b style='color:#27ae60;'>เครื่องหมายคูณ (×)</b><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;สมการ: <span style='color:#e74c3c;'>{people}</span> <b style='color:#27ae60;'>×</b> <span style='color:#8e44ad;'>{total_per_person}</span><br><br>
+                    
+                    👉 <b>ขั้นที่ 3: คูณเลข</b><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;{people} × {total_per_person} = <b><span style='color:#c0392b;'>{total_all:,}</span> บาท</b><br><br>
+                    <b>ตอบ: คุณครูต้องใช้งบประมาณทั้งหมด {total_all:,} บาท</b></span>"""
+
+
+
+
 
             elif actual_sub_t == "การคูณเศษส่วน":
                 d1 = random.randint(3, 15)
