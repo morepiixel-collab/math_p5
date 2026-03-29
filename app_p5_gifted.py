@@ -1809,12 +1809,8 @@ def generate_questions_logic(grade, main_t, sub_t, num_q, is_challenge=False):
 
                 # ✨ ฟังก์ชันพิเศษฉบับไม้ตาย: วาดเศษส่วนด้วย "กล่องทึบ 2px" (ไม่มีทางโดนเว็บลบทิ้งแน่นอน)
                 def make_frac(n, d, w="", color="inherit"):
-                    # บังคับสีเส้น ถ้าไม่ส่งสีมาให้ใช้สีดำเข้ม
                     line_color = color if color != "inherit" else "#2c3e50"
-                    
-                    # วาด 'กล่องสี่เหลี่ยมทึบ' หนา 2px แทนการใช้คำสั่งวาดเส้นขอบ
                     line_html = f"<div style='height:2px; background-color:{line_color}; margin: 2px 0; width:100%;'></div>"
-                    
                     frac_html = f"<div style='display:inline-block; text-align:center; vertical-align:middle; line-height:1.1; font-size:18px; margin:0 4px;'><div style='padding:0 2px;'>{n}</div>{line_html}<div style='padding:0 2px;'>{d}</div></div>"
                     
                     if w != "":
@@ -1994,22 +1990,30 @@ def generate_questions_logic(grade, main_t, sub_t, num_q, is_challenge=False):
                     &nbsp;&nbsp;&nbsp;&nbsp;ตัดทอนเป็นเศษส่วนอย่างต่ำ จะได้ <b>{ans_str}</b><br><br>
                     <b>ตอบ: จะเหลือเชือกยาว {ans_str} เมตร</b></span>"""
 
-                else:
-                    # [สไตล์ 4: สมการตัวแปร (Equation Balancing) ย้ายข้าง]
-                    lcm_all = random.choice([12, 18, 20, 24, 30])
-                    d1 = random.choice([3, 4, 5, 6])
-                    d2 = random.choice([x for x in [2, 3, 4, 5, 6, 8, 10] if lcm_all % x == 0 and x != d1])
+                elif scenario == "equation_balance":
+                    # ✨ [สไตล์ 4: สมการตัวแปร - แก้ไขบั๊ก ค.ร.น. สมบูรณ์ 100%]
+                    d1 = random.choice([3, 4, 5, 6, 8])
+                    d2 = random.choice([x for x in [2, 3, 4, 5, 6, 8, 10, 12] if x != d1])
+                    lcm_all = (d1 * d2) // math.gcd(d1, d2)
                     
-                    while lcm_all % d1 != 0: 
-                        d1 = random.choice([3, 4, 5, 6])
+                    while lcm_all > 40:
+                        d1 = random.choice([3, 4, 5, 6, 8])
+                        d2 = random.choice([x for x in [2, 3, 4, 5, 6, 8, 10, 12] if x != d1])
+                        lcm_all = (d1 * d2) // math.gcd(d1, d2)
                         
-                    ans_n = random.randint(1, lcm_all // 2)
                     n1 = random.randint(1, d1 - 1)
+                    
+                    min_n2 = (n1 * d2) // d1 + 1
+                    if min_n2 >= d2:
+                        n1 = 1
+                        min_n2 = (n1 * d2) // d1 + 1
+                        
+                    n2 = random.randint(min_n2, d2 + 2) 
+                    
                     new_n1 = n1 * (lcm_all // d1)
+                    new_n2 = n2 * (lcm_all // d2)
                     
-                    new_n2 = ans_n + new_n1
-                    n2, d2 = simplify_fraction(new_n2, lcm_all)
-                    
+                    ans_n = new_n2 - new_n1
                     simp_ans_n, simp_ans_d = simplify_fraction(ans_n, lcm_all)
                     ans_str = make_frac(simp_ans_n, simp_ans_d)
 
@@ -2022,7 +2026,6 @@ def generate_questions_logic(grade, main_t, sub_t, num_q, is_challenge=False):
                     • <b>"เก็บเพิ่มได้อีก"</b> ➔ ใช้เครื่องหมาย <b style='color:#27ae60;'>บวก (+)</b><br>
                     • <b>"รวมกันพบว่ามี..."</b> ➔ คือผลลัพธ์หลังเครื่องหมาย <b>เท่ากับ (=)</b><br>
                     🔥 <b>ประโยคสัญลักษณ์:</b> <b><span style='color:#8e44ad;'>A</span> + {make_frac(n1, d1)} = {make_frac(n2, d2)}</b>
-                    <br>
                     </div>
                     <b>วิธีทำอย่างละเอียดแบบ Step-by-step:</b><br>
                     👉 <b>ขั้นที่ 1: การย้ายข้างสมการ (Balancing)</b><br>
@@ -2030,8 +2033,8 @@ def generate_questions_logic(grade, main_t, sub_t, num_q, is_challenge=False):
                     &nbsp;&nbsp;&nbsp;&nbsp;จากเดิมที่เป็นบวก พอย้ายข้ามสะพาน (เครื่องหมาย =) จะต้องเปลี่ยนเป็น <b>'ลบ' (-)</b><br>
                     &nbsp;&nbsp;&nbsp;&nbsp;สมการใหม่: <span style='color:#8e44ad;'>A</span> = <b>{make_frac(n2, d2)} <span style='color:#c0392b;'>-</span> {make_frac(n1, d1)}</b><br><br>
                     
-                    👉 <b>ขั้นที่ 2: หา ค.ร.น. เพื่อปรับตัวส่วน</b><br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;ค.ร.น. ของ {d2} และ {d1} คือ <b><span style='color:#2980b9;'>{lcm_all}</span></b><br>
+                    👉 <b>ขั้นที่ 2: หา ค.ร.น. ของ {d2} และ {d1} เพื่อปรับตัวส่วน</b><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;ค.ร.น. ที่แท้จริงคือ <b><span style='color:#2980b9;'>{lcm_all}</span></b><br>
                     &nbsp;&nbsp;&nbsp;&nbsp;• {make_frac(n2, d2)} ➔ {make_frac(new_n2, lcm_all, color="#27ae60")}<br>
                     &nbsp;&nbsp;&nbsp;&nbsp;• {make_frac(n1, d1)} ➔ {make_frac(new_n1, lcm_all, color="#e74c3c")}<br><br>
                     
@@ -2039,6 +2042,7 @@ def generate_questions_logic(grade, main_t, sub_t, num_q, is_challenge=False):
                     &nbsp;&nbsp;&nbsp;&nbsp;<span style='color:#8e44ad;'>A</span> = {make_frac(new_n2, lcm_all, color="#27ae60")} - {make_frac(new_n1, lcm_all, color="#e74c3c")} = <b>{make_frac(ans_n, lcm_all)}</b><br>
                     &nbsp;&nbsp;&nbsp;&nbsp;คำตอบคือ {make_frac(ans_n, lcm_all)} และตัดทอนอย่างต่ำได้เป็น <b>{ans_str}</b><br><br>
                     <b>ตอบ: ตอนแรกชาวไร่เก็บมะม่วงได้ {ans_str} ตัน</b></span>"""
+
 
 
 
