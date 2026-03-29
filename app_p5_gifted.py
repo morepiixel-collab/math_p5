@@ -1059,6 +1059,155 @@ def generate_questions_logic(grade, main_t, sub_t, num_q, is_challenge=False):
 
 
 
+# ================= หมวดที่ 1: รากฐานตัวเลขและการดำเนินการ (ป.5) =================
+            elif actual_sub_t == "ระบบเลขฐานต่างๆ เบื้องต้น":
+                # สุ่ม 3 สถานการณ์ (หุ่นยนต์ฐาน 2, มนุษย์ต่างดาวฐานอื่นๆ, เปรียบเทียบสมบัติ)
+                scenario = random.choice(["base2_to_10", "base10_to_other", "base_compare"])
+
+                if scenario == "base2_to_10":
+                    # สไตล์ที่ 1: แปลงเลขฐาน 2 เป็นฐาน 10 (รหัสหุ่นยนต์)
+                    # สุ่มเลขฐาน 2 ความยาว 4-5 หลัก
+                    length = random.choice([4, 5])
+                    binary_str = "1" + "".join([random.choice(["0", "1"]) for _ in range(length - 1)])
+                    decimal_val = int(binary_str, 2)
+                    
+                    # สร้างคำอธิบายทีละหลัก
+                    steps_html = ""
+                    powers = []
+                    for i in range(length):
+                        power = length - 1 - i
+                        digit = int(binary_str[i])
+                        place_value = 2 ** power
+                        val = digit * place_value
+                        powers.append(val)
+                        
+                        steps_html += f"&nbsp;&nbsp;&nbsp;&nbsp;• <b style='color:#2c3e50;'>หลักที่ {power} (นับจากขวาเริ่มที่ 0):</b> ตัวเลขคือ <span style='color:#2980b9;'>{digit}</span> อยู่ในหลักของ <span style='color:#e74c3c;'>2<sup>{power}</sup> (หรือ {place_value})</span><br>"
+                        steps_html += f"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;➔ นำมา <b style='color:#e74c3c;'>คูณ (×)</b> กัน: <span style='color:#2980b9;'>{digit}</span> × <span style='color:#e74c3c;'>{place_value}</span> = <b><span style='color:#27ae60;'>{val}</span></b><br><br>"
+                        
+                    sum_str = " + ".join(map(str, powers))
+
+                    q = f"วิศวกรค้นพบข้อความลับที่หุ่นยนต์ส่งคุยกัน เป็นรหัสตัวเลข <b>{binary_str}<sub>2</sub></b> (อ่านว่า เลขฐานสอง) <br>เพื่อที่จะเข้าใจความหมาย วิศวกรต้องแปลงรหัสนี้ให้กลับมาเป็น <b>'เลขฐานสิบ' (ตัวเลขปกติที่มนุษย์ใช้)</b> <br>จงหาว่ารหัส <b>{binary_str}<sub>2</sub></b> มีค่าเท่ากับตัวเลขใดในระบบเลขฐานสิบ?"
+
+                    sol = f"""<span style='color:#2c3e50; line-height: 1.8;'>
+                    <div style='background-color:#fcf3cf; border-left:4px solid #f1c40f; padding:15px; margin-bottom:15px; border-radius:8px;'>
+                    💡 <b>ทำความเข้าใจ "ระบบเลขฐาน 2":</b><br>
+                    • มนุษย์เรามี 10 นิ้ว เลยนับเลขทีละ 10 (หลักหน่วย, หลักสิบ, หลักร้อย...)<br>
+                    • แต่หุ่นยนต์มีแค่สวิตช์ <b>เปิด(1) กับ ปิด(0)</b> มันเลยนับของทีละ 2 (หลัก 1, หลัก 2, หลัก 4, หลัก 8...)<br>
+                    <br><br>
+                    💡 <b>การแปลเป็น "สมการคณิตศาสตร์":</b><br>
+                    • <b>"การหาค่าประจำหลัก"</b> ➔ ตัวเลขแต่ละตำแหน่งมีขนาดกลุ่มไม่เท่ากัน เราต้องนำตัวเลขไป <b style='color:#e74c3c;'>คูณ (×)</b> กับค่าประจำหลักนั้นๆ ก่อน<br>
+                    • <b>"การรวมร่างเป็นเลขมนุษย์"</b> ➔ เมื่อรู้ค่าของทุกหลักแล้ว ต้องนำมากองรวมกันโดยใช้ <b style='color:#3498db;'>บวก (+)</b>
+                    </div>
+                    <b>วิธีทำอย่างละเอียดแบบ Step-by-step:</b><br>
+                    👉 <b>ขั้นที่ 1: หาค่าของตัวเลขในแต่ละหลัก (ทำจากซ้ายไปขวา)</b><br>
+                    {steps_html}
+                    
+                    👉 <b>ขั้นที่ 2: นำค่าที่ได้ของทุกหลักมา <span style='color:#3498db;'>บวก (+)</span> รวมกัน</b><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;สมการ: {sum_str} = <b><span style='color:#8e44ad;'>{decimal_val}</span></b><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;<i>(ตัวเลขย่อยๆ ถูกนำมากองรวมกัน กลายเป็นก้อนใหญ่ก้อนเดียวในโลกของมนุษย์)</i><br><br>
+                    
+                    <b>ตอบ: รหัสหุ่นยนต์ {binary_str}<sub>2</sub> มีค่าเท่ากับ {decimal_val} ในระบบเลขฐานสิบ</b></span>"""
+
+                elif scenario == "base10_to_other":
+                    # สไตล์ที่ 2: แปลงฐาน 10 เป็นฐานอื่นๆ (มนุษย์ต่างดาว/การจัดของ)
+                    base_target = random.choice([4, 5, 8])
+                    planet = "ควินโต (Quinto)" if base_target == 5 else "ควอดรา (Quadra)" if base_target == 4 else "ออคตา (Octa)"
+                    
+                    # สุ่มเลขฐาน 10
+                    decimal_val = random.randint(45, 150)
+                    
+                    # คำนวณการหารสั้น
+                    steps = []
+                    current = decimal_val
+                    while current > 0:
+                        rem = current % base_target
+                        quotient = current // base_target
+                        steps.append((current, quotient, rem))
+                        current = quotient
+                        
+                    # สร้างรหัสฐานใหม่ (เอาเศษย้อนกลับ)
+                    base_str = "".join([str(s[2]) for s in steps[::-1]])
+                    
+                    div_html = ""
+                    for s in steps:
+                        div_html += f"&nbsp;&nbsp;&nbsp;&nbsp;• นำ <span style='color:#2980b9;'>{s[0]}</span> <b style='color:#d35400;'>หาร (÷) ด้วย {base_target}</b> ➔ ได้ผลลัพธ์ <b><span style='color:#2980b9;'>{s[1]}</span></b> และ <b style='color:#27ae60;'>เหลือเศษ {s[2]}</b><br>"
+
+                    q = f"นักบินอวกาศชาวโลก มีแร่ธาตุอยู่ทั้งหมด <b>{decimal_val} ชิ้น</b> <br>เขาเดินทางไปค้าขายที่ดาว{planet} ซึ่งมนุษย์ต่างดาวที่นั่นมีนิ้วมือเพียง {base_target} นิ้ว พวกเขาจึงใช้ <b>'ระบบเลขฐาน {base_target}'</b> ในการนับสิ่งของ <br>นักบินอวกาศต้องเขียนจำนวนแร่ธาตุ <b>{decimal_val} ชิ้น</b> ให้เป็น <b>เลขฐาน {base_target}</b> ได้ว่าอย่างไร?"
+
+                    sol = f"""<span style='color:#2c3e50; line-height: 1.8;'>
+                    <div style='background-color:#e8f8f5; border-left:4px solid #1abc9c; padding:15px; margin-bottom:15px; border-radius:8px;'>
+                    💡 <b>ทำความเข้าใจ "การแปลงเลขมนุษย์ เป็นเลขมนุษย์ต่างดาว":</b><br>
+                    โลกมนุษย์จัดกลุ่มของทีละ 10 ชิ้นแล้วมัดรวมกัน แต่มนุษย์ต่างดาวดาวนี้จัดกลุ่มทีละ {base_target} ชิ้น<br>
+                    <br><br><br>
+                    💡 <b>การแปลเป็น "สมการคณิตศาสตร์":</b><br>
+                    • <b>"การจัดกลุ่มใหม่"</b> ➔ เรามีของก้อนใหญ่กองอยู่ ต้องนำมาแบ่งเป็นกองย่อยๆ กองละ {base_target} ชิ้น การแบ่งออกเท่าๆ กันแบบนี้ ต้องใช้ <b style='color:#d35400;'>เครื่องหมายหาร (÷)</b> (โดยใช้วิธีหารสั้น)<br>
+                    • <b>"เศษที่เหลือจากการหาร"</b> ➔ คือของที่มัดรวมกลุ่มไม่ได้ จะถูกปัดไปเป็นตัวเลขในแต่ละหลักนั่นเอง!
+                    </div>
+                    <b>วิธีทำอย่างละเอียดแบบ Step-by-step (เทคนิคหารสั้นแล้วเก็บเศษ):</b><br>
+                    👉 <b>ขั้นที่ 1: ตั้งหารสั้น โดยใช้ <span style='color:#e74c3c;'>แม่ {base_target}</span> เป็นตัวหารไปเรื่อยๆ จนกว่าผลลัพธ์จะเป็น 0</b><br>
+                    {div_html}<br>
+                    
+                    👉 <b>ขั้นที่ 2: นำ 'เศษ' ที่ได้มาเขียนเรียงกัน (อ่านจากล่างขึ้นบน!)</b><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;เศษที่ได้จากขั้นตอนสุดท้ายขึ้นไปหาขั้นตอนแรกคือ: <b><span style='color:#27ae60;'>{" , ".join([str(s[2]) for s in steps[::-1]])}</span></b><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;นำมาเขียนติดกัน จะได้เป็น <b><span style='color:#8e44ad;'>{base_str}</span></b><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;<i>(อธิบาย: เศษตัวสุดท้ายคือกลุ่มที่ใหญ่ที่สุด จึงต้องอยู่หลักซ้ายสุด ส่วนเศษตัวแรกคือของชิ้นเล็กๆ ที่เหลือรอด จึงอยู่หลักขวาสุด)</i><br><br>
+                    
+                    <b>ตอบ: แร่ธาตุ {decimal_val} ชิ้น เขียนเป็นเลขฐาน {base_target} ได้คือ {base_str}<sub>{base_target}</sub></b></span>"""
+
+                else:
+                    # สไตล์ที่ 3: เปรียบเทียบจำนวนต่างฐาน (โจทย์แข่งขัน)
+                    base_a = random.choice([2, 5])
+                    base_b = random.choice([4, 8])
+                    
+                    # สร้างเลขฐานให้มีค่าใกล้เคียงกัน (ประมาณ 20-50)
+                    target_dec = random.randint(20, 50)
+                    diff_dec = random.randint(3, 10)
+                    dec_a = target_dec
+                    dec_b = target_dec + diff_dec
+                    
+                    # แปลง dec_a เป็นฐาน base_a
+                    temp_a = dec_a
+                    str_a = ""
+                    while temp_a > 0:
+                        str_a = str(temp_a % base_a) + str_a
+                        temp_a //= base_a
+                        
+                    # แปลง dec_b เป็นฐาน base_b
+                    temp_b = dec_b
+                    str_b = ""
+                    while temp_b > 0:
+                        str_b = str(temp_b % base_b) + str_b
+                        temp_b //= base_b
+                        
+                    q = f"ในเกมล่าสมบัติ มีหีบสมบัติ 2 ใบ:<br>&nbsp;&nbsp;• หีบใบที่ 1 มีเหรียญทอง <b>{str_a}<sub>{base_a}</sub></b> เหรียญ<br>&nbsp;&nbsp;• หีบใบที่ 2 มีเหรียญทอง <b>{str_b}<sub>{base_b}</sub></b> เหรียญ<br>จงหาว่า <b>หีบใบใดมีเหรียญทองมากกว่ากัน และมากกว่ากันอยู่กี่เหรียญ? (ในหน่วยฐานสิบ)</b>"
+
+                    sol = f"""<span style='color:#2c3e50; line-height: 1.8;'>
+                    <div style='background-color:#fdf2e9; border-left:4px solid #e67e22; padding:15px; margin-bottom:15px; border-radius:8px;'>
+                    💡 <b>การแปลภาษาไทย เป็น "สมการคณิตศาสตร์":</b><br>
+                    • <b>"การเปรียบเทียบเลขต่างฐาน"</b> ➔ เราไม่สามารถเอาเลขฐาน {base_a} มาเทียบกับฐาน {base_b} ตรงๆ ได้ (เหมือนเอาเงินบาทไปเทียบเงินเยนโดยไม่แปลงค่าไม่ได้!) เราต้อง <b>"แปลงทุกอย่างให้เป็นเลขฐานสิบ (โลกมนุษย์)"</b> ก่อน<br>
+                    • <b>"มากกว่ากันอยู่เท่าใด"</b> ➔ การหาความต่าง หรือส่วนต่าง ต้องใช้ <b style='color:#c0392b;'>เครื่องหมายลบ (-)</b> เสมอ
+                    </div>
+                    <b>วิธีทำอย่างละเอียดแบบ Step-by-step:</b><br>
+                    👉 <b>ขั้นที่ 1: แปลงเหรียญในหีบใบที่ 1 (ฐาน {base_a} ➔ ฐาน 10)</b><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;หีบใบที่ 1 คือ {str_a}<sub>{base_a}</sub> เราจะนำตัวเลขแต่ละหลักไป <b style='color:#e74c3c;'>คูณ (×)</b> กับค่าประจำหลักฐาน {base_a}<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;เมื่อคำนวณและ <b style='color:#3498db;'>บวก (+)</b> รวมกันแล้ว จะได้เหรียญทอง <b><span style='color:#2980b9;'>{dec_a}</span> เหรียญ</b> ในโลกมนุษย์<br><br>
+                    
+                    👉 <b>ขั้นที่ 2: แปลงเหรียญในหีบใบที่ 2 (ฐาน {base_b} ➔ ฐาน 10)</b><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;หีบใบที่ 2 คือ {str_b}<sub>{base_b}</sub> เราจะนำตัวเลขแต่ละหลักไป <b style='color:#e74c3c;'>คูณ (×)</b> กับค่าประจำหลักฐาน {base_b}<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;เมื่อคำนวณและ <b style='color:#3498db;'>บวก (+)</b> รวมกันแล้ว จะได้เหรียญทอง <b><span style='color:#27ae60;'>{dec_b}</span> เหรียญ</b> ในโลกมนุษย์<br><br>
+                    
+                    👉 <b>ขั้นที่ 3: เปรียบเทียบและหาความต่าง</b><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;• หีบใบที่ 1 = <span style='color:#2980b9;'>{dec_a}</span> เหรียญ<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;• หีบใบที่ 2 = <span style='color:#27ae60;'>{dec_b}</span> เหรียญ<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;เห็นชัดเจนว่า <b>หีบใบที่ 2 มีมากกว่า!</b><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;นำหีบใบที่ 2 ตั้ง แล้ว <b style='color:#c0392b;'>ลบ (-)</b> ด้วยหีบใบที่ 1 ➔ <span style='color:#27ae60;'>{dec_b}</span> - <span style='color:#2980b9;'>{dec_a}</span> = <b><span style='color:#8e44ad;'>{diff_dec}</span> เหรียญ</b><br><br>
+                    <b>ตอบ: หีบใบที่ 2 มีเหรียญทองมากกว่า และมากกว่าอยู่ {diff_dec} เหรียญ</b></span>"""
+
+
+
+
+
+
             elif actual_sub_t == "การคูณเศษส่วน":
                 d1 = random.randint(3, 15)
                 n1 = random.randint(1, d1 * 2) if is_challenge else random.randint(1, d1 - 1)
