@@ -1814,7 +1814,6 @@ def generate_questions_logic(grade, main_t, sub_t, num_q, is_challenge=False):
 
                 if scenario == "chain_operation":
                     # [สไตล์ 1: บวกลบต่อเนื่อง 3 ตัว (เน้นหา ค.ร.น. ร่วม 3 ตัว)]
-                    # สุ่มตัวส่วนให้ ค.ร.น. อยู่ในระดับ 24 - 60
                     d_sets = [(3, 4, 6), (4, 5, 10), (3, 5, 15), (4, 6, 8), (5, 6, 10)]
                     d1, d2, d3 = random.choice(d_sets)
                     n1 = random.randint(1, d1 - 1)
@@ -1833,46 +1832,45 @@ def generate_questions_logic(grade, main_t, sub_t, num_q, is_challenge=False):
                     # ตรวจสอบไม่ให้ผลลบติดลบ
                     if new_n1 + new_n2 <= new_n3:
                         new_n1 += new_n3
-                        n1 = new_n1 // (lcm_all // d1) # ปรับค่า n1 กลับ
-                        if n1 == 0: n1 = 1; new_n1 = n1 * (lcm_all // d1) # กันเหนียว
+                        n1 = new_n1 // (lcm_all // d1) 
+                        if n1 == 0: n1 = 1; new_n1 = n1 * (lcm_all // d1)
                     
                     ans_n = new_n1 + new_n2 - new_n3
                     ans_d = lcm_all
                     simp_n, simp_d = simplify_fraction(ans_n, ans_d)
                     
-                    # จัดรูปคำตอบสุดท้าย (อาจเป็นจำนวนคละ)
+                    # จัดรูปคำตอบสุดท้าย (ใช้ LaTeX fraction)
                     if simp_n > simp_d:
                         w = simp_n // simp_d
                         rem = simp_n % simp_d
-                        ans_str = f"<b>{w} <sup>{rem}</sup>/<sub>{simp_d}</sub></b>" if rem != 0 else f"<b>{w}</b>"
+                        ans_str = f"<b>{w} $\\frac{{{rem}}}{{{simp_d}}}$</b>" if rem != 0 else f"<b>{w}</b>"
                     else:
-                        ans_str = f"<b><sup>{simp_n}</sup>/<sub>{simp_d}</sub></b>"
+                        ans_str = f"<b>$\\frac{{{simp_n}}}{{{simp_d}}}$</b>"
 
-                    q = f"คุณแม่กำลังทำขนมเค้กสูตรพิเศษ โดยใช้แป้งสาลี <b><sup>{n1}</sup>/<sub>{d1}</sub> กิโลกรัม</b> <br>จากนั้นเติมผงโกโก้เพิ่มลงไปอีก <b><sup>{n2}</sup>/<sub>{d2}</sub> กิโลกรัม</b> <br>แต่พบว่าส่วนผสมเยอะเกินไป จึงตักส่วนผสมออกไป <b><sup>{n3}</sup>/<sub>{d3}</sub> กิโลกรัม</b> <br>จงหาว่าตอนนี้น้ำหนักของส่วนผสมทั้งหมดคือเท่าใด?"
+                    q = f"คุณแม่กำลังทำขนมเค้กสูตรพิเศษ โดยใช้แป้งสาลี <b>$\\frac{{{n1}}}{{{d1}}}$ กิโลกรัม</b> <br>จากนั้นเติมผงโกโก้เพิ่มลงไปอีก <b>$\\frac{{{n2}}}{{{d2}}}$ กิโลกรัม</b> <br>แต่พบว่าส่วนผสมเยอะเกินไป จึงตักส่วนผสมออกไป <b>$\\frac{{{n3}}}{{{d3}}}$ กิโลกรัม</b> <br>จงหาว่าตอนนี้น้ำหนักของส่วนผสมทั้งหมดคือเท่าใด?"
 
                     sol = f"""<span style='color:#2c3e50; line-height: 1.8;'>
                     <div style='background-color:#fcf3cf; border-left:4px solid #f1c40f; padding:15px; margin-bottom:15px; border-radius:8px;'>
                     💡 <b>การแปลเป็น "สมการคณิตศาสตร์":</b><br>
                     • <b>"เติมเพิ่มลงไป"</b> ➔ ทำให้ของมีมากขึ้น ต้องใช้ <b style='color:#27ae60;'>บวก (+)</b><br>
                     • <b>"ตักออกไป"</b> ➔ ทำให้ของลดลง ต้องใช้ <b style='color:#c0392b;'>ลบ (-)</b><br>
-                    • ประโยคสัญลักษณ์: <b>( <sup>{n1}</sup>/<sub>{d1}</sub> <span style='color:#27ae60;'>+</span> <sup>{n2}</sup>/<sub>{d2}</sub> ) <span style='color:#c0392b;'>-</span> <sup>{n3}</sup>/<sub>{d3}</sub> = ?</b><br><br>
+                    • ประโยคสัญลักษณ์: <b>( $\\frac{{{n1}}}{{{d1}}}$ <span style='color:#27ae60;'>+</span> $\\frac{{{n2}}}{{{d2}}}$ ) <span style='color:#c0392b;'>-</span> $\\frac{{{n3}}}{{{d3}}}$ = ?</b><br><br>
                     ⚠️ <b>กฎเหล็กของเศษส่วน:</b> เราบวกลบกันตรงๆ ไม่ได้เด็ดขาด! เพราะขนาดของชิ้นส่วน (ตัวส่วนด้านล่าง) ไม่เท่ากัน เราต้องหา <b>ค.ร.น.</b> เพื่อหั่นชิ้นส่วนให้มีขนาดเท่ากันก่อน
-                    <br>
-                    </div>
+                    <br>                    </div>
                     <b>วิธีทำอย่างละเอียดแบบ Step-by-step:</b><br>
                     👉 <b>ขั้นที่ 1: หา ค.ร.น. ของตัวส่วน {d1}, {d2} และ {d3}</b><br>
                     &nbsp;&nbsp;&nbsp;&nbsp;นำ {d1}, {d2}, {d3} ไปตั้งหารสั้น จะได้ ค.ร.น. คือ <b><span style='color:#8e44ad;'>{lcm_all}</span></b><br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;<i>(แปลว่าเราต้องหั่นส่วนผสมทุกอย่างให้เป็นชิ้นเล็กๆ ขนาด 1/{lcm_all} กิโลกรัม)</i><br><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;<i>(แปลว่าเราต้องหั่นส่วนผสมทุกอย่างให้เป็นชิ้นเล็กๆ ขนาด $\\frac{{1}}{{{lcm_all}}}$ กิโลกรัม)</i><br><br>
                     
                     👉 <b>ขั้นที่ 2: แปลงร่างเศษส่วนทุกตัว ให้มีตัวส่วนเป็น {lcm_all}</b><br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;• <sup>{n1}</sup>/<sub>{d1}</sub> ➔ คูณด้วย {(lcm_all//d1)} ทั้งบนและล่าง ➔ <b><span style='color:#2980b9;'><sup>{new_n1}</sup>/<sub>{lcm_all}</sub></span></b><br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;• <sup>{n2}</sup>/<sub>{d2}</sub> ➔ คูณด้วย {(lcm_all//d2)} ทั้งบนและล่าง ➔ <b><span style='color:#2980b9;'><sup>{new_n2}</sup>/<sub>{lcm_all}</sub></span></b><br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;• <sup>{n3}</sup>/<sub>{d3}</sub> ➔ คูณด้วย {(lcm_all//d3)} ทั้งบนและล่าง ➔ <b><span style='color:#2980b9;'><sup>{new_n3}</sup>/<sub>{lcm_all}</sub></span></b><br><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;• $\\frac{{{n1}}}{{{d1}}}$ ➔ คูณด้วย {(lcm_all//d1)} ทั้งบนและล่าง ➔ <b><span style='color:#2980b9;'>$\\frac{{{new_n1}}}{{{lcm_all}}}$</span></b><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;• $\\frac{{{n2}}}{{{d2}}}$ ➔ คูณด้วย {(lcm_all//d2)} ทั้งบนและล่าง ➔ <b><span style='color:#2980b9;'>$\\frac{{{new_n2}}}{{{lcm_all}}}$</span></b><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;• $\\frac{{{n3}}}{{{d3}}}$ ➔ คูณด้วย {(lcm_all//d3)} ทั้งบนและล่าง ➔ <b><span style='color:#2980b9;'>$\\frac{{{new_n3}}}{{{lcm_all}}}$</span></b><br><br>
                     
                     👉 <b>ขั้นที่ 3: นำตัวเศษ (ด้านบน) มาบวกลบกัน</b><br>
                     &nbsp;&nbsp;&nbsp;&nbsp;สมการใหม่: ( <span style='color:#2980b9;'>{new_n1}</span> <b style='color:#27ae60;'>+</b> <span style='color:#2980b9;'>{new_n2}</span> ) <b style='color:#c0392b;'>-</b> <span style='color:#2980b9;'>{new_n3}</span><br>
                     &nbsp;&nbsp;&nbsp;&nbsp;= {new_n1 + new_n2} - {new_n3} = <b><span style='color:#e67e22;'>{ans_n}</span></b><br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;ดังนั้นคำตอบคือ <b><sup>{ans_n}</sup>/<sub>{lcm_all}</sub></b><br><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;ดังนั้นคำตอบคือ <b>$\\frac{{{ans_n}}}{{{lcm_all}}}$</b><br><br>
                     
                     👉 <b>ขั้นที่ 4: ตัดทอนเป็นเศษส่วนอย่างต่ำ (ถ้ามี)</b><br>
                     &nbsp;&nbsp;&nbsp;&nbsp;นำแม่ {math.gcd(ans_n, lcm_all)} มาตัดทั้งบนและล่าง จะได้ {ans_str} กิโลกรัม<br><br>
@@ -1885,7 +1883,6 @@ def generate_questions_logic(grade, main_t, sub_t, num_q, is_challenge=False):
                     n1 = 1
                     n2 = random.choice([1, 2])
                     
-                    # ตรวจสอบให้ n1/d1 + n2/d2 < 1 เสมอ
                     lcm_all = (d1 * d2) // math.gcd(d1, d2)
                     new_n1 = n1 * (lcm_all // d1)
                     new_n2 = n2 * (lcm_all // d2)
@@ -1893,49 +1890,47 @@ def generate_questions_logic(grade, main_t, sub_t, num_q, is_challenge=False):
                     
                     rem_n = lcm_all - sum_n
                     simp_n, simp_d = simplify_fraction(rem_n, lcm_all)
-                    ans_str = f"<b><sup>{simp_n}</sup>/<sub>{simp_d}</sub></b>"
+                    ans_str = f"<b>$\\frac{{{simp_n}}}{{{simp_d}}}$</b>"
 
-                    q = f"โจทย์ปราบเซียนสอบเข้า ม.1:<br>เสาต้นหนึ่ง ปักอยู่ในโคลน <b><sup>{n1}</sup>/<sub>{d1}</sub> ของความยาวเสา</b> <br>และจมอยู่ในน้ำ <b><sup>{n2}</sup>/<sub>{d2}</sub> ของความยาวเสา</b> <br>ส่วนที่เหลือโผล่พ้นน้ำขึ้นมาในอากาศ <br>จงหาว่า <b>ส่วนที่โผล่พ้นน้ำคิดเป็นเศษส่วนเท่าใดของความยาวเสา?</b>"
+                    q = f"โจทย์ปราบเซียนสอบเข้า ม.1:<br>เสาต้นหนึ่ง ปักอยู่ในโคลน <b>$\\frac{{{n1}}}{{{d1}}}$ ของความยาวเสา</b> <br>และจมอยู่ในน้ำ <b>$\\frac{{{n2}}}{{{d2}}}$ ของความยาวเสา</b> <br>ส่วนที่เหลือโผล่พ้นน้ำขึ้นมาในอากาศ <br>จงหาว่า <b>ส่วนที่โผล่พ้นน้ำคิดเป็นเศษส่วนเท่าใดของความยาวเสา?</b>"
 
                     sol = f"""<span style='color:#2c3e50; line-height: 1.8;'>
                     <div style='background-color:#fdf2e9; border-left:4px solid #e67e22; padding:15px; margin-bottom:15px; border-radius:8px;'>
                     💡 <b>ถอดรหัสกับดักคณิตศาสตร์ (Implicit Whole):</b><br>
                     โจทย์ข้อนี้ให้ตัวเลขมาแค่ 2 ตัว เด็กหลายคนจะเอามาแค่บวกหรือลบกันแล้วตอบเลย ซึ่ง <b>ผิด!</b><br>
-                    • ความลับคือ: เสาทั้งต้นแบบเต็มๆ 1 ต้น ในทางเศษส่วนเราจะให้ค่ามันเท่ากับ <b>" 1 " (หรือ 1/1) เสมอ!</b><br>
-                    • ประโยคสัญลักษณ์ที่แท้จริงคือ: <b><span style='color:#c0392b;'>1</span> - ( <sup>{n1}</sup>/<sub>{d1}</sub> + <sup>{n2}</sup>/<sub>{d2}</sub> ) = ?</b>
-                    <br>
-                    </div>
+                    • ความลับคือ: เสาทั้งต้นแบบเต็มๆ 1 ต้น ในทางเศษส่วนเราจะให้ค่ามันเท่ากับ <b>" 1 " (หรือ $\\frac{{1}}{{1}}$) เสมอ!</b><br>
+                    • ประโยคสัญลักษณ์ที่แท้จริงคือ: <b><span style='color:#c0392b;'>1</span> - ( $\\frac{{{n1}}}{{{d1}}}$ + $\\frac{{{n2}}}{{{d2}}}$ ) = ?</b>
+                    <br>                    </div>
                     <b>วิธีทำอย่างละเอียดแบบ Step-by-step:</b><br>
                     👉 <b>ขั้นที่ 1: นำส่วนที่อยู่ในโคลนและน้ำมาบวกรวมกันก่อน</b><br>
                     &nbsp;&nbsp;&nbsp;&nbsp;หา ค.ร.น. ของ {d1} และ {d2} ซึ่งก็คือ <b><span style='color:#8e44ad;'>{lcm_all}</span></b><br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;• โคลน: <sup>{n1}</sup>/<sub>{d1}</sub> ➔ แปลงเป็น <b><span style='color:#2980b9;'><sup>{new_n1}</sup>/<sub>{lcm_all}</sub></span></b><br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;• น้ำ: <sup>{n2}</sup>/<sub>{d2}</sub> ➔ แปลงเป็น <b><span style='color:#2980b9;'><sup>{new_n2}</sup>/<sub>{lcm_all}</sub></span></b><br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;รวมโคลนและน้ำ: <span style='color:#2980b9;'>{new_n1}</span> + <span style='color:#2980b9;'>{new_n2}</span> = <b><span style='color:#e74c3c;'><sup>{sum_n}</sup>/<sub>{lcm_all}</sub></span></b> <i>(นี่คือส่วนที่จมอยู่ทั้งหมด)</i><br><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;• โคลน: $\\frac{{{n1}}}{{{d1}}}$ ➔ แปลงเป็น <b><span style='color:#2980b9;'>$\\frac{{{new_n1}}}{{{lcm_all}}}$</span></b><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;• น้ำ: $\\frac{{{n2}}}{{{d2}}}$ ➔ แปลงเป็น <b><span style='color:#2980b9;'>$\\frac{{{new_n2}}}{{{lcm_all}}}$</span></b><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;รวมโคลนและน้ำ: <span style='color:#2980b9;'>$\\frac{{{new_n1}}}{{{lcm_all}}}$</span> + <span style='color:#2980b9;'>$\\frac{{{new_n2}}}{{{lcm_all}}}$</span> = <b><span style='color:#e74c3c;'>$\\frac{{{sum_n}}}{{{lcm_all}}}$</span></b> <i>(นี่คือส่วนที่จมอยู่ทั้งหมด)</i><br><br>
                     
                     👉 <b>ขั้นที่ 2: นำเสาทั้งต้น (คือ 1) มาหักออก</b><br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;เสาทั้งต้นมีค่าเท่ากับ 1 หรือเราจะมองเป็น <b><span style='color:#27ae60;'><sup>{lcm_all}</sup>/<sub>{lcm_all}</sub></span></b> ก็ได้! (หั่นเป็น {lcm_all} ชิ้น และมีอยู่ครบ {lcm_all} ชิ้น)<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;เสาทั้งต้นมีค่าเท่ากับ 1 หรือเราจะมองเป็น <b><span style='color:#27ae60;'>$\\frac{{{lcm_all}}}{{{lcm_all}}}$</span></b> ก็ได้! (หั่นเป็น {lcm_all} ชิ้น และมีอยู่ครบ {lcm_all} ชิ้น)<br>
                     &nbsp;&nbsp;&nbsp;&nbsp;นำเสาทั้งต้น <b style='color:#c0392b;'>ลบ (-)</b> ส่วนที่จม:<br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;<sup>{lcm_all}</sup>/<sub>{lcm_all}</sub> - <sup>{sum_n}</sup>/<sub>{lcm_all}</sub> = <b><span style='color:#d35400;'><sup>{rem_n}</sup>/<sub>{lcm_all}</sub></span></b><br><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;$\\frac{{{lcm_all}}}{{{lcm_all}}}$ - $\\frac{{{sum_n}}}{{{lcm_all}}}$ = <b><span style='color:#d35400;'>$\\frac{{{rem_n}}}{{{lcm_all}}}$</span></b><br><br>
                     
                     👉 <b>ขั้นที่ 3: ตัดเป็นเศษส่วนอย่างต่ำ</b><br>
                     &nbsp;&nbsp;&nbsp;&nbsp;เมื่อนำแม่ {math.gcd(rem_n, lcm_all)} มาตัด จะได้ {ans_str}<br><br>
                     <b>ตอบ: ส่วนที่โผล่พ้นน้ำคิดเป็น {ans_str} ของความยาวเสา</b></span>"""
 
                 elif scenario == "mixed_borrowing_trap":
-                    # ✨ [สไตล์ 3: จำนวนคละที่มีกับดัก "ต้องยืมตัวหน้า" (Heavy Calculation)]
+                    # ✨ [สไตล์ 3: จำนวนคละที่มีกับดัก "ต้องยืมตัวหน้า"]
                     w1 = random.randint(5, 12)
                     d1 = random.choice([4, 5, 6, 8])
-                    n1 = random.randint(1, d1 // 2) # จงใจให้เศษตัวตั้งน้อยๆ
+                    n1 = random.randint(1, d1 // 2) 
                     
                     w2 = random.randint(1, 3)
                     d2 = random.choice([x for x in [3, 4, 5, 6, 8] if x != d1])
-                    n2 = random.randint(d2 // 2 + 1, d2 - 1) # จงใจให้เศษตัวลบมากๆ
+                    n2 = random.randint(d2 // 2 + 1, d2 - 1) 
                     
                     lcm_all = (d1 * d2) // math.gcd(d1, d2)
                     new_n1 = n1 * (lcm_all // d1)
                     new_n2 = n2 * (lcm_all // d2)
                     
-                    # คำนวณคำตอบ
                     final_n = new_n1 - new_n2
                     final_w = w1 - w2
                     borrowed = False
@@ -1946,9 +1941,9 @@ def generate_questions_logic(grade, main_t, sub_t, num_q, is_challenge=False):
                         final_n += lcm_all
                         
                     simp_n, simp_d = simplify_fraction(final_n, lcm_all)
-                    ans_str = f"<b>{final_w} <sup>{simp_n}</sup>/<sub>{simp_d}</sub></b>" if simp_n != 0 else f"<b>{final_w}</b>"
+                    ans_str = f"<b>{final_w} $\\frac{{{simp_n}}}{{{simp_d}}}$</b>" if simp_n != 0 else f"<b>{final_w}</b>"
 
-                    q = f"เชือกม้วนหนึ่งยาว <b>{w1} <sup>{n1}</sup>/<sub>{d1}</sub> เมตร</b> <br>คุณพ่อตัดเชือกไปมัดกล่องพัสดุ <b>{w2} <sup>{n2}</sup>/<sub>{d2}</sub> เมตร</b> <br>จะเหลือเชือกยาวกี่เมตร? <br><i>(จงแสดงวิธีทำโดยใช้เทคนิคการแปลงจำนวนคละ)</i>"
+                    q = f"เชือกม้วนหนึ่งยาว <b>{w1} $\\frac{{{n1}}}{{{d1}}}$ เมตร</b> <br>คุณพ่อตัดเชือกไปมัดกล่องพัสดุ <b>{w2} $\\frac{{{n2}}}{{{d2}}}$ เมตร</b> <br>จะเหลือเชือกยาวกี่เมตร? <br><i>(จงแสดงวิธีทำโดยใช้เทคนิคการแปลงจำนวนคละ)</i>"
 
                     sol_borrow = ""
                     if borrowed:
@@ -1957,18 +1952,18 @@ def generate_questions_logic(grade, main_t, sub_t, num_q, is_challenge=False):
                     &nbsp;&nbsp;&nbsp;&nbsp;เราจะพบว่า <span style='color:#2980b9;'>{new_n1}</span> ลบ <span style='color:#e74c3c;'>{new_n2}</span> ไม่ได้! เพราะตัวตั้งน้อยกว่า <br>
                     &nbsp;&nbsp;&nbsp;&nbsp;วิธีแก้: ให้ไปยืมจำนวนเต็มด้านหน้ามา 1<br>
                     &nbsp;&nbsp;&nbsp;&nbsp;• เลข {w1} ถูกยืมไป 1 ➔ เหลือ <b><span style='color:#8e44ad;'>{w1 - 1}</span></b><br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;• เลข 1 ที่ยืมมา จะแปลงร่างเป็นเศษส่วนคือ <b><span style='color:#27ae60;'><sup>{lcm_all}</sup>/<sub>{lcm_all}</sub></span></b> นำไปบวกกับของเดิม<br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;➔ ตัวตั้งใหม่จะกลายเป็น: <b><span style='color:#8e44ad;'>{w1 - 1}</span> <sup>{new_n1 + lcm_all}</sup>/<sub>{lcm_all}</sub></b><br><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;• เลข 1 ที่ยืมมา จะแปลงร่างเป็นเศษส่วนคือ <b><span style='color:#27ae60;'>$\\frac{{{lcm_all}}}{{{lcm_all}}}$</span></b> นำไปบวกกับของเดิม<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;➔ ตัวตั้งใหม่จะกลายเป็น: <b><span style='color:#8e44ad;'>{w1 - 1}</span> $\\frac{{{new_n1 + lcm_all}}}{{{lcm_all}}}$</b><br><br>
                     
                     👉 <b>ขั้นที่ 4: ทำการลบตัวเลขชุดใหม่</b><br>
                     &nbsp;&nbsp;&nbsp;&nbsp;ลบจำนวนเต็ม: <span style='color:#8e44ad;'>{w1 - 1}</span> - {w2} = <b><span style='color:#d35400;'>{final_w}</span></b><br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;ลบเศษส่วน: <sup>{new_n1 + lcm_all}</sup>/<sub>{lcm_all}</sub> - <sup>{new_n2}</sup>/<sub>{lcm_all}</sub> = <b><span style='color:#d35400;'><sup>{final_n}</sup>/<sub>{lcm_all}</sub></span></b><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;ลบเศษส่วน: $\\frac{{{new_n1 + lcm_all}}}{{{lcm_all}}}$ - $\\frac{{{new_n2}}}{{{lcm_all}}}$ = <b><span style='color:#d35400;'>$\\frac{{{final_n}}}{{{lcm_all}}}$</span></b><br>
                         """
                     else:
                         sol_borrow = f"""
                     👉 <b>ขั้นที่ 3: นำตัวเลขมาลบกันตามปกติ (หน้าลบหน้า, หลังลบหลัง)</b><br>
                     &nbsp;&nbsp;&nbsp;&nbsp;ลบจำนวนเต็ม: <span style='color:#8e44ad;'>{w1}</span> - {w2} = <b><span style='color:#d35400;'>{final_w}</span></b><br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;ลบเศษส่วน: <sup>{new_n1}</sup>/<sub>{lcm_all}</sub> - <sup>{new_n2}</sup>/<sub>{lcm_all}</sub> = <b><span style='color:#d35400;'><sup>{final_n}</sup>/<sub>{lcm_all}</sub></span></b><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;ลบเศษส่วน: $\\frac{{{new_n1}}}{{{lcm_all}}}$ - $\\frac{{{new_n2}}}{{{lcm_all}}}$ = <b><span style='color:#d35400;'>$\\frac{{{final_n}}}{{{lcm_all}}}$</span></b><br>
                         """
 
                     sol = f"""<span style='color:#2c3e50; line-height: 1.8;'>
@@ -1979,43 +1974,38 @@ def generate_questions_logic(grade, main_t, sub_t, num_q, is_challenge=False):
                     </div>
                     <b>วิธีทำอย่างละเอียดแบบ Step-by-step:</b><br>
                     👉 <b>ขั้นที่ 1: แยกจำนวนเต็มกับเศษส่วน</b><br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;ประโยคสัญลักษณ์: ( {w1} - {w2} ) กับ ( <sup>{n1}</sup>/<sub>{d1}</sub> - <sup>{n2}</sup>/<sub>{d2}</sub> )<br><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;ประโยคสัญลักษณ์: ( {w1} - {w2} ) กับ ( $\\frac{{{n1}}}{{{d1}}}$ - $\\frac{{{n2}}}{{{d2}}}$ )<br><br>
                     
                     👉 <b>ขั้นที่ 2: หา ค.ร.น. เพื่อปรับเศษส่วนให้เท่ากัน</b><br>
                     &nbsp;&nbsp;&nbsp;&nbsp;ค.ร.น. ของ {d1} และ {d2} คือ <b><span style='color:#8e44ad;'>{lcm_all}</span></b><br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;• <sup>{n1}</sup>/<sub>{d1}</sub> ➔ แปลงเป็น <b><span style='color:#2980b9;'><sup>{new_n1}</sup>/<sub>{lcm_all}</sub></span></b><br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;• <sup>{n2}</sup>/<sub>{d2}</sub> ➔ แปลงเป็น <b><span style='color:#e74c3c;'><sup>{new_n2}</sup>/<sub>{lcm_all}</sub></span></b><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;• $\\frac{{{n1}}}{{{d1}}}$ ➔ แปลงเป็น <b><span style='color:#2980b9;'>$\\frac{{{new_n1}}}{{{lcm_all}}}$</span></b><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;• $\\frac{{{n2}}}{{{d2}}}$ ➔ แปลงเป็น <b><span style='color:#e74c3c;'>$\\frac{{{new_n2}}}{{{lcm_all}}}$</span></b><br>
                     {sol_borrow}<br>
                     👉 <b>ขั้นสุดท้าย: ประกอบร่างและตัดทอน</b><br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;ประกอบร่างกลับเป็นจำนวนคละ จะได้ {final_w} <sup>{final_n}</sup>/<sub>{lcm_all}</sub><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;ประกอบร่างกลับเป็นจำนวนคละ จะได้ {final_w} $\\frac{{{final_n}}}{{{lcm_all}}}$<br>
                     &nbsp;&nbsp;&nbsp;&nbsp;ตัดทอนเป็นเศษส่วนอย่างต่ำ จะได้ <b>{ans_str}</b><br><br>
                     <b>ตอบ: จะเหลือเชือกยาว {ans_str} เมตร</b></span>"""
 
                 else:
                     # [สไตล์ 4: สมการตัวแปร (Equation Balancing) ย้ายข้าง]
-                    # รูปแบบ: X + A/B = C/D
                     lcm_all = random.choice([12, 18, 20, 24, 30])
                     d1 = random.choice([3, 4, 5, 6])
                     d2 = random.choice([x for x in [2, 3, 4, 5, 6, 8, 10] if lcm_all % x == 0 and x != d1])
                     
-                    while lcm_all % d1 != 0: # ปรับ d1 ให้ตรงกับ lcm_all
+                    while lcm_all % d1 != 0: 
                         d1 = random.choice([3, 4, 5, 6])
                         
                     ans_n = random.randint(1, lcm_all // 2)
-                    
-                    # สมมติคำตอบคือ X = ans_n / lcm_all
-                    # ให้ A/B = n1 / d1
                     n1 = random.randint(1, d1 - 1)
                     new_n1 = n1 * (lcm_all // d1)
                     
-                    # C/D คือผลรวมของ X + A/B
                     new_n2 = ans_n + new_n1
                     n2, d2 = simplify_fraction(new_n2, lcm_all)
                     
                     simp_ans_n, simp_ans_d = simplify_fraction(ans_n, lcm_all)
-                    ans_str = f"<b><sup>{simp_ans_n}</sup>/<sub>{simp_ans_d}</sub></b>"
+                    ans_str = f"<b>$\\frac{{{simp_ans_n}}}{{{simp_ans_d}}}$</b>"
 
-                    q = f"ชาวไร่เก็บเกี่ยวมะม่วงได้จำนวนหนึ่ง (สมมติว่าเป็นตะกร้า <b>A</b>) <br>ต่อมาเก็บมะม่วงเพิ่มได้อีก <b><sup>{n1}</sup>/<sub>{d1}</sub> ตัน</b> <br>เมื่อนำไปชั่งน้ำหนักรวมกัน พบว่ามีมะม่วงทั้งหมด <b><sup>{n2}</sup>/<sub>{d2}</sub> ตัน</b> <br>จงหาว่า ในตอนแรกชาวไร่เก็บมะม่วงได้ (ตะกร้า <b>A</b>) หนักกี่ตัน?"
+                    q = f"ชาวไร่เก็บเกี่ยวมะม่วงได้จำนวนหนึ่ง (สมมติว่าเป็นตะกร้า <b>A</b>) <br>ต่อมาเก็บมะม่วงเพิ่มได้อีก <b>$\\frac{{{n1}}}{{{d1}}}$ ตัน</b> <br>เมื่อนำไปชั่งน้ำหนักรวมกัน พบว่ามีมะม่วงทั้งหมด <b>$\\frac{{{n2}}}{{{d2}}}$ ตัน</b> <br>จงหาว่า ในตอนแรกชาวไร่เก็บมะม่วงได้ (ตะกร้า <b>A</b>) หนักกี่ตัน?"
 
                     sol = f"""<span style='color:#2c3e50; line-height: 1.8;'>
                     <div style='background-color:#fef5e7; border-left:4px solid #e67e22; padding:15px; margin-bottom:15px; border-radius:8px;'>
@@ -2023,25 +2013,23 @@ def generate_questions_logic(grade, main_t, sub_t, num_q, is_challenge=False):
                     • ให้ของที่ยังไม่รู้ค่าเป็นตัวแปร <b>A</b><br>
                     • <b>"เก็บเพิ่มได้อีก"</b> ➔ ใช้เครื่องหมาย <b style='color:#27ae60;'>บวก (+)</b><br>
                     • <b>"รวมกันพบว่ามี..."</b> ➔ คือผลลัพธ์หลังเครื่องหมาย <b>เท่ากับ (=)</b><br>
-                    🔥 <b>ประโยคสัญลักษณ์:</b> <b><span style='color:#8e44ad;'>A</span> + <sup>{n1}</sup>/<sub>{d1}</sub> = <sup>{n2}</sup>/<sub>{d2}</sub></b><br>
-                    <br>
-                    </div>
+                    🔥 <b>ประโยคสัญลักษณ์:</b> <b><span style='color:#8e44ad;'>A</span> + $\\frac{{{n1}}}{{{d1}}}$ = $\\frac{{{n2}}}{{{d2}}}$</b>
+                    <br>                    </div>
                     <b>วิธีทำอย่างละเอียดแบบ Step-by-step:</b><br>
                     👉 <b>ขั้นที่ 1: การย้ายข้างสมการ (Balancing)</b><br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;เราต้องการหาค่า <span style='color:#8e44ad;'>A</span> จึงต้องย้าย <sup>{n1}</sup>/<sub>{d1}</sub> ไปฝั่งตรงข้าม<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;เราต้องการหาค่า <span style='color:#8e44ad;'>A</span> จึงต้องย้าย $\\frac{{{n1}}}{{{d1}}}$ ไปฝั่งตรงข้าม<br>
                     &nbsp;&nbsp;&nbsp;&nbsp;จากเดิมที่เป็นบวก พอย้ายข้ามสะพาน (เครื่องหมาย =) จะต้องเปลี่ยนเป็น <b>'ลบ' (-)</b><br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;สมการใหม่: <span style='color:#8e44ad;'>A</span> = <b><sup>{n2}</sup>/<sub>{d2}</sub> <span style='color:#c0392b;'>-</span> <sup>{n1}</sup>/<sub>{d1}</sub></b><br><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;สมการใหม่: <span style='color:#8e44ad;'>A</span> = <b>$\\frac{{{n2}}}{{{d2}}}$ <span style='color:#c0392b;'>-</span> $\\frac{{{n1}}}{{{d1}}}$</b><br><br>
                     
                     👉 <b>ขั้นที่ 2: หา ค.ร.น. เพื่อปรับตัวส่วน</b><br>
                     &nbsp;&nbsp;&nbsp;&nbsp;ค.ร.น. ของ {d2} และ {d1} คือ <b><span style='color:#2980b9;'>{lcm_all}</span></b><br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;• <sup>{n2}</sup>/<sub>{d2}</sub> ➔ <b><span style='color:#27ae60;'><sup>{new_n2}</sup>/<sub>{lcm_all}</sub></span></b><br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;• <sup>{n1}</sup>/<sub>{d1}</sub> ➔ <b><span style='color:#e74c3c;'><sup>{new_n1}</sup>/<sub>{lcm_all}</sub></span></b><br><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;• $\\frac{{{n2}}}{{{d2}}}$ ➔ <b><span style='color:#27ae60;'>$\\frac{{{new_n2}}}{{{lcm_all}}}$</span></b><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;• $\\frac{{{n1}}}{{{d1}}}$ ➔ <b><span style='color:#e74c3c;'>$\\frac{{{new_n1}}}{{{lcm_all}}}$</span></b><br><br>
                     
                     👉 <b>ขั้นที่ 3: ลบตัวเศษ</b><br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;<span style='color:#8e44ad;'>A</span> = <span style='color:#27ae60;'>{new_n2}</span> - <span style='color:#e74c3c;'>{new_n1}</span> = <b>{ans_n}</b><br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;คำตอบคือ <sup>{ans_n}</sup>/<sub>{lcm_all}</sub> และตัดทอนอย่างต่ำได้เป็น <b>{ans_str}</b><br><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;<span style='color:#8e44ad;'>A</span> = $\\frac{{{new_n2}}}{{{lcm_all}}}$ - $\\frac{{{new_n1}}}{{{lcm_all}}}$ = <b>$\\frac{{{ans_n}}}{{{lcm_all}}}$</b><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;คำตอบคือ $\\frac{{{ans_n}}}{{{lcm_all}}}$ และตัดทอนอย่างต่ำได้เป็น <b>{ans_str}</b><br><br>
                     <b>ตอบ: ตอนแรกชาวไร่เก็บมะม่วงได้ {ans_str} ตัน</b></span>"""
-
 
 
 
