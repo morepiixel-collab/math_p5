@@ -639,6 +639,147 @@ def generate_questions_logic(grade, main_t, sub_t, num_q, is_challenge=False):
 
 
 
+            elif actual_sub_t == "จำนวนเต็มลบเบื้องต้น":
+                # สุ่มสถานการณ์ 3 รูปแบบ เพื่อให้เด็กเห็นภาพว่าจำนวนเต็มลบใช้ทำอะไรในชีวิตจริง
+                scenario = random.choice(["temperature", "submarine", "debt"])
+
+                if scenario == "temperature":
+                    # สไตล์ที่ 1: อุณหภูมิ (ยอดฮิต)
+                    t_start = random.randint(-15, -2) # อุณหภูมิเริ่มต้น (ติดลบ)
+                    t_drop = random.randint(3, 10)    # อุณหภูมิลดลง
+                    t_rise = random.randint(5, 20)    # อุณหภูมิเพิ่มขึ้น
+                    
+                    step1_val = t_start - t_drop
+                    final_ans = step1_val + t_rise
+                    
+                    ans_text = f"อุณหภูมิ {final_ans} องศาเซลเซียส" if final_ans >= 0 else f"อุณหภูมิติดลบ {abs(final_ans)} องศาเซลเซียส (หรือ {final_ans} องศา)"
+                    
+                    q = f"เมืองหิมะแห่งหนึ่ง มีอุณหภูมิเริ่มต้นในตอนเช้า <b>{t_start} องศาเซลเซียส</b> <br>พอตกดึกอากาศหนาวจัด อุณหภูมิ <b>ลดลงไปอีก {t_drop} องศาเซลเซียส</b> <br>เมื่อถึงรุ่งเช้าของอีกวัน มีแสงแดดส่อง ทำให้อุณหภูมิ <b>เพิ่มขึ้น {t_rise} องศาเซลเซียส</b> <br>จงหาว่าอุณหภูมิในตอนท้ายคือเท่าใด?"
+                    
+                    sol = f"""<span style='color:#2c3e50; line-height: 1.8;'>
+                    <div style='background-color:#fcf3cf; border-left:4px solid #f1c40f; padding:15px; margin-bottom:15px; border-radius:8px;'>
+                    💡 <b>การแปลภาษาไทย เป็น "สมการคณิตศาสตร์":</b><br>
+                    • <b>"อุณหภูมิเริ่มต้น {t_start} องศา"</b> ➔ เป็นจุดสตาร์ทของเรา เขียนแทนด้วย <b style='color:#3498db;'>({t_start})</b><br>
+                    • <b>"ลดลงไปอีก {t_drop} องศา"</b> ➔ คำว่า <i>'ลดลง/หนาวลง'</i> คือการหักค่าออกไป ต้องใช้ <b style='color:#c0392b;'>เครื่องหมายลบ (-)</b><br>
+                    • <b>"เพิ่มขึ้น {t_rise} องศา"</b> ➔ คำว่า <i>'เพิ่มขึ้น/อุ่นขึ้น'</i> คือการบวกค่าเข้าไป ต้องใช้ <b style='color:#27ae60;'>เครื่องหมายบวก (+)</b><br>
+                    <b>ประโยคสัญลักษณ์:</b> <span style='color:#3498db;'>({t_start})</span> <b style='color:#c0392b;'>-</b> {t_drop} <b style='color:#27ae60;'>+</b> {t_rise} = ?
+                    </div>
+                    
+                    <div style='background-color:#e8f8f5; border-left:4px solid #1abc9c; padding:15px; margin-bottom:15px; border-radius:8px;'>
+                    🧠 <b>แนวคิดเรื่องเส้นจำนวน (Number Line):</b><br>
+                    ให้นึกภาพเทอร์โมมิเตอร์ที่มีเลข 0 อยู่ตรงกลาง<br>
+                    - การ <b style='color:#c0392b;'>ลบ (-)</b> คือการเดินถอยหลัง <b>ลงไปด้านล่าง (ตัวเลขติดลบเยอะขึ้น)</b><br>
+                    - การ <b style='color:#27ae60;'>บวก (+)</b> คือการเดินขึ้น <b>ไปด้านบน (ตัวเลขมีค่ามากขึ้น)</b>
+                    </div>
+
+                    <b>วิธีทำอย่างละเอียดและที่มาของตัวเลข:</b><br>
+                    👉 <b>ขั้นที่ 1: คิดอุณหภูมิตอนตกดึก</b><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;อุณหภูมิเดิมคือ <span style='color:#3498db;'>{t_start}</span> แล้ว <b style='color:#c0392b;'>ลดลง {t_drop}</b><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;สมการคือ: <span style='color:#3498db;'>({t_start})</span> <b style='color:#c0392b;'>- {t_drop}</b> = <b><span style='color:#8e44ad;'>{step1_val}</span></b><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;<i>(อธิบาย: เราติดลบอยู่แล้ว {abs(t_start)} องศา แล้วถอยหลังลึกลงไปอีก {t_drop} ก้าว ทำให้เรายิ่งติดลบหนักขึ้นไปอยู่ที่ <span style='color:#8e44ad;'>{step1_val}</span>)</i><br><br>
+                    
+                    👉 <b>ขั้นที่ 2: คิดอุณหภูมิตอนรุ่งเช้า (ได้แสงแดด)</b><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;นำตัวเลขอุณหภูมิล่าสุดคือ <span style='color:#8e44ad;'>{step1_val}</span> มาทำให้ <b style='color:#27ae60;'>เพิ่มขึ้น {t_rise}</b><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;สมการคือ: <span style='color:#8e44ad;'>({step1_val})</span> <b style='color:#27ae60;'>+ {t_rise}</b> = <b><span style='color:#e74c3c;'>{final_ans}</span></b><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;<i>(อธิบาย: เราอยู่ที่ <span style='color:#8e44ad;'>{step1_val}</span> จากนั้นเดินขึ้นมาทางด้านบน {t_rise} ก้าว จึงมาหยุดอยู่ที่ <span style='color:#e74c3c;'>{final_ans}</span>)</i><br><br>
+                    
+                    <b>ตอบ: {ans_text}</b>
+                    </span>"""
+
+                elif scenario == "submarine":
+                    # สไตล์ที่ 2: ระดับน้ำทะเล (ใต้ผิวน้ำ)
+                    d_start = random.randint(20, 80) # ความลึกเริ่มต้น (ต้องนำไปแปลงเป็นเลขลบ)
+                    d_dive = random.randint(15, 40)  # ดำลึกลงไปอีก
+                    d_rise = random.randint(30, 100) # ลอยตัวขึ้นมา
+                    
+                    # แปลงเป็นระดับบนแกน Y (ใต้น้ำ = ติดลบ)
+                    y_start = -d_start
+                    step1_val = y_start - d_dive
+                    final_ans = step1_val + d_rise
+                    
+                    if final_ans < 0:
+                        ans_text = f"อยู่ใต้ผิวน้ำ {abs(final_ans)} เมตร (ระดับ {final_ans} เมตร)"
+                    elif final_ans == 0:
+                        ans_text = f"ลอยอยู่ปริ่มผิวน้ำพอดี (ระดับ 0 เมตร)"
+                    else:
+                        ans_text = f"ลอยอยู่เหนือผิวน้ำ {final_ans} เมตร"
+                    
+                    q = f"เรือดำน้ำลำหนึ่ง กำลังลอยอยู่ใต้ผิวน้ำที่ระดับ <b>{d_start} เมตร</b> <br>เพื่อหลบหลีกศัตรู กัปตันสั่งให้ <b>ดำลึกลงไปอีก {d_dive} เมตร</b> <br>เมื่อปลอดภัยแล้ว จึงสั่งให้ <b>ลอยตัวขึ้นมา {d_rise} เมตร</b> <br>จงหาว่าปัจจุบันเรือดำน้ำลำนี้อยู่ที่ระดับใดเมื่อเทียบกับผิวน้ำ?"
+                    
+                    sol = f"""<span style='color:#2c3e50; line-height: 1.8;'>
+                    <div style='background-color:#fcf3cf; border-left:4px solid #f1c40f; padding:15px; margin-bottom:15px; border-radius:8px;'>
+                    💡 <b>การแปลภาษาไทย เป็น "สมการคณิตศาสตร์":</b><br>
+                    ในการวัดระดับความสูง <b>เราจะให้ "ผิวน้ำ" มีค่าเป็น 0</b> เสมอ!<br>
+                    • <b>"อยู่ใต้ผิวน้ำ {d_start} เมตร"</b> ➔ แปลว่าอยู่ต่ำกว่าศูนย์ ต้องเขียนเป็น <b>เลขติดลบ</b> คือ <b style='color:#3498db;'>-{d_start}</b><br>
+                    • <b>"ดำลึกลงไปอีก {d_dive} เมตร"</b> ➔ คือการลงไปต่ำกว่าเดิม ต้องหักออกด้วย <b style='color:#c0392b;'>เครื่องหมายลบ (-)</b><br>
+                    • <b>"ลอยตัวขึ้นมา {d_rise} เมตร"</b> ➔ คือการขึ้นมาใกล้ระดับศูนย์มากขึ้น ต้องใช้ <b style='color:#27ae60;'>เครื่องหมายบวก (+)</b><br>
+                    <b>ประโยคสัญลักษณ์:</b> <span style='color:#3498db;'>(-{d_start})</span> <b style='color:#c0392b;'>-</b> {d_dive} <b style='color:#27ae60;'>+</b> {d_rise} = ?
+                    </div>
+
+                    <b>วิธีทำอย่างละเอียดและที่มาของตัวเลข:</b><br>
+                    👉 <b>ขั้นที่ 1: คำนวณความลึกตอนหลบศัตรู</b><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;ตำแหน่งเดิมคือ <span style='color:#3498db;'>(-{d_start})</span> แล้ว <b style='color:#c0392b;'>ดำลึกลง (- {d_dive})</b><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;สมการคือ: <span style='color:#3498db;'>(-{d_start})</span> <b style='color:#c0392b;'>- {d_dive}</b> = <b><span style='color:#8e44ad;'>{step1_val}</span></b><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;<i>(อธิบาย: อยู่ใต้น้ำอยู่แล้ว แล้วลงไปลึกกว่าเดิมอีก ตัวเลขจึงยิ่งติดลบมากขึ้น กลายเป็น <span style='color:#8e44ad;'>{step1_val}</span>)</i><br><br>
+                    
+                    👉 <b>ขั้นที่ 2: คำนวณตำแหน่งตอนปลอดภัย</b><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;นำตำแหน่งลึกสุดคือ <span style='color:#8e44ad;'>{step1_val}</span> มา <b style='color:#27ae60;'>ลอยตัวขึ้น (+ {d_rise})</b><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;สมการคือ: <span style='color:#8e44ad;'>({step1_val})</span> <b style='color:#27ae60;'>+ {d_rise}</b> = <b><span style='color:#e74c3c;'>{final_ans}</span></b><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;<i>(อธิบาย: จากจุดที่ลึกที่สุด เราเดินสวนทางบวกขึ้นมา {d_rise} เมตร จึงมาหยุดที่ <span style='color:#e74c3c;'>{final_ans}</span>)</i><br><br>
+                    
+                    <b>ตอบ: เรือดำน้ำ {ans_text}</b>
+                    </span>"""
+
+                else:
+                    # สไตล์ที่ 3: สถานะการเงิน/หนี้สิน (เด็กจะเข้าใจง่ายที่สุด)
+                    names = ["ข้าวหอม", "พายุ", "ธาม", "มะลิ"]
+                    name = random.choice(names)
+                    
+                    debt1 = random.randint(20, 50)  # ยืมครั้งแรก (หนี้)
+                    debt2 = random.randint(15, 40)  # ยืมเพิ่มอีก (หนี้เพิ่ม)
+                    pay_back = random.randint(40, 150) # ได้เงินมาคืน
+                    
+                    start_val = -debt1
+                    step1_val = start_val - debt2
+                    final_ans = step1_val + pay_back
+                    
+                    if final_ans < 0:
+                        ans_text = f"ยังคงเป็นหนี้เพื่อนอยู่ {abs(final_ans)} บาท (สถานะการเงินคือ {final_ans} บาท)"
+                    elif final_ans == 0:
+                        ans_text = f"ใช้หนี้หมดพอดี และไม่มีเงินเหลือ (สถานะการเงิน 0 บาท)"
+                    else:
+                        ans_text = f"ใช้หนี้หมดและมีเงินเหลือเป็นของตัวเอง {final_ans} บาท"
+                    
+                    q = f"{name}ลืมเอาเงินมาโรงเรียน จึง <b>ยืมเงินเพื่อนไป {debt1} บาท</b> <br>ตอนบ่ายอยากกินขนม จึง <b>ขอยืมเงินเพื่อนเพิ่มอีก {debt2} บาท</b> <br>วันรุ่งขึ้น {name}ได้ค่าขนมมา จึง <b>นำเงินไปคืนเพื่อน {pay_back} บาท</b> <br>จงหาว่า สถานะการเงินของ{name}ในตอนนี้เป็นอย่างไร?"
+
+                    sol = f"""<span style='color:#2c3e50; line-height: 1.8;'>
+                    <div style='background-color:#fcf3cf; border-left:4px solid #f1c40f; padding:15px; margin-bottom:15px; border-radius:8px;'>
+                    💡 <b>การแปลภาษาไทย เป็น "สมการคณิตศาสตร์":</b><br>
+                    จำไว้ว่า <b>"หนี้สิน = การไม่มีเงิน แถมยังติดลบ"</b><br>
+                    • <b>"ยืมเงินเพื่อน {debt1} บาท"</b> ➔ แปลว่าเงินในกระเป๋าเราติดลบ เขียนเป็น <b style='color:#3498db;'>-{debt1}</b><br>
+                    • <b>"ยืมเพิ่มอีก {debt2} บาท"</b> ➔ คือการสร้างหนี้เพิ่ม หนี้คือการลบออก ต้องใช้ <b style='color:#c0392b;'>เครื่องหมายลบ (-)</b><br>
+                    • <b>"นำเงินไปคืน {pay_back} บาท"</b> ➔ คือการนำเงินที่เรามี ไปหักล้างหนี้ ทำให้สถานะการเงินเราดีขึ้น ต้องใช้ <b style='color:#27ae60;'>เครื่องหมายบวก (+)</b><br>
+                    <b>ประโยคสัญลักษณ์:</b> <span style='color:#3498db;'>(-{debt1})</span> <b style='color:#c0392b;'>-</b> {debt2} <b style='color:#27ae60;'>+</b> {pay_back} = ?
+                    </div>
+
+                    <b>วิธีทำอย่างละเอียดและที่มาของตัวเลข:</b><br>
+                    👉 <b>ขั้นที่ 1: คำนวณหนี้สินรวมทั้งหมด</b><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;ตอนแรกติดหนี้อยู่ <span style='color:#3498db;'>(-{debt1})</span> แล้ว <b style='color:#c0392b;'>ยืมเพิ่ม (- {debt2})</b><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;สมการคือ: <span style='color:#3498db;'>(-{debt1})</span> <b style='color:#c0392b;'>- {debt2}</b> = <b><span style='color:#8e44ad;'>{step1_val}</span></b><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;<i>(อธิบาย: เป็นหนี้อยู่แล้ว ไปยืมเพิ่มอีก หนี้ก็เลยพอกพูนขึ้น รวมเป็นยอดหนี้ทั้งหมด {abs(step1_val)} บาท หรือสถานะ <span style='color:#8e44ad;'>{step1_val}</span>)</i><br><br>
+                    
+                    👉 <b>ขั้นที่ 2: นำเงินไปหักล้างหนี้ (คืนเงิน)</b><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;นำยอดหนี้ <span style='color:#8e44ad;'>{step1_val}</span> มาทำการ <b style='color:#27ae60;'>คืนเงิน (+ {pay_back})</b><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;สมการคือ: <span style='color:#8e44ad;'>({step1_val})</span> <b style='color:#27ae60;'>+ {pay_back}</b> = <b><span style='color:#e74c3c;'>{final_ans}</span></b><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;<i>(อธิบาย: นำเงิน {pay_back} บาท ไปจ่ายหนี้ {abs(step1_val)} บาท ถ้าเงินพอจ่ายก็จะเหลือตังค์ทอน แต่ถ้าเงินไม่พอก็จะยังติดลบอยู่ ซึ่งผลลัพธ์ออกมาเป็น <span style='color:#e74c3c;'>{final_ans}</span>)</i><br><br>
+                    
+                    <b>ตอบ: {name} {ans_text}</b>
+                    </span>"""
+
+
+
+
+
             elif actual_sub_t == "การคูณเศษส่วน":
                 d1 = random.randint(3, 15)
                 n1 = random.randint(1, d1 * 2) if is_challenge else random.randint(1, d1 - 1)
