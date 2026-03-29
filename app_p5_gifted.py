@@ -2046,7 +2046,7 @@ def generate_questions_logic(grade, main_t, sub_t, num_q, is_challenge=False):
 
 # ================= หมวดที่ 2: โลกของเศษส่วนและทศนิยม (ป.5) =================
             elif actual_sub_t == "การคูณและการหารเศษส่วน":
-                # สุ่ม 4 สถานการณ์: ของ(คูณ), แบ่งแพ็ก(หาร), หาผลรวมจากส่วนย่อย(กับดัก), ระคน 3 ตัว(PEMDAS)
+                # สุ่ม 4 สถานการณ์: ของ(คูณ), แบ่งแพ็ก(หาร), หาผลรวมจากส่วนย่อย(กับดัก), ระคน 3 ตัว(PEMDAS + โชว์ตัดทอน)
                 scenario = random.choice(["multiply_of", "divide_pack", "reverse_fraction_trap", "pure_pemdas"])
 
                 # ✨ ฟังก์ชันวาดเศษส่วนแนวตั้ง (ใช้กล่องทึบ 2px ตัดปัญหาเว็บลบเส้น)
@@ -2069,20 +2069,16 @@ def generate_questions_logic(grade, main_t, sub_t, num_q, is_challenge=False):
                             ("โรงงาน", "ข้าวสาร", "บริจาคให้เด็กกำพร้า", "ตัน")]
                     person, item, action, unit = random.choice(jobs)
                     
-                    # จำนวนเต็มและเศษส่วนตั้งต้น
                     w1 = random.randint(12, 30)
                     d1 = random.choice([2, 3, 4, 5, 8])
                     n1 = random.choice([x for x in range(1, d1) if math.gcd(x, d1) == 1])
                     
-                    # เศษส่วนที่นำไปใช้
                     d2 = random.choice([3, 4, 5, 6, 7, 9])
                     n2 = random.randint(1, d2 - 1)
                     
-                    # แปลงจำนวนคละเป็นเศษเกิน
                     imp_n1 = w1 * d1 + n1
                     imp_d1 = d1
                     
-                    # ผลคูณ
                     ans_n = imp_n1 * n2
                     ans_d = imp_d1 * d2
                     simp_n, simp_d = simplify_fraction(ans_n, ans_d)
@@ -2104,7 +2100,6 @@ def generate_questions_logic(grade, main_t, sub_t, num_q, is_challenge=False):
                     • <b><span style='color:#c0392b;'>⚠️ กับดัก!</span></b> เด็กหลายคนเห็นคำว่า "แบ่ง" แล้วรีบเอาไปลบหรือหารทันที ซึ่งผิดครับ!<br>
                     • สังเกตคำว่า <b>"ของ"</b> ให้ดี! ในทางคณิตศาสตร์ คำว่า <b>เศษส่วน <u>ของ</u> สิ่งใดสิ่งหนึ่ง</b> หมายถึง <b>การคูณ (×)</b> เสมอ!<br>
                     • ประโยคสัญลักษณ์: <b>{make_frac(n1, d1, w=w1)} <span style='color:#e74c3c;'>×</span> {make_frac(n2, d2)} = ?</b>
-                    <br>
                     </div>
                     <b>วิธีทำอย่างละเอียดแบบ Step-by-step:</b><br>
                     👉 <b>ขั้นที่ 1: แปลง 'จำนวนคละ' ให้เป็น 'เศษเกิน' ก่อนเสมอ</b><br>
@@ -2122,22 +2117,20 @@ def generate_questions_logic(grade, main_t, sub_t, num_q, is_challenge=False):
                     <b>ตอบ: {person}ใช้{item}ไป {ans_str} {unit}</b></span>"""
 
                 elif scenario == "divide_pack":
-                    # ✨ [สไตล์ 2: การหาร (Division into parts) - บังคับให้หารลงตัวเป็นจำนวนถุงเป๊ะๆ]
+                    # ✨ [สไตล์ 2: การหาร (Division into parts) - บังคับให้หารลงตัวเป๊ะๆ]
                     items = [("น้ำตาลทราย", "กิโลกรัม", "ถุง"), ("น้ำยาล้างจาน", "ลิตร", "ขวด"), ("ริบบิ้น", "เมตร", "เส้น")]
                     item, unit, pack = random.choice(items)
                     
-                    ans_bags = random.randint(12, 45) # คำตอบคือจำนวนถุง
+                    ans_bags = random.randint(12, 45)
                     d2 = random.choice([2, 3, 4, 5, 8])
                     n2 = random.choice([x for x in range(1, d2) if math.gcd(x, d2) == 1])
                     
-                    # หาก้อนใหญ่ (W1 N1/D1) จาก ans_bags * (N2/D2)
                     total_n = ans_bags * n2
                     total_d = d2
                     w1 = total_n // total_d
                     n1 = total_n % total_d
                     d1 = total_d
                     
-                    # ถ้าเศษเป็น 0 ให้เพิ่มจำนวนถุงไปอีก 1 ให้มันกลายเป็นจำนวนคละ
                     if n1 == 0:
                         ans_bags += 1
                         total_n = ans_bags * n2
@@ -2154,7 +2147,6 @@ def generate_questions_logic(grade, main_t, sub_t, num_q, is_challenge=False):
                     • คีย์เวิร์ดสำคัญคือ <b>"แบ่งใส่{pack} {pack}ละเท่าๆ กัน"</b> <br>
                     • การนำของก้อนใหญ่ มาแบ่งเป็นกลุ่มย่อยๆ ขนาดเท่าๆ กัน คือหน้าที่ของ <b style='color:#d35400;'>เครื่องหมายหาร (÷)</b><br>
                     • ประโยคสัญลักษณ์: <b>{make_frac(n1, d1, w=w1)} <span style='color:#d35400;'>÷</span> {make_frac(n2, d2)} = ?</b>
-                    <br>
                     </div>
                     <b>วิธีทำอย่างละเอียดแบบ Step-by-step:</b><br>
                     👉 <b>ขั้นที่ 1: แปลง 'จำนวนคละ' ให้เป็น 'เศษเกิน'</b><br>
@@ -2170,15 +2162,14 @@ def generate_questions_logic(grade, main_t, sub_t, num_q, is_challenge=False):
                     👉 <b>ขั้นที่ 3: คูณเศษส่วน (บนคูณบน ล่างคูณล่าง)</b><br>
                     &nbsp;&nbsp;&nbsp;&nbsp;• ตัวบน: <span style='color:#2980b9;'>{imp_n1}</span> × <span style='color:#e67e22;'>{d2}</span> = <b><span style='color:#8e44ad;'>{imp_n1 * d2}</span></b><br>
                     &nbsp;&nbsp;&nbsp;&nbsp;• ตัวล่าง: <span style='color:#2980b9;'>{d1}</span> × <span style='color:#e67e22;'>{n2}</span> = <b><span style='color:#8e44ad;'>{d1 * n2}</span></b><br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;ได้เป็น {make_frac(imp_n1 * d2, d1 * n2, color="#8e44ad")} ซึ่งเมื่อนำมาหารกัน ({imp_n1 * d2} ÷ {d1 * n2}) จะลงตัวได้ <b><span style='color:#27ae60;'>{ans_bags}</span></b> พอดีเป๊ะ!<br><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;ได้เป็น {make_frac(imp_n1 * d2, d1 * n2, color="#8e44ad")} ซึ่งเมื่อนำมาหารกัน จะลงตัวได้ <b><span style='color:#27ae60;'>{ans_bags}</span></b> พอดีเป๊ะ!<br><br>
                     <b>ตอบ: แม่ค้าจะแบ่งได้ทั้งหมด {ans_bags} {pack}พอดี</b></span>"""
 
                 elif scenario == "reverse_fraction_trap":
-                    # ✨ [สไตล์ 3: โจทย์กับดัก (Reverse Fraction) - บอกส่วนย่อย ให้หาทั้งหมด]
+                    # ✨ [สไตล์ 3: โจทย์กับดัก (Reverse Fraction)]
                     d1 = random.choice([5, 7, 8, 9, 11, 12])
                     n1 = random.choice([x for x in range(2, d1) if math.gcd(x, d1) == 1])
                     
-                    # บังคับให้จำนวนคน/ระยะทาง หารด้วย n1 ลงตัว
                     part_value = random.choice([15, 20, 25, 30, 40, 50])
                     known_val = part_value * n1
                     total_val = part_value * d1
@@ -2190,7 +2181,6 @@ def generate_questions_logic(grade, main_t, sub_t, num_q, is_challenge=False):
                     💡 <b>ถอดรหัสกับดักคณิตศาสตร์ (Visual Thinking):</b><br>
                     • <b><span style='color:#c0392b;'>⚠️ ระวังโดนหลอก!</span></b> เด็ก 90% จะเอา {known_val} ไปคูณกับ {make_frac(n1, d1)} ทันที ซึ่งผิด! เพราะ {known_val} ไม่ใช่จำนวนนักเรียนทั้งหมด แต่มันคือส่วนย่อย!<br>
                     • <b>แนวคิดบาร์โมเดล (Bar Model):</b> เศษส่วน {make_frac(n1, d1)} หมายความว่า ถ้านักเรียนทั้งโรงเรียนถูกแบ่งเป็น <b><span style='color:#2980b9;'>{d1} ส่วนเท่าๆ กัน</span></b> จะเป็นนักเรียนชายไปแล้ว <b><span style='color:#e74c3c;'>{n1} ส่วน</span></b>
-                    <br>
                     </div>
                     <b>วิธีทำอย่างละเอียดแบบ Step-by-step:</b><br>
                     <b>วิธีคิดแบบวาดภาพ (Bar Model):</b><br>
@@ -2202,24 +2192,35 @@ def generate_questions_logic(grade, main_t, sub_t, num_q, is_challenge=False):
                     👉 <b>ขั้นที่ 2: หาจำนวนนักเรียนทั้งหมด</b><br>
                     &nbsp;&nbsp;&nbsp;&nbsp;นักเรียนทั้งหมดมี <span style='color:#2980b9;'>{d1} ส่วน</span> <br>
                     &nbsp;&nbsp;&nbsp;&nbsp;นำไป <b style='color:#e74c3c;'>คูณ (×)</b> กับค่าของ 1 ส่วน ➔ {d1} × <span style='color:#27ae60;'>{part_value}</span> = <b><span style='color:#c0392b;'>{total_val} คน</span></b><br><br>
-                    
-                    <i>📝 <b>(แถม) วิธีคิดแบบสมการพีชคณิตสำหรับเด็กโต:</b><br>
-                    ให้ นักเรียนทั้งหมด = A<br>
-                    A × {make_frac(n1, d1)} = {known_val}<br>
-                    ย้ายข้าง ➔ A = {known_val} <b style='color:#d35400;'>÷</b> {make_frac(n1, d1)}<br>
-                    เปลี่ยนหารเป็นคูณกลับเศษเป็นส่วน ➔ A = {known_val} <b style='color:#e74c3c;'>×</b> {make_frac(d1, n1)} = {total_val}</i><br><br>
                     <b>ตอบ: โรงเรียนนี้มีนักเรียนทั้งหมด {total_val} คน</b></span>"""
 
                 else:
-                    # ✨ [สไตล์ 4: การคูณหารระคน 3 ตัว (Cross Cancellation Test)]
-                    # สุ่มตัวเลขที่ตัดทอนไขว้กันได้สวยงาม
+                    # ✨ [สไตล์ 4: การคูณหารระคน 3 ตัว + ระบบจำลองการตัดทอน (Cross Cancellation Simulator)]
                     pool = [12, 14, 15, 16, 18, 20, 21, 24, 25, 27, 28, 30, 32, 35, 36]
                     n1, d1, n2, d2, n3, d3 = random.sample(pool, 6)
                     
-                    # รูปแบบ A/B * C/D / E/F
-                    # ก่อนคำนวณ ต้องเปลี่ยนหารเป็นคูณ E/F -> d3/n3
                     final_num = n1 * n2 * d3
                     final_den = d1 * d2 * n3
+                    
+                    # จำลองการตัดทอนแนวทแยง (Algorithm พิเศษ)
+                    nums = [n1, n2, d3] # d3 ย้ายมาเป็นเศษหลังตีลังกา
+                    dens = [d1, d2, n3] # n3 ย้ายมาเป็นส่วนหลังตีลังกา
+                    cancel_steps_html = ""
+                    step_count = 1
+                    
+                    for i in range(3):
+                        for j in range(3):
+                            g = math.gcd(nums[i], dens[j])
+                            if g > 1:
+                                old_n = nums[i]
+                                old_d = dens[j]
+                                nums[i] //= g
+                                dens[j] //= g
+                                cancel_steps_html += f"&nbsp;&nbsp;&nbsp;&nbsp;✂️ <b>ตัดครั้งที่ {step_count}:</b> นำแม่ <b>{g}</b> ตัด <span style='text-decoration: line-through; color:#95a5a6;'>{old_n}</span> (บน) คู่กับ <span style='text-decoration: line-through; color:#95a5a6;'>{old_d}</span> (ล่าง) ➔ เหลือ <b><span style='color:#e74c3c;'>{nums[i]}</span></b> และ <b><span style='color:#2980b9;'>{dens[j]}</span></b><br>"
+                                step_count += 1
+                                
+                    if cancel_steps_html == "":
+                        cancel_steps_html = "&nbsp;&nbsp;&nbsp;&nbsp;<i>(ข้อนี้ตัวเลขไม่มีตัวร่วมที่ตัดทอนกันได้)</i><br>"
                     
                     simp_n, simp_d = simplify_fraction(final_num, final_den)
                     if simp_n > simp_d and simp_d != 1:
@@ -2235,26 +2236,26 @@ def generate_questions_logic(grade, main_t, sub_t, num_q, is_challenge=False):
 
                     sol = f"""<span style='color:#2c3e50; line-height: 1.8;'>
                     <div style='background-color:#fef5e7; border-left:4px solid #e67e22; padding:15px; margin-bottom:15px; border-radius:8px;'>
-                    💡 <b>กฎลำดับการคำนวณ (PEMDAS) และเวทมนตร์เศษส่วน:</b><br>
-                    • เมื่อมีแค่คูณกับหารอยู่ด้วยกัน ให้ทำจาก <b>ซ้ายไปขวา</b><br>
+                    💡 <b>กฎลำดับการคำนวณและเวทมนตร์เศษส่วน:</b><br>
                     • กฎเหล็ก: <b>ห้ามตัดทอนตัวเลขข้ามเครื่องหมายหารเด็ดขาด!</b> ต้องทำการ "เปลี่ยนหารเป็นคูณ กลับเศษเป็นส่วน" ให้เป็นเครื่องหมายคูณทั้งหมดก่อน ค่อยทำการตัดทอนทีเดียว
                     </div>
                     <b>วิธีทำอย่างละเอียดแบบ Step-by-step:</b><br>
                     👉 <b>ขั้นที่ 1: ตีลังกาเศษส่วนหลังเครื่องหมายหาร</b><br>
                     &nbsp;&nbsp;&nbsp;&nbsp;ตัวปัญหาคือ <b style='color:#d35400;'>÷</b> {make_frac(n3, d3, color="#c0392b")}<br>
                     &nbsp;&nbsp;&nbsp;&nbsp;เปลี่ยนเป็น <b style='color:#27ae60;'>×</b> <b>{make_frac(d3, n3, color="#27ae60")}</b><br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;สมการทั้งหมดจะกลายเป็น: <b>{make_frac(n1, d1, color="#2980b9")} × {make_frac(n2, d2, color="#2980b9")} <span style='color:#27ae60;'>×</span> {make_frac(d3, n3, color="#27ae60")}</b><br><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;สมการทั้งหมดจะกลายเป็น: <b>{make_frac(n1, d1)} × {make_frac(n2, d2)} <span style='color:#27ae60;'>×</span> {make_frac(d3, n3, color="#27ae60")}</b><br><br>
                     
-                    👉 <b>ขั้นที่ 2: รวบกระดานคูณ (บนคูณบน ล่างคูณล่าง)</b><br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;นำตัวเศษ (ด้านบน) ทั้งหมดมาคูณกัน: {n1} × {n2} × {d3} = <b><span style='color:#8e44ad;'>{final_num:,}</span></b><br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;นำตัวส่วน (ด้านล่าง) ทั้งหมดมาคูณกัน: {d1} × {d2} × {n3} = <b><span style='color:#8e44ad;'>{final_den:,}</span></b><br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;<i>(ในข้อสอบจริง เด็กๆ สามารถใช้เทคนิค 'จับคู่ตัดทอนแนวทแยง' บนล่าง ก่อนที่จะคูณตัวเลขให้ใหญ่ขึ้นได้ครับ เพื่อความรวดเร็ว)</i><br><br>
+                    👉 <b>ขั้นที่ 2: ใช้เทคนิค 'จับคู่ตัดทอนแนวทแยง' (Cross Cancellation)</b><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;แทนที่จะคูณเลขให้ใหญ่เป็นหลักหมื่น เราจะหา 'แม่สูตรคูณ' มาหารตัดตัวเลข <b>(ตัวบน คู่กับ ตัวล่าง)</b> ทีละคู่ดังนี้:<br>
+                    {cancel_steps_html}<br>
                     
-                    👉 <b>ขั้นที่ 3: ตัดทอนเป็นเศษส่วนอย่างต่ำ</b><br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;ผลลัพธ์คือ {make_frac(f"{final_num:,}", f"{final_den:,}")}<br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;เมื่อนำแม่ {math.gcd(final_num, final_den)} มาตัดทอนทั้งบนและล่างให้เป็นเศษส่วนอย่างต่ำ จะได้ <b><span style='color:#c0392b;'>{ans_str}</span></b><br><br>
+                    👉 <b>ขั้นที่ 3: นำตัวเลขผู้รอดชีวิตมาคูณกัน (บนคูณบน ล่างคูณล่าง)</b><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;• ตัวเศษ (ด้านบน) จะเหลือแค่: {nums[0]} × {nums[1]} × {nums[2]} = <b><span style='color:#8e44ad;'>{nums[0]*nums[1]*nums[2]}</span></b><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;• ตัวส่วน (ด้านล่าง) จะเหลือแค่: {dens[0]} × {dens[1]} × {dens[2]} = <b><span style='color:#8e44ad;'>{dens[0]*dens[1]*dens[2]}</span></b><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;ผลลัพธ์ที่ได้คือ {make_frac(nums[0]*nums[1]*nums[2], dens[0]*dens[1]*dens[2])} และเมื่อจัดเป็นรูปอย่างง่ายจะได้ <b><span style='color:#c0392b;'>{ans_str}</span></b><br><br>
                     <b>ตอบ: {ans_str}</b></span>"""
 
+                    
 
 
 
