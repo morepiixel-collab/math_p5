@@ -905,6 +905,159 @@ def generate_questions_logic(grade, main_t, sub_t, num_q, is_challenge=False):
 
 
 
+# ================= หมวดที่ 1: รากฐานตัวเลขและการดำเนินการ (ป.5) =================
+            elif actual_sub_t == "ทฤษฎีจำนวน (จำนวนเฉพาะ, ตัวประกอบ, สมบัติการหารลงตัว)":
+                # สุ่ม 3 สถานการณ์: การหาตัวประกอบ (ชีวิตประจำวัน), จำนวนเฉพาะ (รหัสลับ), กฎการหารลงตัว (ข้อสอบแข่งขัน)
+                scenario = random.choice(["factors_grouping", "prime_passcode", "divisibility_rule"])
+
+                if scenario == "factors_grouping":
+                    # สไตล์ที่ 1: การหาตัวประกอบทั้งหมด (ประยุกต์กับการจัดของ)
+                    # เลือกตัวเลขที่มีตัวประกอบเยอะๆ เพื่อให้เด็กฝึกหาคู่คูณ
+                    target_num = random.choice([24, 30, 36, 40, 48, 60])
+                    items = random.choice(["คุกกี้", "ลูกอม", "โดนัท", "ส้ม", "หนังสือ"])
+                    
+                    # หาตัวประกอบทั้งหมด
+                    factors = []
+                    for i in range(1, target_num + 1):
+                        if target_num % i == 0:
+                            factors.append(i)
+                    
+                    ways = len(factors)
+                    factors_str = ", ".join(map(str, factors))
+                    
+                    # สร้างคู่คูณเพื่อแสดงในเฉลย
+                    pairs_html = ""
+                    for i in range(ways // 2):
+                        pairs_html += f"&nbsp;&nbsp;&nbsp;&nbsp;• แบ่งกล่องละ <span style='color:#e74c3c;'>{factors[i]}</span> ชิ้น จะได้ <span style='color:#2980b9;'>{factors[-(i+1)]}</span> กล่อง (เพราะ {factors[i]} × {factors[-(i+1)]} = {target_num})<br>"
+                    if ways % 2 != 0: # กรณีเป็นเลขกำลังสองสมบูรณ์ เช่น 36
+                        mid = factors[ways//2]
+                        pairs_html += f"&nbsp;&nbsp;&nbsp;&nbsp;• แบ่งกล่องละ <span style='color:#e74c3c;'>{mid}</span> ชิ้น จะได้ <span style='color:#2980b9;'>{mid}</span> กล่อง (เพราะ {mid} × {mid} = {target_num})<br>"
+
+                    q = f"ร้านเบเกอรี่อบ <b>{items}ได้ทั้งหมด {target_num} ชิ้น</b> <br>ต้องการนำ{items}ทั้งหมดมา <b>แบ่งใส่กล่อง กล่องละเท่าๆ กัน โดยไม่ให้มี{items}เหลือเศษเลย</b> <br>เจ้าของร้านจะมีวิธีเลือก <b>'จำนวนชิ้นในแต่ละกล่อง'</b> ที่แตกต่างกันได้ทั้งหมดกี่วิธี? (ใส่ได้ตั้งแต่กล่องละ 1 ชิ้น จนถึงใส่กล่องเดียวรวด)"
+
+                    sol = f"""<span style='color:#2c3e50; line-height: 1.8;'>
+                    <div style='background-color:#fcf3cf; border-left:4px solid #f1c40f; padding:15px; margin-bottom:15px; border-radius:8px;'>
+                    💡 <b>การแปลภาษาไทย เป็น "สมการคณิตศาสตร์":</b><br>
+                    • <b>"แบ่งใส่กล่อง กล่องละเท่าๆ กัน"</b> ➔ คือการแบ่งกลุ่ม ซึ่งต้องใช้ <b style='color:#d35400;'>เครื่องหมายหาร (÷)</b><br>
+                    • <b>"โดยไม่ให้มีเศษเหลือเลย"</b> ➔ แปลว่าการหารนั้นต้องเป็น <b>"การหารลงตัว"</b><br>
+                    🔥 <b>สรุป:</b> โจทย์ข้อนี้กำลังสั่งให้เราหา <b>"ตัวประกอบทั้งหมดของ {target_num}"</b> นั่นเอง! (ตัวประกอบ คือ ตัวเลขทุกตัวที่สามารถนำไปหาร {target_num} ได้ลงตัวพอดี)
+                    <br>
+                    </div>
+                    <b>วิธีทำอย่างละเอียดแบบ Step-by-step:</b><br>
+                    👉 <b>ขั้นที่ 1: ใช้เทคนิค "จับคู่คูณ" (Factor Rainbow)</b><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;เราจะหาว่า "เลขอะไรสองตัวคูณกันแล้วได้ <span style='color:#8e44ad;'>{target_num}</span> บ้าง?" โดยเริ่มไล่จากแม่ 1 ขึ้นไปเรื่อยๆ:<br>
+                    {pairs_html}<br>
+                    
+                    👉 <b>ขั้นที่ 2: นำตัวเลขมาเรียงลำดับ</b><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;เมื่อนำตัวเลขทั้งหมดที่เราหาได้มาเรียงจากน้อยไปมาก จะได้แก่: <b><span style='color:#27ae60;'>{factors_str}</span></b><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;<i>(ตัวเลขเหล่านี้แหละ คือจำนวนชิ้นที่เราสามารถจัดใส่กล่องได้โดยไม่มีเศษ)</i><br><br>
+                    
+                    👉 <b>ขั้นที่ 3: นับจำนวนวิธี</b><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;เมื่อนับดูแล้ว พบว่ามีตัวเลขทั้งหมด <b><span style='color:#c0392b;'>{ways}</span> ตัว</b><br><br>
+                    <b>ตอบ: เจ้าของร้านมีวิธีเลือกจำนวนชิ้นใส่กล่องได้ทั้งหมด {ways} วิธี</b></span>"""
+
+                elif scenario == "prime_passcode":
+                    # สไตล์ที่ 2: จำนวนเฉพาะ (แนวข้อสอบเชาวน์/รหัสลับ)
+                    ranges = [(10, 30), (20, 40), (30, 50)]
+                    start_num, end_num = random.choice(ranges)
+                    
+                    def is_prime(n):
+                        if n <= 1: return False
+                        for i in range(2, int(n**0.5) + 1):
+                            if n % i == 0: return False
+                        return True
+                        
+                    primes = [p for p in range(start_num, end_num + 1) if is_prime(p)]
+                    primes_str = " + ".join(map(str, primes))
+                    final_sum = sum(primes)
+                    
+                    q = f"นักสืบจิ๋วต้องถอดรหัสผ่านเพื่อเปิดตู้เซฟ โดยมีคำใบ้ทิ้งไว้ว่า:<br><div style='text-align:center; font-size:22px; font-weight:bold; background:#f8f9fa; padding:15px; border-radius:10px; border:2px dashed #bdc3c7; margin: 10px 0;'>รหัสผ่าน คือ 'ผลรวม' ของ <span style='color:#e74c3c;'>จำนวนเฉพาะ (Prime Numbers)</span><br>ที่อยู่ตั้งแต่ {start_num} ถึง {end_num}</div><br>จงหาว่ารหัสผ่านของตู้เซฟนี้คือหมายเลขใด?"
+
+                    sol = f"""<span style='color:#2c3e50; line-height: 1.8;'>
+                    <div style='background-color:#e8f8f5; border-left:4px solid #1abc9c; padding:15px; margin-bottom:15px; border-radius:8px;'>
+                    💡 <b>ทบทวนความจำเรื่อง "จำนวนเฉพาะ":</b><br>
+                    <b>จำนวนเฉพาะ</b> คือ ตัวเลขที่มีแค่ <b>1 และตัวมันเอง</b> เท่านั้นที่หารมันลงตัว (พูดง่ายๆ คือไม่มีสูตรคูณแม่ไหนสร้างมันขึ้นมาได้เลย ยกเว้นแม่ 1)<br>
+                    <i>ตัวอย่าง: 7 เป็นจำนวนเฉพาะ เพราะมีแค่ 1 กับ 7 ที่หารลงตัว (ไม่มีเลขอื่นคูณกันได้ 7)</i><br>
+                    <br>
+                    </div>
+                    
+                    <div style='background-color:#fcf3cf; border-left:4px solid #f1c40f; padding:15px; margin-bottom:15px; border-radius:8px;'>
+                    💡 <b>การแปลภาษาไทย เป็น "สมการคณิตศาสตร์":</b><br>
+                    • คำว่า <b>"ผลรวม"</b> ➔ คือการนำตัวเลขทุกตัวมากองรวมกัน ต้องเชื่อมด้วย <b style='color:#3498db;'>เครื่องหมายบวก (+)</b>
+                    </div>
+
+                    <b>วิธีทำอย่างละเอียดแบบ Step-by-step:</b><br>
+                    👉 <b>ขั้นที่ 1: ค้นหาจำนวนเฉพาะตั้งแต่ {start_num} ถึง {end_num}</b><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;เราจะมาคัดกรองตัวเลขกันทีละตัว ตัวไหนมีสูตรคูณแม่ 2, 3, 5, 7 หารลงตัว ให้ตัดทิ้งทันที!<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;• จำนวนเฉพาะที่รอดชีวิตมาได้แก่: <b><span style='color:#e74c3c;'>{", ".join(map(str, primes))}</span></b><br><br>
+                    
+                    👉 <b>ขั้นที่ 2: สร้างสมการผลรวม</b><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;นำจำนวนเฉพาะที่หาได้ทั้งหมดมา <b style='color:#3498db;'>บวก (+)</b> กัน<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;สมการ: <span style='color:#e74c3c;'>{primes_str}</span> = ?<br><br>
+                    
+                    👉 <b>ขั้นที่ 3: คิดเลขหาคำตอบ</b><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;เมื่อนำตัวเลขทั้งหมดมาบวกกัน จะได้ผลลัพธ์คือ <b><span style='color:#c0392b;'>{final_sum}</span></b><br><br>
+                    <b>ตอบ: รหัสผ่านของตู้เซฟนี้คือ {final_sum}</b></span>"""
+
+                else:
+                    # สไตล์ที่ 3: สมบัติการหารลงตัว (ข้อสอบแข่งขันยอดฮิต)
+                    # กฎของแม่ 9: เลขโดดทุกตัวบวกกันต้องหารด้วย 9 ลงตัว
+                    rule_num = random.choice([3, 9])
+                    
+                    # สร้างตัวเลข 4 หลัก D1 D2 A D3 (A คือตัวแปร)
+                    d1 = random.randint(1, 9)
+                    d2 = random.randint(0, 9)
+                    d3 = random.randint(0, 9)
+                    
+                    # หาค่า A ที่ทำให้ (D1+D2+A+D3) หารด้วย rule_num ลงตัว
+                    # สุ่มตัวเลข 0-9 มาเทส
+                    possible_a = []
+                    for a_test in range(10):
+                        if (d1 + d2 + a_test + d3) % rule_num == 0:
+                            possible_a.append(a_test)
+                            
+                    # เลือก A มา 1 ตัวเพื่อเป็นเฉลย
+                    a_ans = random.choice(possible_a)
+                    
+                    # ตัวเลขเต็มๆ เพื่อแสดงตอนสรุป
+                    full_number = int(f"{d1}{d2}{a_ans}{d3}")
+                    
+                    # ผลรวมของเลขที่รู้แล้ว
+                    known_sum = d1 + d2 + d3
+                    
+                    # หาพหุคูณของ rule_num ที่ใกล้เคียงและมากกว่า known_sum
+                    target_sum = known_sum + a_ans
+                    
+                    q = f"ในข้อสอบแข่งขันเข้า ม.1 มีโจทย์อยู่ว่า:<br><div style='text-align:center; font-size:22px; font-weight:bold; background:#f8f9fa; padding:15px; border-radius:10px; border:2px dashed #bdc3c7; margin: 10px 0;'>กำหนดให้ตัวเลข 4 หลัก คือ <span style='color:#2980b9;'>{d1} {d2} <b>A</b> {d3}</span><br>สามารถหารด้วย <b>แม่ {rule_num}</b> ได้ลงตัวพอดี</div><br>จงหาว่าตัวอักษร <b>A</b> สามารถเป็นเลขโดด (0-9) ตัวใดได้บ้าง? (ตอบมา 1 จำนวน)"
+
+                    sol = f"""<span style='color:#2c3e50; line-height: 1.8;'>
+                    <div style='background-color:#fdf2e9; border-left:4px solid #e67e22; padding:15px; margin-bottom:15px; border-radius:8px;'>
+                    💡 <b>อาวุธลับข้อสอบแข่งขัน "กฎการหารลงตัวของแม่ {rule_num}":</b><br>
+                    เราไม่จำเป็นต้องเอา {rule_num} ไปตั้งหารยาวให้เสียเวลา! กฎทางคณิตศาสตร์บอกไว้ว่า:<br>
+                    <b>"ถ้านำเลขโดดทุกหลักมา <span style='color:#3498db;'>บวก (+)</span> กัน แล้วผลรวมนั้นหารด้วย {rule_num} ลงตัว... ตัวเลขชุดนั้นทั้งชุดก็จะหารด้วย {rule_num} ลงตัวด้วย!"</b>
+                    <br>
+                    </div>
+                    <b>วิธีทำอย่างละเอียดแบบ Step-by-step:</b><br>
+                    👉 <b>ขั้นที่ 1: นำเลขโดดที่รู้ค่าแล้วมาบวกกัน</b><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;ตัวเลขที่เรามีคือ {d1}, {d2}, <b>A</b>, {d3}<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;นำตัวเลขที่รู้ค่ามา <b style='color:#3498db;'>บวก (+)</b> กัน: {d1} + {d2} + {d3} = <b><span style='color:#8e44ad;'>{known_sum}</span></b> <i>(ตัวเลขยุบรวมกันเหลือ {known_sum})</i><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;ดังนั้น ผลรวมของเลขทุกหลักคือ: <b><span style='color:#8e44ad;'>{known_sum}</span> <span style='color:#3498db;'>+</span> A</b><br><br>
+                    
+                    👉 <b>ขั้นที่ 2: ท่องสูตรคูณแม่ {rule_num} เพื่อหาเป้าหมาย</b><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;เราต้องการให้ผลรวม (<span style='color:#8e44ad;'>{known_sum}</span> + A) หารด้วย {rule_num} ลงตัว <br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;ลองท่องสูตรคูณแม่ {rule_num} ดูว่ามีผลลัพธ์ไหนที่ <b>"มากกว่าหรือเท่ากับ {known_sum}"</b> บ้าง<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;พหุคูณของ {rule_num} ที่เป็นไปได้คือ: {target_sum - rule_num if (target_sum - rule_num) >= known_sum else ""}, <b><span style='color:#27ae60;'>{target_sum}</span></b>, {target_sum + rule_num}...<br><br>
+                    
+                    👉 <b>ขั้นที่ 3: หาค่า A ด้วยการลบ (-)</b><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;ถ้าเราอยากให้ผลรวมกลายเป็น <b><span style='color:#27ae60;'>{target_sum}</span></b><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;เราต้องหาว่า ขาดอีกเท่าไหร่ถึงจะถึง {target_sum}? ซึ่งคิดได้จากการนำเป้าหมาย <b style='color:#c0392b;'>ลบ (-)</b> ด้วยของที่มีอยู่<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;สมการ: A = <span style='color:#27ae60;'>{target_sum}</span> <b style='color:#c0392b;'>-</b> <span style='color:#8e44ad;'>{known_sum}</span> = <b><span style='color:#c0392b;'>{a_ans}</span></b><br><br>
+                    
+                    <i>(ตรวจคำตอบ: ถ้า A = {a_ans} ตัวเลขคือ {full_number} ซึ่ง {full_number} ÷ {rule_num} = {full_number // rule_num} ลงตัวเป๊ะ!)</i><br><br>
+                    <b>ตอบ: A สามารถเป็นเลข {a_ans} ได้</b></span>"""
+
+
+
 
             elif actual_sub_t == "การคูณเศษส่วน":
                 d1 = random.randint(3, 15)
